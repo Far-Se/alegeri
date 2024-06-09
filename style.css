@@ -1,0 +1,25 @@
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+#map {
+	width: 100vw;
+	height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+	margin: 5px;
+}
+
+div#darkMode {
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 99999;
+	font-size: 30px;
+	cursor: pointer;
+}

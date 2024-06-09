@@ -1,14 +1,58 @@
-var map = L.map('map', {
-    zoomSnap: 0.1,
-    zoomDelta: 0.1,
-    zoomControl: false
-}).setView([51.505, -0.09], 13);
 
-var accessToken = 'pk.eyJ1IjoiZmFyc2UiLCJhIjoiY2x4NzZ3NGN5MTJrcDJrc2FzbWIyaHpsZSJ9.weTg8EhmBF8uPyH3IFbl0Q';
+window.alegeri =  {
+    "locale2020": "locale27092020",
+    "parlamentare2020": "parlamentare06122020",
+    "locale2024": "locale09062024",
+    "europarlamentare2024": "europarlamentare09062024"
+}
+window.countiesName = {
+	"AB": "ALBA",
+	"AR": "ARAD",
+	"AG": "ARGES",
+	"BC": "BACAU",
+	"BH": "BIHOR",
+	"BN": "BISTRITA-NASAUD",
+	"BT": "BOTOSANI",
+	"BR": "BRAILA",
+	"BV": "BRASOV",
+	"BZ": "BUZAU",
+	"CL": "CALARASI",
+	"CS": "CARAS-SEVERIN",
+	"CJ": "CLUJ",
+	"CT": "CONSTANTA",
+	"CV": "COVASNA",
+	"DB": "DAMBOVITA",
+	"DJ": "DOLJ",
+	"GL": "GALATI",
+	"GR": "GIURGIU",
+	"GJ": "GORJ",
+	"HR": "HARGHITA",
+	"HD": "HUNEDOARA",
+	"IL": "IALOMITA",
+	"IS": "IASI",
+	"IF": "ILFOV",
+	"MM": "MARAMURES",
+	"MH": "MEHEDINTI",
+	"B": "BUCURESTI",
+	"MS": "MURES",
+	"NT": "NEAMT",
+	"OT": "OLT",
+	"PH": "PRAHOVA",
+	"SJ": "SALAJ",
+	"SM": "SATU MARE",
+	"SB": "SIBIU",
+	"SR": "STRAINATATE",
+	"SV": "SUCEAVA",
+	"TR": "TELEORMAN",
+	"TM": "TIMIS",
+	"TL": "TULCEA",
+	"VL": "VALCEA",
+	"VS": "VASLUI",
+	"VN": "VRANCEA"
+};
+window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).map(([key, value]) => [value, key]));
 
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + accessToken, {
-    id: 'mapbox/streets-v11',
-    tileSize: 512,
-    zoomOffset: -1,
-    attribution: '© <a href="https://www.mapbox.com/">Mapbox</a>'
-}).addTo(map);
+//on document ready
+document.addEventListener('DOMContentLoaded', function () {
+    loadPresence(window.alegeri.locale2024);    
+})
