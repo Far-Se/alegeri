@@ -317,3 +317,4 @@ div#unCollapse.collapsed {
     align-self: center;
     margin:5px 0px;
 }
+abbr { text-decoration: none;}

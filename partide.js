@@ -18,6 +18,12 @@ window.partide = [
 		}
 	},
 	{
+		"match": "(AUR|ALIANTA PENTRU UNIREA ROMANILOR)",
+		"properties": {
+			"fill": "#A16800"
+		}
+	},
+	{
 		"match": "(UDMR|MAGHIAR)",
 		"properties": {
 			"fill": "#00984A"
@@ -75,6 +81,7 @@ window.partide = [
 window.results = {};
 function getPartyColor(party) 
 {
+    if(party == undefined || party == null)return "#878787";
     for (let colors of window.partide) {
         if (party.clear().match(new RegExp(colors.match, 'i'))) {
             return colors.properties.fill;

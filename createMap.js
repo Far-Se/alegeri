@@ -51,6 +51,12 @@ let getCommunes = async () => {
         return window.Commune;
     } else return window.Commune;
 }
+
+function sortByValues(obj, key) {
+    let candidatesArray = Object.values(obj);
+    candidatesArray.sort((a, b) => b[key] - a[key]);
+    return candidatesArray;
+}
 String.prototype.clear = function () {
     return this.replace(/î/g, 'a')
         .replace(/Î/g, 'I')
@@ -64,6 +70,7 @@ String.prototype.clear = function () {
 }
 let geoJSON = null;
 function loadPresence(alegeri) {
+    alegeri = alegeri.replace(/(\d)[a-z]+/gi,'$1');
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "none";
     const emptyData = {
@@ -135,7 +142,7 @@ function onEachFeaturePresence(feature, layer) {
 <h3>
 Numar Votanti: ${feature.properties.data.total_votanti.toLocaleString()}<br>
 Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}<br>
-<small>LS: ${feature.properties.data.lista_suplimentara} LP: ${feature.properties.data.lista_permanenta} LSC: ${feature.properties.data.LS}</small><br>
+<small>LS: ${feature.properties.data.lista_suplimentara} LP: ${feature.properties.data.lista_permanenta} UM: ${feature.properties.data.urna_mobila} LC:${feature.properties.data.lista_C}</small><br>
 Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%<br>
 </h3>
 <div class="overFlow">`;
@@ -161,21 +168,12 @@ Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%<br>
         .setContent(popupContent);
     layer.bindPopup(popup);
 }
-function sortByValues(obj, key) {
-    // Step 1: Convert the object to an array of objects
-    let candidatesArray = Object.values(obj);
-
-    // Step 2: Sort the array based on the 'votes' key in descending order
-    candidatesArray.sort((a, b) => b[key] - a[key]);
-
-    return candidatesArray;
-}
 
 function loadResults(alegeri) {
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "flex";
     const emptyData = {
-        castigator: "N/A",
+        castigator: {party:"N/A",votes:0, name:"N/A"},
         totalVoturi: 0,
         votes: [],
     };

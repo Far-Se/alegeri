@@ -1,12 +1,13 @@
 
 window.alegeri = {
     "locale2020": "locale27092020",
-    "parlamentare2020": "parlamentare06122020",
+    "parlamentare CD 2020": "parlamentare06122020CD",
+    "parlamentare Senat 2020": "parlamentare06122020S",
     "locale2024": "locale09062024",
     "europarlamentare2024": "europarlamentare09062024"
 }
 window.alegeriSelected = "locale2020";
-window.currentPage = "Rezultate";
+window.isPagePresence = true;
 
 window.countiesName = {
     "AB": "ALBA",
@@ -37,6 +38,12 @@ window.countiesName = {
     "MM": "MARAMURES",
     "MH": "MEHEDINTI",
     "B": "BUCURESTI",
+    "S1": "BUCURESTI SECTORUL 1",
+    "S2": "BUCURESTI SECTORUL 2",
+    "S3": "BUCURESTI SECTORUL 3",
+    "S4": "BUCURESTI SECTORUL 4",
+    "S5": "BUCURESTI SECTORUL 5",
+    "S6": "BUCURESTI SECTORUL 6",
     "MS": "MURES",
     "NT": "NEAMT",
     "OT": "OLT",
@@ -57,18 +64,21 @@ window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).ma
 
 //on document ready
 document.addEventListener('DOMContentLoaded', function () {
-    
-    if(window.currentPage == "Prezenta") {
+    let loadData = () =>{
 
-        loadPresence(window.alegeri[window.alegeriSelected]);
-    }else
-    {
-        document.querySelector('#toggleAlegeri').checked = true;
-        loadResults(window.alegeri[window.alegeriSelected]);
+        if(window.isPagePresence) {
+
+            loadPresence(window.alegeri[window.alegeriSelected]);
+        }else
+        {
+            document.querySelector('#toggleAlegeri').checked = true;
+            loadResults(window.alegeri[window.alegeriSelected]);
+        }
     }
+    loadData();
     document.querySelector('#alegeri').addEventListener('change', function (e) {
         window.alegeriSelected = e.target.value;
-        loadPresence(window.alegeri[window.alegeriSelected]);
+        loadData();
     })
     document.querySelector('#collapse').addEventListener('click', () => {
         document.querySelector('.controls')?.classList.toggle('collapsed');
@@ -82,8 +92,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#toggleAlegeri').addEventListener('change', function (e) {
         document.querySelector('#table').innerHTML = '';
         document.querySelector('#rezultate')?.classList.toggle('toggle');
-        currentPage = currentPage == "Prezenta" ? "Rezultate" : "Prezenta";
-        if (currentPage == "Prezenta") {
+        isPagePresence = !isPagePresence;
+        if (isPagePresence) {
             loadPresence(window.alegeri[window.alegeriSelected]);
         } else {
             loadResults(window.alegeri[window.alegeriSelected]);
