@@ -1,25 +1,248 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
 html,
 body {
-	height: 100%;
-	margin: 0;
+    height: 100%;
+    margin: 0;
+    background: #14161A;
+    font-family: "Inter", sans-serif;
 }
 
 #map {
-	width: 100vw;
-	height: 100vh;
+    width: 100vw;
+    height: 100vh;
 }
 
 h1,
 h2,
 h3 {
-	margin: 5px;
+    margin: 5px;
 }
 
-div#darkMode {
-	position: absolute;
-	right: 0;
-	top: 0;
-	z-index: 99999;
-	font-size: 30px;
-	cursor: pointer;
+
+.toggleContainer {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: fit-content;
+    border: 3px solid #343434;
+    border-radius: 20px;
+    background: #343434;
+    font-weight: bold;
+    color: #343434;
+    cursor: pointer;
+}
+
+.toggleContainer::before {
+    content: '';
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    left: 0%;
+    border-radius: 20px;
+    background: white;
+    transition: all 0.3s;
+}
+
+.toggleCheckbox:checked+.toggleContainer::before {
+    left: 50%;
+}
+
+.toggleContainer div {
+    padding: 6px;
+    text-align: center;
+    z-index: 1;
+}
+
+.toggleCheckbox {
+    display: none;
+}
+
+.toggleCheckbox:checked+.toggleContainer div:first-child {
+    color: white;
+    transition: color 0.3s;
+}
+
+.toggleCheckbox:checked+.toggleContainer div:last-child {
+    color: #343434;
+    transition: color 0.3s;
+}
+
+.toggleCheckbox+.toggleContainer div:first-child {
+    color: #343434;
+    transition: color 0.3s;
+}
+
+.toggleCheckbox+.toggleContainer div:last-child {
+    color: white;
+    transition: color 0.3s;
+}
+
+.custom-select {
+    min-width: 350px;
+    position: relative;
+}
+
+select {
+    appearance: none;
+    /*  safari  */
+    -webkit-appearance: none;
+    /*  other styles for aesthetics */
+    width: 100%;
+    font-size: 1.15rem;
+    padding: 0.675em 6em 0.675em 1em;
+    background-color: #fff;
+    border: 1px solid #caced1;
+    border-radius: 0.25rem;
+    color: #000;
+    cursor: pointer;
+}
+
+.custom-select::before,
+.custom-select::after {
+    --size: 0.3rem;
+    content: "";
+    position: absolute;
+    right: 1rem;
+    pointer-events: none;
+}
+
+.custom-select::before {
+    border-left: var(--size) solid transparent;
+    border-right: var(--size) solid transparent;
+    border-bottom: var(--size) solid black;
+    top: 40%;
+}
+
+.custom-select::after {
+    border-left: var(--size) solid transparent;
+    border-right: var(--size) solid transparent;
+    border-top: var(--size) solid black;
+    top: 55%;
+}
+
+
+
+
+.controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 99999;
+    background: #EBF3F3;
+    color: rgb(171, 177, 191);
+    min-width: 250px;
+    padding: 10px;
+    box-shadow: 0px 11px 21px 0px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e1e1e1;
+}
+
+.wrapper {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgb(241, 241, 241, .4);
+}
+
+#loading .loadingText {
+    font-size: 50px;
+    font-weight: bold;
+    color: #333;
+}
+
+.buttons {
+    position: absolute;
+    display: flex;
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 0px 5px;
+    left: 0px;
+    right: 0px;
+    top: 0;
+    justify-content: space-between;
+}
+
+.buttons div:hover {
+    cursor: pointer;
+}
+
+#darkMode {
+    filter: grayscale(1);
+}
+
+.controls.collapsed {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.controls {
+    transition: all 0.4s linear;
+}
+
+div#unCollapse {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    font-size: 20px;
+    color: black;
+    background: white;
+    z-index: 99999;
+    font-size: 40px;
+    box-shadow: 0px 11px 21px 0px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e1e1e1;
+    margin: 10px;
+    padding: 5px;
+    line-height: 30px;
+    width:40px;
+}
+
+div#unCollapse:hover {
+    cursor: pointer;
+}
+
+div#unCollapse.collapsed {
+    display: none;
+}
+
+#unCollapse span {
+    background: #444444;
+    border-radius: 10px;
+    height: 7px;
+    margin: 7px 0;
+    display: block;
+
+}
+
+#unCollapse span:nth-child(1) {
+    width: 50%;
+
+}
+
+#unCollapse span:nth-child(2) {
+    width: 100%;
+}
+
+
+#unCollapse span:nth-child(3) {
+    width: 75%;
+
 }

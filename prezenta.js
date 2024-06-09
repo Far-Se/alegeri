@@ -41,6 +41,8 @@ String.prototype.clear = function () {
     ;
 }
 function processPresence(alegeriName) {
+    //create dir raw if doesnt exist
+    exec(`mkdir -p ./data/alegeri/raw`);
     let prezenta = {};
     exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_now.json"`, (error) => {
         if (error) {
@@ -63,14 +65,10 @@ function processPresence(alegeriName) {
                 incrementOrSet(prezenta[judet][localitate], 'lista_suplimentara', row.LS);
                 incrementOrSet(prezenta[judet][localitate], 'urna_mobila', row.UM);
                 incrementOrSet(prezenta[judet][localitate], 'total_voturi', row.LT);
-                incrementOrSet(prezenta[judet][localitate], 'LS', row.LS);
             }
         }
         require('fs').writeFileSync(`./data/alegeri/prezenta_${alegeriName}.json`, JSON.stringify(prezenta));
-        //delete files from raw
-        for (const judet of judete) {
-            exec(`rm ./data/alegeri/raw/presence_${judet}_now.json`);
-        }
+        exec(`rm -rf ./data/alegeri/raw`);
         console.log("Done");
     });
 }

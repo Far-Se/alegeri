@@ -5,6 +5,7 @@ window.alegeri =  {
     "locale2024": "locale09062024",
     "europarlamentare2024": "europarlamentare09062024"
 }
+window.alegeriSelected = "locale2024";
 window.countiesName = {
 	"AB": "ALBA",
 	"AR": "ARAD",
@@ -54,5 +55,9 @@ window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).ma
 
 //on document ready
 document.addEventListener('DOMContentLoaded', function () {
-    loadPresence(window.alegeri.locale2024);    
+    loadPresence(window.alegeri[window.alegeriSelected]);    
+    document.querySelector('#alegeri').addEventListener('change', function (e) {
+        window.alegeriSelected = e.target.value;
+        loadPresence(window.alegeri[window.alegeriSelected]);
+    })
 })

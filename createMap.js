@@ -26,19 +26,30 @@ let darkTile = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/
 
 lightTile.addTo(map);
 let isLight = true;
-document.querySelector('#darkMode')?.addEventListener('click', () => {
-    if (isLight) {
-        document.getElementById('darkMode').innerText = '🌙';
-        isLight = false;
-        darkTile.addTo(map);
-        lightTile.removeFrom(map);
-    } else {
-        document.getElementById('darkMode').innerText = '🔆';
-        isLight = true;
-        lightTile.addTo(map);
-        darkTile.removeFrom(map);
-    }
-});
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('#darkMode')?.addEventListener('click', () => {
+        if (isLight) {
+            document.getElementById('darkMode').innerText = '🌙';
+            isLight = false;
+            darkTile.addTo(map);
+            lightTile.removeFrom(map);
+        } else {
+            document.getElementById('darkMode').innerText = '🔆';
+            isLight = true;
+            lightTile.addTo(map);
+            darkTile.removeFrom(map);
+        }
+    });  
+    document.querySelector('#collapse')?.addEventListener('click', () => {
+        document.querySelector('.controls')?.classList.toggle('collapsed');
+        document.querySelector('#unCollapse')?.classList.toggle('collapsed');
+    });
+    document.querySelector('#unCollapse')?.addEventListener('click', () => {
+        document.querySelector('.controls')?.classList.toggle('collapsed');
+        document.querySelector('#unCollapse')?.classList.toggle('collapsed');
+    });
+})
+;
 
 window.Commune = null;
 let getCommunes = async () => {
@@ -50,8 +61,9 @@ let getCommunes = async () => {
     } else return window.Commune;
 }
 String.prototype.clear = function () {
-    return this
-        .normalize("NFD")
+    return this.replace(/î/g, 'a')
+    .replace(/Î/g, 'I')
+        .normalize("NFD") 
         .replace(/[\u0300-\u036f]/g, "")
         .toUpperCase()
         .replace(/(MUNICIPIUL|ORAS) ?/ig, '')
@@ -61,6 +73,7 @@ String.prototype.clear = function () {
 }
 let geoJSON = null;
 function loadPresence(alegeri) {
+    document.querySelector('#loading').style.display = "flex";
     const emptyData = {
         total_votanti: 0,
         total_voturi: 0,
@@ -114,6 +127,8 @@ function loadPresence(alegeri) {
                     onEachFeature: onEachFeaturePresence,
                 });
                 geoJSON.addTo(map);
+                
+                document.querySelector('#loading').style.display = "none";
             })
         })
         .catch(error => {

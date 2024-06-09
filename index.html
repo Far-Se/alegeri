@@ -14,9 +14,39 @@
 </head>
 
 <body>
+    <div id="loading"><div class="loadingText">LOADING</div></div>
     <div id="map"></div>
     <script src="createMap.js"></script>
     <script src="index.js"></script>
 </body>
+<div id="unCollapse" class="collapsed"><span></span><span></span><span></span></div>
+<div class="controls">
+    <div class="wrapper">
+        <div class="buttons">
+            <div id="darkMode">🔆</div>
+            <div id="collapse">⇉</div>
+        </div>
+        <hr>
+        <div class="toggle">
+            <input type="checkbox" id="toggleAlegeri" class="toggleCheckbox" />
+            <label for="toggleAlegeri" class='toggleContainer'>
+                <div>Prezenta</div>
+                <div>Rezultate</div>
+            </label>
+        </div>
+        <hr>
+        <div class="alegeri">
+            <div class="custom-select">
+                <select id="alegeri">
+                    <script>
+                        for (const alegeri of Object.keys(window.alegeri)) {
+                            document.write(`<option value="${alegeri}" ${alegeri === window.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
+                        }</script>
+                </select>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 </html>
