@@ -2,7 +2,8 @@
 
 let map = L.map('map', {
     zoomSnap: 0,
-    zomDelta: 5
+    zomDelta: 5,
+    wheelPxPerZoomLevel:140,
 }).setView([45.9628666, 25.2081763], 7.4);
 let lightTile = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZmFyc2UiLCJhIjoiY2tnM3JnOHJtMGRnNzMzcDQ2a3dldHpyYiJ9.cdOn_RRX1YoMWUmoR6i36A', {
     maxZoom: 18,

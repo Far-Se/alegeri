@@ -19,7 +19,7 @@ const alegeri = {
 }
 //const judeteTEMP = ["is","b"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn"];
-args[0] = "locale2024";
+//args[0] = "locale2024";
 if (args.length < 1) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('')}]`);
 function incrementOrSet(obj, key, value) {
     if (obj.hasOwnProperty(key)) {
