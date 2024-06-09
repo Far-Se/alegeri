@@ -42,7 +42,7 @@ document.querySelector('#darkMode')?.addEventListener('click', () => {
 window.Commune = null;
 let getCommunes = async () => {
     if (!window.Commune) {
-        const f = await fetch('/data/map/comune.geojson');
+        const f = await fetch('data/map/comune.geojson');
         const j = await f.json();
         window.Commune = j;
         return window.Commune;
@@ -50,27 +50,27 @@ let getCommunes = async () => {
 }
 String.prototype.clear = function () {
     return this
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase()
-    .replace(/(MUNICIPIUL|ORAS) ?/ig, '')
-    .replace(/\. /ig, '.')
-    .replace(/ - /ig, '-')
-    ;
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .replace(/(MUNICIPIUL|ORAS) ?/ig, '')
+        .replace(/\. /ig, '.')
+        .replace(/ - /ig, '-')
+        ;
 }
 let geoJSON = null;
 function loadPresence(alegeri) {
-const emptyData = {
-    total_votanti: 0,
-    total_voturi: 0,
-    lista_permanenta: 0,
-    lista_suplimentara: 0,
-    LS: 0,
-    percentage: 0
+    const emptyData = {
+        total_votanti: 0,
+        total_voturi: 0,
+        lista_permanenta: 0,
+        lista_suplimentara: 0,
+        LS: 0,
+        percentage: 0
 
-};
+    };
     console.log(alegeri);
-    fetch(`/data/alegeri/prezenta_${alegeri}.json`)
+    fetch(`data/alegeri/prezenta_${alegeri}.json`)
         .then(response => response.json())
         .then(data => {
             getCommunes().then(async communes => {
@@ -81,18 +81,18 @@ const emptyData = {
                         let county = feature.properties.county.clear();
                         let name = feature.properties.name.clear();
                         let countyCode = window.countiesCodes[county];
-                        
+
                         if (data.hasOwnProperty(countyCode)) {
-                            if (data[countyCode].hasOwnProperty(name)) {                                
+                            if (data[countyCode].hasOwnProperty(name)) {
                                 feature.properties.data = { ...data[countyCode][name] };
                                 feature.properties.data.percentage = (data[countyCode][name].total_voturi / data[countyCode][name].total_votanti).toFixed(5);
-                            } else feature.properties.data = {...emptyData};
-                        } else feature.properties.data =  {...emptyData};
+                            } else feature.properties.data = { ...emptyData };
+                        } else feature.properties.data = { ...emptyData };
 
                         let fillColor = '#ff0000';
                         if (isNaN(feature.properties.data.percentage)) {
                             feature.properties.data.percentage = 0;
-                            fillColor = '#dddddd'; 
+                            fillColor = '#dddddd';
                             console.log(feature.properties.data);
                         }
                         if (feature.properties.data.total_votanti === 0) {
@@ -101,8 +101,8 @@ const emptyData = {
                             console.log(county, name, countyCode);
                             console.log(feature.properties.county, feature.properties.name, countyCode);
                         }
-                        
-                        
+
+
                         return {
                             fillColor: fillColor,
                             weight: 0.3,
