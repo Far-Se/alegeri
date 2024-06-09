@@ -232,6 +232,7 @@ function loadResults(alegeri) {
             console.error('Error:', error);
 
             document.querySelector('#loading').style.display = "none";
+            document.querySelector('#table').innerHTML = 'Inca nu exista date!';
         });
 }
 

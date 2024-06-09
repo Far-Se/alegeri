@@ -9,6 +9,7 @@ curl -O 'https://prezenta.roaep.ro/{ALEGERI}/data/json/simpv/presence/presence_{
 */
 //https://prezenta.roaep.ro/locale09062024/data/json/simpv/presence/presence_{ab,ar,ag,bc,bh,bn,bt,br,bv,bz,cl,cs,cj,ct,cv,db,dj,gl,gr,gj,hr,hd,il,is,if,mm,mh,b,ms,nt,ot,ph,sj,sm,sb,sv,tr,tm,tl,vl,vs,vn}_now.json
 const { exec } = require('child_process');
+const { existsSync, mkdirSync } = require('fs');
 
 const args = process.argv.slice(2);
 const alegeri = {
@@ -42,7 +43,7 @@ String.prototype.clear = function () {
 }
 function processPresence(alegeriName) {
     //create dir raw if doesnt exist
-    exec(`mkdir -p ./data/alegeri/raw`);
+    if (!existsSync('./data/alegeri/raw')) mkdirSync('./data/alegeri/raw');
     let prezenta = {};
     exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_now.json"`, (error) => {
         if (error) {
