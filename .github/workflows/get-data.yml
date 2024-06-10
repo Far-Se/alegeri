@@ -1,0 +1,24 @@
+# .github/workflows/run-node-scripts-hourly.yml
+
+name: Run Node Scripts Hourly
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Run every hour
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        
+    - name: Run Rezultate Locale
+      run: node rezulate_locale.js locale2024
+      
+    - name: Run Rezultate Parlamentare
+      run: node rezultate_parlamentare.js europarlamentare2024

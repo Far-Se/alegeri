@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
 });
 let loadData = () =>{
-
+    window.partideAlese = [];
     if(window.isPagePresence) {
 
         loadPresence(window.alegeri[window.alegeriSelected]);
