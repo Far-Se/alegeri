@@ -212,7 +212,7 @@ div#unCollapse {
     margin: 10px;
     padding: 5px;
     line-height: 30px;
-    width:40px;
+    width: 40px;
 }
 
 div#unCollapse:hover {
@@ -246,12 +246,13 @@ div#unCollapse.collapsed {
     width: 75%;
 
 }
+
 .votes p {
     display: flex;
     justify-items: center;
     align-items: center;
-    margin:5px 0px;
-    border-bottom:1px solid #caced1;
+    margin: 5px 0px;
+    border-bottom: 1px solid #caced1;
 }
 
 .votes span.color {
@@ -266,6 +267,7 @@ div#unCollapse.collapsed {
     font-size: 13px;
     font-weight: bold;
 }
+
 #table p.color {
 
     width: 25px;
@@ -309,12 +311,33 @@ div#unCollapse.collapsed {
 #table p {
     margin: 2px 0px;
 }
+
 #rezultate {
-    display:flex;
+    display: flex;
     flex-direction: column;
+    margin: 10px 0;
 }
+
 #rezultate .locul2 {
     align-self: center;
-    margin:5px 0px;
+    margin: 5px 0px;
 }
-abbr { text-decoration: none;}
+
+abbr {
+    text-decoration: none;
+}
+
+.prezentaProcent {
+    font-size: 13px;
+    display: block;
+    margin: 5px auto;
+}
+.prezentaProcent.disabled {
+    filter:blur(1px);
+    pointer-events: none;
+}
+
+.prezentaProcent .toggleContainer div {
+    padding: 4px;
+    font-size: 12px;
+}

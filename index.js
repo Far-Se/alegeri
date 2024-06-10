@@ -6,8 +6,8 @@ window.alegeri = {
     "locale2024": "locale09062024",
     "europarlamentare2024": "europarlamentare09062024"
 }
-window.alegeriSelected = "locale2020";
-window.isPagePresence = true;
+window.alegeriSelected = "locale2024";
+window.isPagePresence = false;
 
 window.countiesName = {
     "AB": "ALBA",
@@ -61,25 +61,16 @@ window.countiesName = {
     "VN": "VRANCEA"
 };
 window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).map(([key, value]) => [value, key]));
-
+window.partideAlese = [];
 //on document ready
 document.addEventListener('DOMContentLoaded', function () {
-    let loadData = () =>{
 
-        if(window.isPagePresence) {
-
-            loadPresence(window.alegeri[window.alegeriSelected]);
-        }else
-        {
-            document.querySelector('#toggleAlegeri').checked = true;
-            loadResults(window.alegeri[window.alegeriSelected]);
-        }
-    }
     loadData();
     document.querySelector('#alegeri').addEventListener('change', function (e) {
         window.alegeriSelected = e.target.value;
         loadData();
     })
+
     document.querySelector('#collapse').addEventListener('click', () => {
         document.querySelector('.controls')?.classList.toggle('collapsed');
         document.querySelector('#unCollapse')?.classList.toggle('collapsed');
@@ -93,14 +84,32 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('#table').innerHTML = '';
         document.querySelector('#rezultate')?.classList.toggle('toggle');
         isPagePresence = !isPagePresence;
-        if (isPagePresence) {
-            loadPresence(window.alegeri[window.alegeriSelected]);
-        } else {
-            loadResults(window.alegeri[window.alegeriSelected]);
-            
-        }
+        loadData();
     })
     document.querySelector('#toggleLocul2').addEventListener('change', function (e) {
-        loadResults(window.alegeri[window.alegeriSelected]);
+        loadData()
     })
-})
+    document.querySelector('#prezentaProcent').addEventListener('change', function (e) {
+        loadData()
+    })
+    
+});
+let loadData = () =>{
+
+    if(window.isPagePresence) {
+
+        loadPresence(window.alegeri[window.alegeriSelected]);
+    }else
+    {
+        document.querySelector('#toggleAlegeri').checked = true;
+        loadResults(window.alegeri[window.alegeriSelected]);
+    }
+}
+function selectParty(party)
+{
+    let checked = document.querySelectorAll('input.iparty:checked');
+    window.partideAlese = [...checked].map(el => el.value);
+    if(window.partideAlese.length == 1)document.querySelector('.prezentaProcent').classList.remove('disabled');
+    else document.querySelector('.prezentaProcent').classList.add('disabled');
+    loadData();
+}

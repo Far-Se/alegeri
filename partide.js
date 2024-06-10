@@ -1,8 +1,14 @@
 window.partide = [
     {
-		"match": "(USR[- ]|SALVATI ROMANIA)",
+		"match": "(USR[- ]|UNIUNEA SALVA?I ROM?NIA)",
 		"properties": {
 			"fill": "#00A6FF"
+		}
+	},
+    {
+		"match": "(PSD PNL)",
+		"properties": {
+			"fill": "#E44F26"
 		}
 	},
 	{
@@ -26,7 +32,7 @@ window.partide = [
 	{
 		"match": "(UDMR|MAGHIAR)",
 		"properties": {
-			"fill": "#00984A"
+			"fill": "#1ED760"
 		}
 	},
 	{
@@ -50,7 +56,7 @@ window.partide = [
 	{
 		"match": "(INDEPENDENT)",
 		"properties": {
-			"fill": "#454646"
+			"fill": "#394d4d"
 		}
 	},
 	{
