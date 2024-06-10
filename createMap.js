@@ -241,9 +241,12 @@ function onEachFeatureResults(feature, layer) {
     let popupContent = '';
     try {
         let name = feature.properties.name;
-        if (name.match(/[A-Z]/)) name = window.countries[name];
+        if (name.match(/[A-Z]/)){
+             name = window.countries[name];
+             
+        }
         popupContent = `
-<h1>${feature.properties.county}: ${feature.properties.name}</h1>
+<h1>${feature.properties.county == "SR"? "Diaspora": feature.properties.county}: ${name}</h1>
 <h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
 <h3>Partid: ${feature.properties.data?.votes[0].party ?? 'N/A'}</h3>
 <h3>Total voturi: ${feature.properties.data?.totalVoturi.toLocaleString() ?? 'N/A'}</h3>
@@ -284,7 +287,8 @@ function setTable() {
         if (count > 8) return;
 
         table.innerHTML += `<div>
-        <p class="color" style="background-color:${getPartyColor(party.name)}"><input class="iparty" onclick="selectParty('${party.name}')" type="checkbox" value="${party.name}"
+        <p class="color" style="background-color:${getPartyColor(party.name)}">
+        <input class="iparty" onclick="selectParty('${party.name}')" type="checkbox" value="${party.name}"
         ${window.partideAlese.includes(party.name) ? "checked" : ""}
         ${!window.partideAlese.includes(party.name) && window.partideAlese.length >= 2 ? "disabled" : ""}
          ></p>

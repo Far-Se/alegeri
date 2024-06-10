@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "euro": "node rezultate_parlamentare.js europarlamentare2024",
-    "locale": "node rezultate_locale.js locale2024"
+    "euro": "node rezultate_parlamentare.js EP2024",
+    "locale": "node rezultate_locale.js 2024"
   },
   "author": "",
   "license": "ISC"

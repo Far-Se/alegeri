@@ -8,9 +8,8 @@ const { mkdir, mkdirSync, fstat, existsSync } = require('fs');
 
 const args = process.argv.slice(2);
 const alegeri = {
-    "locale2020": "locale27092020",
-    "locale2024": "locale09062024",
-    "europarlamentare2024": "europarlamentare09062024"
+    "2020": "locale27092020",
+    "2024": "locale09062024",
 }
 //const judete = ["is"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn"];
