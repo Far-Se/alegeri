@@ -178,13 +178,21 @@ function loadResults(alegeri) {
         totalVoturi: 0,
         votes: [{ party: "N/A", votes: 0, name: "N/A" }],
     };
+    let compare = false;
+    if (alegeri == "primariNoi") {
+        alegeri = "locale09062024";
+        compare = true;
+    }
     fetch(`data/alegeri/rezultate_${alegeri}.json`)
         .then(response => response.json())
         .then(data => {
             getCommunes().then(async communes => {
                 if (geoJSON) geoJSON.removeFrom(map);
+                let compData = []
+                if (compare) {
+                    compData = await (await fetch(`data/alegeri/rezultate_locale27092020.json`)).json();
+                }
                 geoJSON = await L.geoJSON(communes, {
-
                     style: function (feature) {
                         let county = feature.properties.county.clear();
                         let name = feature.properties.name.clear();
@@ -203,11 +211,15 @@ function loadResults(alegeri) {
                                     totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
                                 }
                                 feature.properties.data.votes = votes.map(v => {
-                                    window.results[votes[index].party].votes += v.votes;
+                                    // window.results[votes[index].party].votes += v.votes;
                                     v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
                                     v.procent = v.votes / feature.properties.data.totalVoturi;
                                     return v;
                                 });
+                                for (const vote of votes) {
+                                    if (!window.results.hasOwnProperty(vote.party)) window.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
+                                    window.results[vote.party].votes += vote.votes;
+                                }
                                 if (feature.properties.data.votes.length == 0) feature.properties.data.votes = [{ party: "N/A", votes: 0, name: "N/A" }];
 
 
@@ -227,7 +239,7 @@ function loadResults(alegeri) {
 
                             }
                         } else if (window.partideAlese.length == 2) {
-                            
+
                             if (feature.properties.data.votes.length >= 2 && window.partideAlese.includes(feature.properties.data.votes[0].party) && window.partideAlese.includes(feature.properties.data.votes[1].party)) {
                                 let found = 0;
                                 for (const p of feature.properties.data.votes) {
@@ -238,10 +250,24 @@ function loadResults(alegeri) {
                                     }
                                 }
                                 fillOpacity = 1;
-                                if(!found)fillOpacity = 0.05;
+                                if (!found) fillOpacity = 0.05;
                             }
                             else {
                                 fillOpacity = 0.2;
+                            }
+                        }
+                        if (compare) {
+                            if (data.hasOwnProperty(countyCode) && compData.hasOwnProperty(countyCode)) {
+                                if (data[countyCode].hasOwnProperty(name) && compData[countyCode].hasOwnProperty(name)) {
+                                    if (Object.keys(compData[countyCode][name].votes).length > 0 && Object.keys(data[countyCode][name].votes).length > 0) {
+                                        let votes = sortByValues(data[countyCode][name].votes, 'votes');
+                                        let compVotes = sortByValues(compData[countyCode][name].votes, 'votes');
+                                        if (votes[0].name.clear() == compVotes[0].name.clear()) {
+                                            fillOpacity = 0.1;
+                                        }else {
+                                            feature.properties.data.fostPrimar = `${compVotes[0].name} <br><i>${compVotes[0].party}</i>`;}
+                                    }
+                                }
                             }
                         }
 
@@ -276,6 +302,7 @@ function onEachFeatureResults(feature, layer) {
 <h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
 <h3>Partid: ${feature.properties.data?.votes[0].party ?? 'N/A'}</h3>
 <h3>Total voturi: ${feature.properties.data?.totalVoturi.toLocaleString() ?? 'N/A'}</h3>
+${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${feature.properties.data.fostPrimar}</h3>` : ''}
 <div class="votes">`;
     } catch (e) {
         console.log(feature.properties);
@@ -286,7 +313,7 @@ function onEachFeatureResults(feature, layer) {
 
 
         popupContent += `
-        <p><span class="color" style="background-color:${fillColor}"></span><span class="nume">${votes.party}<br>${votes.name}:${votes.votes} - ${votes.percentage}%</span> </p>`
+        <p><span class="color" style="background-color:${fillColor}"></span><span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span> </p>`
     }
     // popupContent += JSON.stringify(feature.properties.data);
     popupContent += '</div>';

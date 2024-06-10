@@ -4,6 +4,7 @@ window.alegeri = {
     "parlamentare CD 2020": "parlamentare06122020CD",
     "parlamentare Senat 2020": "parlamentare06122020S",
     "locale2024": "locale09062024",
+    "primari Noi2024": "primariNoi",
     "europarlamentare2024": "europarlamentare09062024EUP"
 }
 window.alegeriSelected = "locale2024";
