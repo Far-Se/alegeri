@@ -178,10 +178,10 @@ function loadResults(alegeri) {
         totalVoturi: 0,
         votes: [{ party: "N/A", votes: 0, name: "N/A" }],
     };
-    let compare = false;
+    let compareAlegeri = false;
     if (alegeri == "primariNoi") {
         alegeri = "locale09062024";
-        compare = true;
+        compareAlegeri = true;
     }
     fetch(`data/alegeri/rezultate_${alegeri}.json`)
         .then(response => response.json())
@@ -189,7 +189,7 @@ function loadResults(alegeri) {
             getCommunes().then(async communes => {
                 if (geoJSON) geoJSON.removeFrom(map);
                 let compData = []
-                if (compare) {
+                if (compareAlegeri) {
                     compData = await (await fetch(`data/alegeri/rezultate_locale27092020.json`)).json();
                 }
                 geoJSON = await L.geoJSON(communes, {
@@ -239,8 +239,7 @@ function loadResults(alegeri) {
 
                             }
                         } else if (window.partideAlese.length == 2) {
-
-                            if (feature.properties.data.votes.length >= 2 && window.partideAlese.includes(feature.properties.data.votes[0].party) && window.partideAlese.includes(feature.properties.data.votes[1].party)) {
+                            if (feature.properties.data.votes.length >= 2) {
                                 let found = 0;
                                 for (const p of feature.properties.data.votes) {
                                     if (p.party == window.partideAlese[0] || p.party == window.partideAlese[1]) {
@@ -253,10 +252,11 @@ function loadResults(alegeri) {
                                 if (!found) fillOpacity = 0.05;
                             }
                             else {
+
                                 fillOpacity = 0.2;
                             }
                         }
-                        if (compare) {
+                        if (compareAlegeri) {
                             if (data.hasOwnProperty(countyCode) && compData.hasOwnProperty(countyCode)) {
                                 if (data[countyCode].hasOwnProperty(name) && compData[countyCode].hasOwnProperty(name)) {
                                     if (Object.keys(compData[countyCode][name].votes).length > 0 && Object.keys(data[countyCode][name].votes).length > 0) {
