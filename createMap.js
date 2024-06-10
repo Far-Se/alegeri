@@ -227,7 +227,9 @@ function loadResults(alegeri) {
                         } else feature.properties.data = { ...emptyData };
 
                         if (window.partideAlese.length == 1) {
-                            if (window.partideAlese.includes(feature.properties.data.votes[0].party)) {
+                            let index = 0;
+                            if (feature.properties.data.votes.length > 1 && document.querySelector('#toggleLocul2').checked == true) index = 1;
+                            if (window.partideAlese.includes(feature.properties.data.votes[index].party)) {
                                 fillOpacity = 1;
                             } else fillOpacity = 0.2;
                             if (document.querySelector('#prezentaProcent').checked == true) {
