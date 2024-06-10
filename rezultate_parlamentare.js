@@ -10,11 +10,12 @@ const args = process.argv.slice(2);
 const alegeri = {
     "CD2020": "CD-parlamentare06122020",
     "S2020": "S-parlamentare06122020",
+    "europarlamentare2024": "EUP-europarlamentare09062024"
 }
 //const judete = ["s1","s2"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "s1", "s2", "s3", "s4", "s5", "s6"];
 //args[0] = "parlamentareCD2020";
-args[1] = "prov";
+args[1] = "part";
 if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('')}] [prov|part|final]`);
 
 String.prototype.clear = function () {
@@ -53,7 +54,7 @@ function processResults(alegeriName, type) {
             
             const json = require(`./data/alegeri/raw/pv_${judet}_${type}.json`);
             let table = [];
-            table = Object.values(json.stages.PROV.scopes.PRCNCT.categories[prlType].table);
+            table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[prlType].table);
 
             rezultate[judet] = {};
             if(judet.match(/S\d/)){
