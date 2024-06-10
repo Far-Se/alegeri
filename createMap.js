@@ -216,7 +216,7 @@ function loadResults(alegeri) {
                     style: (e) => {
                         return {
                             fillColor: "#ff0000",
-                            fillOpacity: 1, 
+                            fillOpacity: 1,
                             weight: 0.9,
                             color: "#000000"
 
@@ -240,13 +240,8 @@ function onEachFeatureResults(feature, layer) {
     if (layer.options?.fillOpacity == 0) return;
     let popupContent = '';
     try {
-        let name = feature.properties.name;
-        // if (name.match(/[A-Z]{1,3}/)){
-        //      name = window.countries[name];
-             
-        // }
         popupContent = `
-<h1>${feature.properties.county == "SR"? "Diaspora": feature.properties.county}: ${name}</h1>
+<h1>${feature.properties.county == "SR" ? `Diaspora: ${window.countries[feature.properties.name]}` : `${feature.properties.county}: ${feature.properties.name}`}</h1>
 <h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
 <h3>Partid: ${feature.properties.data?.votes[0].party ?? 'N/A'}</h3>
 <h3>Total voturi: ${feature.properties.data?.totalVoturi.toLocaleString() ?? 'N/A'}</h3>
@@ -257,11 +252,14 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     }
     for (let votes of feature.properties.data.votes) {
         let fillColor = getPartyColor(votes.party);
-
-
-
         popupContent += `
-        <p><span class="color" style="background-color:${fillColor}"></span><span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span> </p>`
+        <p>
+        <span class="color" style="background-color:${fillColor}"></span>
+        ${votes.party == votes.name ? 
+            `<span class="nume">${votes.party}<br>${votes.votes.toLocaleString()} Voturi - ${votes.percentage}%</span>`: 
+            `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
+        
+        </p>`
     }
     // popupContent += JSON.stringify(feature.properties.data);
     popupContent += '</div>';
