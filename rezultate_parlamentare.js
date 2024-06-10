@@ -54,7 +54,10 @@ function processResults(alegeriName, type) {
             let json = [];
             try {
                 json = require(`./data/alegeri/raw/pv_${judet}_${type}.json`);
-            } catch (_) { continue; }
+            } catch (_) {
+                console.log(`No data for ${judet}`);
+                continue;
+            }
             let table = [];
             table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[prlType].table);
 

@@ -43,11 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.Commune = null;
+window.conturJudete = null;
 let getCommunes = async () => {
     if (!window.Commune) {
         const f = await fetch('data/map/comune.geojson');
         const j = await f.json();
+        const jf = await fetch('data/map/ro_judete_polilinie.json');
+        const jj = await jf.json();
         window.Commune = j;
+        window.conturJudete = jj;
         return window.Commune;
     } else return window.Commune;
 }
@@ -69,39 +73,8 @@ String.prototype.clear = function () {
         ;
 }
 let geoJSON = null;
-function onEachFeaturePresence(feature, layer) {
+let conturGeoJSON = null;
 
-    popupContent = `
-<h1>${feature.properties.county}: ${feature.properties.name}</h1>
-<h3>
-Numar Votanti: ${feature.properties.data.total_votanti.toLocaleString()}<br>
-Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}<br>
-<small>LS: ${feature.properties.data.lista_suplimentara} LP: ${feature.properties.data.lista_permanenta} UM: ${feature.properties.data.urna_mobila} LC:${feature.properties.data.lista_C}</small><br>
-Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%<br>
-</h3>
-<div class="overFlow">`;
-    let grupe = []
-    Object.keys(feature.properties.data).forEach(e => {
-        if (~e.indexOf('Bar') || ~e.indexOf('Fem'))
-            grupe.push({
-                'type': e,
-                'value': feature.properties.data[e]
-            });
-    })
-    grupe.sort((a, b) => parseInt(b.value) - parseInt(a.value));
-
-    grupe.forEach((v) => {
-        popupContent += `${v.type} : ${v.value} <br>`;
-    })
-    // popupContent += JSON.stringify(feature.properties.data);
-    popupContent += '</div>';
-    var popup = L.popup({
-        maxWidth: 700,
-        maxHeight: 800
-    })
-        .setContent(popupContent);
-    layer.bindPopup(popup);
-}
 
 function loadResults(alegeri) {
     window.results = {};
@@ -123,6 +96,7 @@ function loadResults(alegeri) {
             getCommunes().then(async communes => {
 
                 if (geoJSON) geoJSON.removeFrom(map);
+                if (conturGeoJSON) conturGeoJSON.removeFrom(map);
                 let compData = []
                 if (compareAlegeri) {
                     compData = await (await fetch(`data/alegeri/rezultate_locale27092020.json`)).json();
@@ -139,6 +113,10 @@ function loadResults(alegeri) {
                         if (county == "SR") {
                             countyCode = county;
                             if (alegeri.includes("locale")) {
+                                fillOpacity = 0;
+                                weight = 0.0;
+                            }
+                            if (name == "ROU") {
                                 fillOpacity = 0;
                                 weight = 0.0;
                             }
@@ -217,6 +195,11 @@ function loadResults(alegeri) {
                                 }
                             }
                         }
+                        if (fillColor == "#333333" && county == "SR") {
+                            fillOpacity = 0;
+                            weight = 0;
+
+                        }
 
                         return {
                             fillColor: fillColor,
@@ -229,6 +212,18 @@ function loadResults(alegeri) {
                 });
                 geoJSON.addTo(map);
 
+                const geoJSONLayer = L.geoJSON(window.conturJudete, {
+                    style: (e) => {
+                        return {
+                            fillColor: "#ff0000",
+                            fillOpacity: 1, 
+                            weight: 0.9,
+                            color: "#000000"
+
+                        }
+                    }
+                });
+                geoJSONLayer.addTo(map);
                 document.querySelector('#loading').style.display = "none";
                 setTable();
             })
@@ -242,8 +237,11 @@ function loadResults(alegeri) {
 }
 
 function onEachFeatureResults(feature, layer) {
+    if (layer.options?.fillOpacity == 0) return;
     let popupContent = '';
     try {
+        let name = feature.properties.name;
+        if (name.match(/[A-Z]/)) name = window.countries[name];
         popupContent = `
 <h1>${feature.properties.county}: ${feature.properties.name}</h1>
 <h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
