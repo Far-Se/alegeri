@@ -217,8 +217,8 @@ function loadResults(alegeri) {
                         return {
                             fillColor: "#ff0000",
                             fillOpacity: 1,
-                            weight: 0.9,
-                            color: "#000000"
+                            weight: 2,
+                            color: "#474646"
 
                         }
                     }
