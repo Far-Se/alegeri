@@ -279,6 +279,8 @@ function setTable() {
 
     let count = 0;
     let results = sortByValues(window.results, 'UAT');
+    //sum all votes
+    let sum = results.reduce((a, b) => a + b.votes, 0);
     for (let party of results) {
         count++;
         if (count > 8) return;
@@ -290,7 +292,7 @@ function setTable() {
          ></p>
         <p>
         <span><abbr title="${party.name}">${party.name.clip(30)}</abbr></span>
-        <span>${party.UAT.toLocaleString()} UAT - ${party.votes.toLocaleString()} voturi</span>
+        <span>${party.UAT.toLocaleString()} UAT - ${party.votes.toLocaleString()} voturi (${(party.votes / sum * 100).toFixed(2)}%)</span>
         </p>
         </div>`;
     }

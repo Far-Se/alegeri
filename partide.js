@@ -62,7 +62,7 @@ window.alegeri = {
 window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).map(([key, value]) => [value, key]));
 window.partide = [
     {
-		"match": "(USR[- ]|UNIUNEA SALVA?I ROM?NIA)",
+		"match": "(USR[- ]|UNIUNEA SALVA.I ROM.NIA)",
 		"properties": {
 			"fill": "#00A6FF"
 		}
