@@ -70,7 +70,7 @@ window.partide = [
     {
 		"match": "(PSD PNL)",
 		"properties": {
-			"fill": "#E44F26"
+			"fill": "#f75504"
 		}
 	},
 	{
