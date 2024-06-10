@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "euro": "node rezultate_parlamentare.js europarlamentare2024",
+    "locale": "node rezultate_locale.js locale2024"
   },
   "author": "",
   "license": "ISC"

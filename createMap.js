@@ -69,71 +69,6 @@ String.prototype.clear = function () {
         ;
 }
 let geoJSON = null;
-function loadPresence(alegeri) {
-    alegeri = alegeri.replace(/(\d)[a-z]+/gi, '$1');
-    document.querySelector('#loading').style.display = "flex";
-    document.querySelector('#rezultate').style.display = "none";
-    const emptyData = {
-        total_votanti: 0,
-        total_voturi: 0,
-        lista_permanenta: 0,
-        lista_suplimentara: 0,
-        LS: 0,
-        percentage: 0
-
-    };
-    console.log(alegeri);
-    fetch(`data/alegeri/prezenta_${alegeri}.json`)
-        .then(response => response.json())
-        .then(data => {
-            getCommunes().then(async communes => {
-                if (geoJSON) geoJSON.removeFrom(map);
-                geoJSON = await L.geoJSON(communes, {
-                    style: function (feature) {
-                        let county = feature.properties.county.clear();
-                        let name = feature.properties.name.clear();
-                        let countyCode = window.countiesCodes[county];
-
-                        if (data.hasOwnProperty(countyCode)) {
-                            if (data[countyCode].hasOwnProperty(name)) {
-                                feature.properties.data = { ...data[countyCode][name] };
-                                feature.properties.data.percentage = (data[countyCode][name].total_voturi / data[countyCode][name].total_votanti).toFixed(2);
-                            } else feature.properties.data = { ...emptyData };
-                        } else feature.properties.data = { ...emptyData };
-
-                        let fillColor = '#ff0000';
-                        if (isNaN(feature.properties.data.percentage)) {
-                            feature.properties.data.percentage = 0;
-                            fillColor = '#dddddd';
-                            console.log(feature.properties.data);
-                        }
-                        if (feature.properties.data.total_votanti === 0) {
-                            feature.properties.data.percentage = 1;
-                            fillColor = '#878787';
-                            console.log(county, name, countyCode);
-                            console.log(feature.properties.county, feature.properties.name, countyCode);
-                        }
-
-
-                        return {
-                            fillColor: fillColor,
-                            weight: 0.3,
-                            color: "#000000",
-                            fillOpacity: feature.properties.data.percentage
-                        }
-                    },
-                    onEachFeature: onEachFeaturePresence,
-                });
-                geoJSON.addTo(map);
-
-                document.querySelector('#loading').style.display = "none";
-            })
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
-
 function onEachFeaturePresence(feature, layer) {
 
     popupContent = `
@@ -186,7 +121,7 @@ function loadResults(alegeri) {
         .then(response => response.json())
         .then(data => {
             getCommunes().then(async communes => {
-                
+
                 if (geoJSON) geoJSON.removeFrom(map);
                 let compData = []
                 if (compareAlegeri) {
@@ -197,8 +132,17 @@ function loadResults(alegeri) {
                         let county = feature.properties.county.clear();
                         let name = feature.properties.name.clear();
                         let countyCode = window.countiesCodes[county];
+
                         let fillColor = "#333333";
+                        let weight = 0.3;
                         let fillOpacity = 1;
+                        if (county == "SR") {
+                            countyCode = county;
+                            if (alegeri.includes("locale")) {
+                                fillOpacity = 0;
+                                weight = 0.0;
+                            }
+                        }
                         if (data.hasOwnProperty(countyCode)) {
                             if (data[countyCode].hasOwnProperty(name)) {
                                 let votes = sortByValues(data[countyCode][name].votes, 'votes');
@@ -266,8 +210,9 @@ function loadResults(alegeri) {
                                         let compVotes = sortByValues(compData[countyCode][name].votes, 'votes');
                                         if (votes[0].name.clear() == compVotes[0].name.clear()) {
                                             fillOpacity = 0.1;
-                                        }else {
-                                            feature.properties.data.fostPrimar = `${compVotes[0].name} <br><i>${compVotes[0].party}</i>`;}
+                                        } else {
+                                            feature.properties.data.fostPrimar = `${compVotes[0].name} <br><i>${compVotes[0].party}</i>`;
+                                        }
                                     }
                                 }
                             }
@@ -275,7 +220,7 @@ function loadResults(alegeri) {
 
                         return {
                             fillColor: fillColor,
-                            weight: 0.3,
+                            weight: weight,
                             color: "#000000",
                             fillOpacity: fillOpacity
                         }

@@ -14,7 +14,7 @@ const alegeri = {
 }
 //const judete = ["s1","s2"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "s1", "s2", "s3", "s4", "s5", "s6", "sr"];
-if(args.length == 0) args[0] = "europarlamentare2024";
+if (args.length == 0) args[0] = "europarlamentare2024";
 args[1] = "prov";
 if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node rezultate_parlamentare.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}] [prov|part|final]`);
 
@@ -59,12 +59,16 @@ function processResults(alegeriName, type) {
             table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[prlType].table);
 
             rezultate[judet] = {};
-            if(judet.match(/S\d/)){
-                if(!rezultate.hasOwnProperty('B'))rezultate["B"]= {};
+            if (judet.match(/S\d/)) {
+                if (!rezultate.hasOwnProperty('B')) rezultate["B"] = {};
                 judet = 'B';
             }
             for (const row of table) {
                 let localitate = row.uat_name.clear();
+                if (judet == "SR") {
+                    if (!countryCodes.hasOwnProperty(localitate)) continue;
+                    localitate = countryCodes[localitate];
+                }
                 let votes = [...row.votes];
 
                 if (!rezultate[judet].hasOwnProperty(localitate)) {
@@ -102,3 +106,5 @@ function processResults(alegeriName, type) {
     });
 }
 processResults(alegeri[args[0]], args[1]);
+
+let countryCodes = require('./data/map/countries.json');
