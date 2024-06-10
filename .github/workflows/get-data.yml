@@ -24,7 +24,7 @@ jobs:
         run: npm install
       
       - name: Run first script
-        run: node /rezultate_locale.js locale2024  
+        run: node rezultate_locale.js locale2024  
 
       - name: Run second script
-        run: node /rezultate_parlamentare.js europarlamentare2024  
+        run: node rezultate_parlamentare.js europarlamentare2024  
