@@ -53,6 +53,7 @@ window.countiesName = {
 };
 window.alegeri = {
     "prezidentiale 2019": "prezidentiale2019",
+    "Europarlamentare 2019": "europarlamentare2019",
     "locale2020": "locale27092020",
     "parlamentare CD 2020": "parlamentare06122020CD",
     "parlamentare Senat 2020": "parlamentare06122020S",

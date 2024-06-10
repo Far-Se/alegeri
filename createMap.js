@@ -257,7 +257,7 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
         <span class="color" style="background-color:${fillColor}"></span>
         ${votes.party == votes.name ? 
-            `<span class="nume">${votes.party}<br>${votes.votes.toLocaleString()} Voturi - ${votes.percentage}%</span>`: 
+            `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>`: 
             `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
         
         </p>`

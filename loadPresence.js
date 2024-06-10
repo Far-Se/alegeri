@@ -2,6 +2,7 @@ function loadPresence(alegeri) {
     alegeri = alegeri.replace(/(\d)[a-z]+/gi, '$1');
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "none";
+    document.querySelector('#table').innerHTML = '';
     const emptyData = {
         total_votanti: 0,
         total_voturi: 0,
