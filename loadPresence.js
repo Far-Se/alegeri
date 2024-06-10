@@ -78,6 +78,8 @@ function loadPresence(alegeri) {
         })
         .catch(error => {
             console.error('Error:', error);
+            document.querySelector('#loading').style.display = "none";
+            document.querySelector('#table').innerHTML = 'Nu exista date!';
         });
 }
 function onEachFeaturePresence(feature, layer) {

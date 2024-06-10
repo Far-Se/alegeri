@@ -52,6 +52,7 @@ window.countiesName = {
     "VN": "VRANCEA"
 };
 window.alegeri = {
+    "prezidentiale 2019": "prezidentiale2019",
     "locale2020": "locale27092020",
     "parlamentare CD 2020": "parlamentare06122020CD",
     "parlamentare Senat 2020": "parlamentare06122020S",
@@ -62,111 +63,131 @@ window.alegeri = {
 window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).map(([key, value]) => [value, key]));
 window.partide = [
     {
-		"match": "(USR[- ]|UNIUNEA SALVA.I ROM.NIA)",
-		"properties": {
-			"fill": "#00A6FF"
-		}
-	},
-    {
-		"match": "(PSD PNL)",
-		"properties": {
-			"fill": "#f75504"
-		}
-	},
-	{
-		"match": "(PNL|PARTIDUL NATIONAL LIBERAL)",
-		"properties": {
-			"fill": "#F7D600"
-		}
-	},
-	{
-		"match": "(PSD|PARTIDUL SOCIAL DEMOCRAT)",
-		"properties": {
-			"fill": "#EC1C24"
-		}
-	},
-	{
-		"match": "(AUR|ALIANTA PENTRU UNIREA ROMANILOR)",
-		"properties": {
-			"fill": "#A16800"
-		}
-	},
-	{
-		"match": "(UDMR|MAGHIAR)",
-		"properties": {
-			"fill": "#1ED760"
-		}
-	},
-	{
-		"match": "(ALIANTA MAGHIARA)",
-		"properties": {
-			"fill": "#2e821b"
-		}
-	},
-	{
-		"match": "(PMP|MISCAREA POPULARA)",
-		"properties": {
-			"fill": "#6542B1"
-		}
-	},
-	{
-		"match": "(PRO ROMANIA|^PRO)",
-		"properties": {
-			"fill": "#e16bff"
-		}
-	},
-	{
-		"match": "(INDEPENDENT)",
-		"properties": {
-			"fill": "#394d4d"
-		}
-	},	{
-		"match": "(PROIECTUL EUROPEAN)",
-		"properties": {
-			"fill": "#C62979"
-		}
-	},
-	{
-		"match": "(S\.O\.S)",
-		"properties": {
-			"fill": "#F8B7C0"
-		}
-	},
-	{
-		"match": "(CMM|ALIANTA PENTRU )",
-		"properties": {
-			"fill": "#154066"
-		}
-	},
-	{
-		"match": "(ALDE|ALIANTA LIBERALILOR)",
-		"properties": {
-			"fill": "#534d82"
-		}
-	},
-	{
-		"match": "(ALIANTA SOCIAL LIBERALA)",
-		"properties": {
-			"fill": "#333331"
-		}
+        "match": "(USR[- ]|UNIUNEA SALVA.I ROM.NIA)",
+        "properties": {
+            "fill": "#00A6FF"
+        }
     },
-	{
-		"match": "(ALIANTA PENTRU UNIREA ROMANILOR)",
-		"properties": {
-			"fill": "#C5A655"
-		}
+    {
+        "match": "(PSD PNL)",
+        "properties": {
+            "fill": "#f75504"
+        }
+    },
+    {
+        "match": "(PNL|PARTIDUL NATIONAL LIBERAL)",
+        "properties": {
+            "fill": "#F7D600"
+        }
+    },
+    {
+        "match": "(PSD|PARTIDUL SOCIAL DEMOCRAT)",
+        "properties": {
+            "fill": "#EC1C24"
+        }
+    },
+    {
+        "match": "(AUR|ALIANTA PENTRU UNIREA ROMANILOR)",
+        "properties": {
+            "fill": "#A16800"
+        }
+    },
+    {
+        "match": "(UDMR|MAGHIAR)",
+        "properties": {
+            "fill": "#1ED760"
+        }
+    },
+    {
+        "match": "(ALIANTA MAGHIARA)",
+        "properties": {
+            "fill": "#2e821b"
+        }
+    },
+    {
+        "match": "(PMP|MISCAREA POPULARA)",
+        "properties": {
+            "fill": "#6542B1"
+        }
+    },
+    {
+        "match": "(PRO ROMANIA|^PRO)",
+        "properties": {
+            "fill": "#e16bff"
+        }
+    },
+    {
+        "match": "(INDEPENDENT)",
+        "properties": {
+            "fill": "#394d4d"
+        }
+    }, {
+        "match": "(PROIECTUL EUROPEAN)",
+        "properties": {
+            "fill": "#C62979"
+        }
+    },
+    {
+        "match": "(S\.O\.S)",
+        "properties": {
+            "fill": "#F8B7C0"
+        }
+    },
+    {
+        "match": "(CMM|ALIANTA PENTRU )",
+        "properties": {
+            "fill": "#154066"
+        }
+    },
+    {
+        "match": "(ALDE|ALIANTA LIBERALILOR)",
+        "properties": {
+            "fill": "#534d82"
+        }
+    },
+    {
+        "match": "(ALIANTA SOCIAL LIBERALA)",
+        "properties": {
+            "fill": "#333331"
+        }
+    },
+    {
+        "match": "(ALIANTA PENTRU UNIREA ROMANILOR)",
+        "properties": {
+            "fill": "#C5A655"
+        }
     }
 ];
 window.results = {};
-function getPartyColor(party) 
-{
-    if(party == undefined || party == null)return "#878787";
+let customColors = [
+    "#0B84A5",
+    "#F6C85F",
+    "#6F4E7C",
+    "#9DD866",
+    "#CA472F",
+    "#FFA056",
+    "#8DDDD0",
+    "#ffa600",
+    "#003f5c",
+    "#2f4b7c",
+    "#665191",
+    "#a05195",
+    "#d45087",
+    "#f95d6a",
+    "#ff7c43",
+];
+let lastColor = 0;
+let customCandidates = {};
+function getPartyColor(party) {
+    if (party == undefined || party == null) return "#878787";
     for (let colors of window.partide) {
         if (party.clear().match(new RegExp(colors.match, 'i'))) {
             return colors.properties.fill;
-            
         }
-    }return "#878787";
+    }
+    if (customCandidates.hasOwnProperty(party)) return customCandidates[party];
+    customCandidates[party] = customColors[lastColor++ % customColors.length];
+    return customCandidates[party];
 }
 window.countries = {
     "ZAF": "AFRICA DE SUD",
