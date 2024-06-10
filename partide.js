@@ -120,6 +120,11 @@ window.partide = [
 		"properties": {
 			"fill": "#394d4d"
 		}
+	},	{
+		"match": "(PROIECTUL EUROPEAN)",
+		"properties": {
+			"fill": "#C62979"
+		}
 	},
 	{
 		"match": "(S\.O\.S)",
