@@ -253,7 +253,8 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     for (let votes of feature.properties.data.votes) {
         let fillColor = getPartyColor(votes.party);
         popupContent += `
-        <p>
+        <p >
+        <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
         <span class="color" style="background-color:${fillColor}"></span>
         ${votes.party == votes.name ? 
             `<span class="nume">${votes.party}<br>${votes.votes.toLocaleString()} Voturi - ${votes.percentage}%</span>`: 
