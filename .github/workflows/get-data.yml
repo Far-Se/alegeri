@@ -3,6 +3,7 @@
 name: Run Node Scripts Hourly
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 * * * *' # Run every hour
 
