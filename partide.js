@@ -122,6 +122,12 @@ window.partide = [
 		}
 	},
 	{
+		"match": "(S\.O\.S)",
+		"properties": {
+			"fill": "#F8B7C0"
+		}
+	},
+	{
 		"match": "(CMM|ALIANTA PENTRU )",
 		"properties": {
 			"fill": "#154066"
