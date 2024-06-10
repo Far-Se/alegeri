@@ -241,10 +241,10 @@ function onEachFeatureResults(feature, layer) {
     let popupContent = '';
     try {
         let name = feature.properties.name;
-        if (name.match(/[A-Z]/)){
-             name = window.countries[name];
+        // if (name.match(/[A-Z]{1,3}/)){
+        //      name = window.countries[name];
              
-        }
+        // }
         popupContent = `
 <h1>${feature.properties.county == "SR"? "Diaspora": feature.properties.county}: ${name}</h1>
 <h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
