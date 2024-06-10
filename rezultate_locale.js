@@ -16,7 +16,7 @@ const alegeri = {
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn"];
 //args[0] = "parlamentareCD2020";
 args[1] = "prov";
-if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('')}] [prov|part|final]`);
+if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}] [prov|part|final]`);
 
 String.prototype.clear = function () {
     return this
@@ -45,7 +45,10 @@ function processResults(alegeriName, type) {
         for (const judet1 of judete) {
             let judet = judet1.clear();
             rezultate[judet] = {};
-            const json = require(`./data/alegeri/raw/pv_${judet}_${type}.json`);
+            let json = [];
+            try {
+                json = require(`./data/alegeri/raw/pv_${judet}_${type}.json`);
+            } catch (_) { continue; }
             let table = [];
                 table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories.P.table);
             for (const row of table) {

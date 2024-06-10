@@ -13,10 +13,10 @@ const alegeri = {
     "europarlamentare2024": "EUP-europarlamentare09062024"
 }
 //const judete = ["s1","s2"];
-const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "s1", "s2", "s3", "s4", "s5", "s6"];
-//args[0] = "parlamentareCD2020";
+const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "s1", "s2", "s3", "s4", "s5", "s6", "sr"];
+if(args.length == 0) args[0] = "europarlamentare2024";
 args[1] = "prov";
-if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('')}] [prov|part|final]`);
+if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node rezultate_parlamentare.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}] [prov|part|final]`);
 
 String.prototype.clear = function () {
     return this
@@ -51,8 +51,10 @@ function processResults(alegeriName, type) {
         for (const judet1 of judete) {
 
             let judet = judet1.clear();
-            
-            const json = require(`./data/alegeri/raw/pv_${judet}_${type}.json`);
+            let json = [];
+            try {
+                json = require(`./data/alegeri/raw/pv_${judet}_${type}.json`);
+            } catch (_) { continue; }
             let table = [];
             table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[prlType].table);
 
@@ -61,7 +63,6 @@ function processResults(alegeriName, type) {
                 if(!rezultate.hasOwnProperty('B'))rezultate["B"]= {};
                 judet = 'B';
             }
-            
             for (const row of table) {
                 let localitate = row.uat_name.clear();
                 let votes = [...row.votes];

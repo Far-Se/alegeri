@@ -54,7 +54,13 @@ function processPresence(alegeriName) {
         for (const judet1 of judete) {
             let judet = judet1.clear();
             prezenta[judet] = {};
-            const json = require(`./data/alegeri/raw/presence_${judet}_now.json`);
+            let json = [];
+            try {
+                json = require(`./data/alegeri/raw/presence_${judet}_now.json`);
+            }catch (_)
+            {
+                continue;
+            }
             for (const row of json.precinct) {
                 let localitate = row.uat.name.clear();
                 if (!prezenta[judet].hasOwnProperty(localitate)) {

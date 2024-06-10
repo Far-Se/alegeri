@@ -9,7 +9,7 @@
         "cwd": "${workspaceFolder}",
         "runtimeExecutable": "node",
         "skipFiles": ["<node_internals>/**/*.js"],
-        "console": "integratedTerminal"
+        "console": "internalConsole"
       }
     ]
   }

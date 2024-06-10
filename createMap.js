@@ -89,7 +89,6 @@ function loadPresence(alegeri) {
             getCommunes().then(async communes => {
                 if (geoJSON) geoJSON.removeFrom(map);
                 geoJSON = await L.geoJSON(communes, {
-
                     style: function (feature) {
                         let county = feature.properties.county.clear();
                         let name = feature.properties.name.clear();
@@ -187,6 +186,7 @@ function loadResults(alegeri) {
         .then(response => response.json())
         .then(data => {
             getCommunes().then(async communes => {
+                
                 if (geoJSON) geoJSON.removeFrom(map);
                 let compData = []
                 if (compareAlegeri) {
