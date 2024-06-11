@@ -72,7 +72,7 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
                 else {
                     let pparty = partid.party ?? "INDEPENDENT";
                     if(pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
-                    if(partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "ALIANȚA DREAPTA UNITĂ USR";
+                    if(partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
                     if (tipAlegeri != "P" && !partid.party) pparty = partid.candidate;
                     rezultate[judet][localitate].votes[partid.candidate] = {
                         name: partid.candidate,
@@ -91,7 +91,7 @@ function processResults(numeAlegeri, resultsKind) {
 
     let [tipAlegere, alegeriName] = numeAlegeri.split('-');
     console.log(`Fetching ${alegeriName} - ${tipAlegere}`);
-    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(',')}}_${resultsKind}.json"`, (error) => {
+    exec(`curl --output-dir ${__dirname}/data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(',')}}_${resultsKind}.json"`, (error) => {
         if (error) return console.error(`Error: ${error.message}`);
 
         if (tipAlegere.match(/^[0-9]+$/)) {

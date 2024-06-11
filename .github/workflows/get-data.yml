@@ -18,12 +18,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'  
-      
+          cache: 'npm'
+
       - name: Install dependencies
         run: npm install
       
-      - name: Run first script
+      - name: Run Rezultate Locale
         run: node rezultate_locale.js locale2024  
-
-      - name: Run second script
-        run: node rezultate_parlamentare.js europarlamentare2024  
