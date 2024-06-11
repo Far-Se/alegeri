@@ -23,4 +23,4 @@ jobs:
         run: npm install
       
       - name: Run Rezultate Locale
-        run: node rezultate_locale.js locale2024  
+        run: node rezultate_locale.js 2024  
