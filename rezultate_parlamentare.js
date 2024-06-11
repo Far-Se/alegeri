@@ -4,7 +4,7 @@ https://prezenta.roaep.ro/{ALEGERI}/data/json/sicpv/pv/pv_{JUDET}_{prov|part|fin
 */
 const { exec } = require('child_process');
 const { debug } = require('console');
-const { mkdir, mkdirSync, fstat, existsSync } = require('fs');
+const { mkdir, mkdirSync, fstat, existsSync, rmSync } = require('fs');
 
 const args = process.argv.slice(2);
 const alegeri = {
@@ -102,7 +102,7 @@ function processResults(alegeriName, type) {
         }
 
         require('fs').writeFileSync(`./data/alegeri/rezultate_${alegeriName}${prlType}.json`, JSON.stringify(rezultate));
-        exec(`rm -rf ./data/alegeri/raw`);
+        rmSync(`./data/alegeri/raw`, { recursive: true });
         console.log("Done");
 
 
