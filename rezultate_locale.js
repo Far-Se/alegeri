@@ -5,6 +5,8 @@ https://prezenta.roaep.ro/{ALEGERI}/data/json/sicpv/pv/pv_{JUDET}_{prov|part|fin
 const { exec } = require('child_process');
 const { debug } = require('console');
 const { mkdir, mkdirSync, fstat, existsSync, readFileSync, writeFileSync } = require('fs');
+const { default: axios } = require('axios');
+let countryCodes = require('./data/map/countries.json');
 
 const args = process.argv.slice(2);
 const alegeri = {
@@ -90,14 +92,15 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
 async function fetchWithRetry(url, retries = 3, delay = 300) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            const response = await fetch(url);
-            if (!response.ok) {
+            const response = await axios.get(url, { responseType: 'text/plain' });
+            if (response.status !== 200) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            writeFileSync(`./data/alegeri/raw/${url.split('/').pop()}`, await response.text());
+            writeFileSync(`./data/alegeri/raw/${url.split('/').pop()}`,response.data);
+            //exit(0);
             return true;
         } catch (error) {
-            console.error(`Attempt ${attempt} failed for ${url}: ${error.message}`);
+            console.error(`Attempt ${attempt} failed for ${url} : ${error.message}`);
             if (attempt < retries) {
                 await new Promise(res => setTimeout(res, delay));
             } else {
@@ -159,4 +162,4 @@ function processResults(numeAlegeri, resultsKind) {
 
 }
 fetchResults(alegeri[args[0]], args[1]);
-let countryCodes = require('./data/map/countries.json');
+
