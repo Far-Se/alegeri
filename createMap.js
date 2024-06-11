@@ -7,19 +7,15 @@ let map = L.map('map', {
 }).setView([45.9628666, 25.2081763], 7.4);
 let lightTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 18,
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    id: 'mapbox/light-v9',
+    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+    id: 'cartoDB/light-v9',
     tileSize: 512,
     zoomOffset: -1
 });
 let darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 18,
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    id: 'mapbox/dark-v9',
+    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+    id: 'cartoDB/dark-v9',
     tileSize: 512,
     zoomOffset: -1
 });
@@ -75,7 +71,17 @@ String.prototype.clear = function () {
 let geoJSON = null;
 let conturGeoJSON = null;
 
+let memFetch = async (alegeri) => {
 
+    if (!window.hasOwnProperty('rezultateAlegeri')) window.rezultateAlegeri = {};
+    if (window.rezultateAlegeri[alegeri] !== undefined) return window.rezultateAlegeri[alegeri];
+
+    let response = await fetch(`data/alegeri/rezultate_${alegeri}.json`);
+    let data = await response.json();
+
+    window.rezultateAlegeri[alegeri] = data;
+    return data;
+}
 function loadResults(alegeri) {
     window.results = {};
     window.statsJudete = {};
@@ -88,11 +94,10 @@ function loadResults(alegeri) {
     };
     let compareAlegeri = false;
     if (alegeri == "primariNoi") {
-        alegeri = "locale09062024";
+        alegeri = "locale09062024P";
         compareAlegeri = true;
     }
-    fetch(`data/alegeri/rezultate_${alegeri}.json`)
-        .then(response => response.json())
+    memFetch(alegeri)
         .then(data => {
             getCommunes().then(async communes => {
 
@@ -100,7 +105,7 @@ function loadResults(alegeri) {
                 if (conturGeoJSON) conturGeoJSON.removeFrom(map);
                 let compData = []
                 if (compareAlegeri) {
-                    compData = await (await fetch(`data/alegeri/rezultate_locale27092020.json`)).json();
+                    compData = await memFetch("locale27092020P");
                 }
                 geoJSON = await L.geoJSON(communes, {
                     style: function (feature) {
@@ -318,7 +323,7 @@ function setTable(county = "") {
             totalUATs += window.statsJudete[iCounty][party].UAT;
             totalVotes += window.statsJudete[iCounty][party].votes;
         }
-        aJudete.push({name: iCounty == "SR" ? "Strainatate" : iCounty, UAT: totalUATs, votes: totalVotes});
+        aJudete.push({ name: iCounty == "SR" ? "Strainatate" : iCounty, UAT: totalUATs, votes: totalVotes });
     }
     aJudete.sort((a, b) => b.votes - a.votes);
     for (let party of aJudete) {

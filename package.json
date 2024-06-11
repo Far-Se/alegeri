@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "euro": "node rezultate_parlamentare.js EP2024",
-    "locale": "node rezultate_locale.js 2024"
+    "locale2024": "node rezultate_locale.js 2024",
+    "primari": "node rezultate_locale.js primari2024",
+    "cons Local": "node rezultate_locale.js CL2024",
+    "cons. Jud": "node rezultate_locale.js CJ2024",
+    "Pres. Cons. Jud": "node rezultate_locale.js PCJ2024"
   },
   "author": "",
   "license": "ISC"

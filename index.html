@@ -20,15 +20,7 @@
     <script src="loadPresence.js"></script>
     <script src="createMap.js"></script>
     <script src="index.js"></script>
-    <div id="myModal" class="modal">
 
-        <!-- Modal content -->
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <div id="modalStats"></div>
-        </div>
-      
-      </div>
 <div id="unCollapse" class="collapsed"><span></span><span></span><span></span></div>
 <div class="controls">
     <div class="wrapper">
@@ -51,6 +43,12 @@
                     <script>
                         for (const alegeri of Object.keys(window.alegeri)) {
                             document.write(`<option value="${alegeri}" ${alegeri === window.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
+                        }</script>
+                </select>
+                <select id="prezenta">
+                    <script>
+                        for (const alegeri of Object.keys(window.prezenta)) {
+                            document.write(`<option value="${alegeri}" ${alegeri === window.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
                         }</script>
                 </select>
             </div>

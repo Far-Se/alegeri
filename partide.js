@@ -1,5 +1,25 @@
 
 
+window.alegeri = {
+    "prezidentiale 2019": "prezidentiale2019",
+    "Europarlamentare 2019": "europarlamentare2019",
+    "locale2020": "locale27092020P",
+    "parlamentare CD 2020": "parlamentare06122020CD",
+    "parlamentare Senat 2020": "parlamentare06122020S",
+    "locale2024": "locale09062024P",
+    "primari Noi2024": "primariNoi",
+    "Consiliu Local 2024": "locale09062024CL",
+    "Consiliu Judetean 2024": "locale09062024CJ",
+    "Presedinte C.J. 2024": "locale09062024PCJ",
+    "europarlamentare2024": "europarlamentare09062024EUP"
+}
+window.prezenta = {
+    "parlamentare 2020": "parlamentare06122020",
+    "locale2020": "locale27092020",
+    "locale2024": "locale09062024",
+    "europarlamentare2024": "europarlamentare09062024"
+}
+
 window.countiesName = {
     "AB": "ALBA",
     "AR": "ARAD",
@@ -51,16 +71,6 @@ window.countiesName = {
     "VS": "VASLUI",
     "VN": "VRANCEA"
 };
-window.alegeri = {
-    "prezidentiale 2019": "prezidentiale2019",
-    "Europarlamentare 2019": "europarlamentare2019",
-    "locale2020": "locale27092020",
-    "parlamentare CD 2020": "parlamentare06122020CD",
-    "parlamentare Senat 2020": "parlamentare06122020S",
-    "locale2024": "locale09062024",
-    "primari Noi2024": "primariNoi",
-    "europarlamentare2024": "europarlamentare09062024EUP"
-}
 window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).map(([key, value]) => [value, key]));
 window.partide = [
     {

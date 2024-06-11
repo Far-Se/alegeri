@@ -1,6 +1,7 @@
 
 
 window.alegeriSelected = "locale2024";
+window.prezentaSelected = "locale2024";
 window.isPagePresence = false;
 window.partideAlese = [];
 //on document ready
@@ -10,6 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#alegeri').addEventListener('change', function (e) {
         window.partideAlese = [];
         window.alegeriSelected = e.target.value;
+        loadData();
+    })
+    document.querySelector('#prezenta').addEventListener('change', function (e) {
+        window.partideAlese = [];
+        window.prezentaSelected = e.target.value;
         loadData();
     })
 
@@ -27,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
         window.partideAlese = [];
         document.querySelector('#rezultate')?.classList.toggle('toggle');
         isPagePresence = !isPagePresence;
+        document.querySelector('#prezenta').style.display = isPagePresence ? 'block' : 'none';
+        document.querySelector('#alegeri').style.display = !isPagePresence ? 'block' : 'none';
         loadData();
     })
     document.querySelector('#toggleLocul2').addEventListener('change', function (e) {
@@ -36,25 +44,16 @@ document.addEventListener('DOMContentLoaded', function () {
         loadData()
     })
 
-    var modal = document.getElementById("myModal");
-    var span = document.getElementsByClassName("close")[0];
-    span.onclick = function () {
-        modal.style.display = "none";
-    }
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
 });
 let loadData = () => {
     if (window.isPagePresence) {
-
-        loadPresence(window.alegeri[window.alegeriSelected]);
+        loadPresence(window.prezenta[window.prezentaSelected]);
     } else {
         document.querySelector('#toggleAlegeri').checked = true;
         loadResults(window.alegeri[window.alegeriSelected]);
     }
+    document.querySelector('#prezenta').style.display = isPagePresence ? 'block' : 'none';
+    document.querySelector('#alegeri').style.display = !isPagePresence ? 'block' : 'none';
 }
 function selectParty(party) {
     let checked = document.querySelectorAll('input.iparty:checked');
