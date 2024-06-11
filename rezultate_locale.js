@@ -4,7 +4,7 @@ https://prezenta.roaep.ro/{ALEGERI}/data/json/sicpv/pv/pv_{JUDET}_{prov|part|fin
 */
 const { exec } = require('child_process');
 const { debug } = require('console');
-const { mkdir, mkdirSync, fstat, existsSync, readFileSync } = require('fs');
+const { mkdir, mkdirSync, fstat, existsSync, readFileSync, writeFileSync } = require('fs');
 
 const args = process.argv.slice(2);
 const alegeri = {
@@ -71,8 +71,8 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
                 }
                 else {
                     let pparty = partid.party ?? "INDEPENDENT";
-                    if(pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
-                    if(partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
+                    if (pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
+                    if (partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
                     if (tipAlegeri != "P" && !partid.party) pparty = partid.candidate;
                     rezultate[judet][localitate].votes[partid.candidate] = {
                         name: partid.candidate,
@@ -86,31 +86,77 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
     require('fs').writeFileSync(`./data/alegeri/rezultate_${alegeriName}${tipAlegeri}.json`, JSON.stringify(rezultate));
     console.log("Done");
 }
-function processResults(numeAlegeri, resultsKind) {
+
+async function fetchWithRetry(url, retries = 3, delay = 300) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            writeFileSync(`./data/alegeri/raw/${url.split('/').pop()}`, await response.text());
+            return true;
+        } catch (error) {
+            console.error(`Attempt ${attempt} failed for ${url}: ${error.message}`);
+            if (attempt < retries) {
+                await new Promise(res => setTimeout(res, delay));
+            } else {
+                throw new Error(`Failed to fetch ${url} after ${retries} attempts`);
+            }
+        }
+    }
+}
+
+
+async function fetchMultipleUrlsConcurrently(urls, retries = 3, delay = 300) {
+    const fetchPromises = urls.map(url => fetchWithRetry(url, retries, delay));
+
+    const results = await Promise.all(fetchPromises);
+
+    return results.map((result, index) => ({
+        url: urls[index],
+        ...result
+    }));
+}
+
+async function fetchResults(numeAlegeri, resultsKind) {
     if (!existsSync('./data/alegeri/raw')) mkdirSync('./data/alegeri/raw');
 
     let [tipAlegere, alegeriName] = numeAlegeri.split('-');
     console.log(`Fetching ${alegeriName} - ${tipAlegere}`);
-    exec("curl --help", (error, stdout, stderr) => {
-        console.log(error, "\n", stdout,"\n", stderr);
-    })
-    exec(`curl --output-dir ${__dirname}/data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(',')}}_${resultsKind}.json"`, (error) => {
+    let links = [];
+    for (const judet of judete) {
+        links.push(`https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_${judet}_${resultsKind}.json`);
+    }
+    try {
+        await fetchMultipleUrlsConcurrently(links);
+        processResults(numeAlegeri, resultsKind);
+    } catch (error) {
+        console.error('Error fetching URLs:', error);
+    }
+    return;
+    /* exec(`curl --output-dir ${__dirname}/data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(',')}}_${resultsKind}.json"`, (error) => {
         if (error) return console.error(`Error: ${error.message}`);
-
-        if (tipAlegere.match(/^[0-9]+$/)) {
-            for (const atipAlegere of Object.values(alegeri)) {
-                if (atipAlegere.includes(alegeriName)) {
-                    let [xtipAlegere, xalegeriName] = atipAlegere.split('-');
-                    if (tipAlegere == xtipAlegere) continue;
-                    processFiles(xalegeriName, xtipAlegere, resultsKind);
-                }
-            }
-            exec(`rm -rf ./data/alegeri/raw`);
-            return;
-        }
-        processFiles(alegeriName, tipAlegere, resultsKind);
-        exec(`rm -rf ./data/alegeri/raw`);
-    });
+        return processResults(numeAlegeri, resultsKind);
+    }); */
 }
-processResults(alegeri[args[0]], args[1]);
+function processResults(numeAlegeri, resultsKind) {
+
+    let [tipAlegere, alegeriName] = numeAlegeri.split('-');
+    if (tipAlegere.match(/^[0-9]+$/)) {
+        for (const atipAlegere of Object.values(alegeri)) {
+            if (atipAlegere.includes(alegeriName)) {
+                let [xtipAlegere, xalegeriName] = atipAlegere.split('-');
+                if (tipAlegere == xtipAlegere) continue;
+                processFiles(xalegeriName, xtipAlegere, resultsKind);
+            }
+        }
+        exec(`rm -rf ./data/alegeri/raw`);
+        return;
+    }
+    processFiles(alegeriName, tipAlegere, resultsKind);
+    exec(`rm -rf ./data/alegeri/raw`);
+
+}
+fetchResults(alegeri[args[0]], args[1]);
 let countryCodes = require('./data/map/countries.json');
