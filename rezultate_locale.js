@@ -91,6 +91,9 @@ function processResults(numeAlegeri, resultsKind) {
 
     let [tipAlegere, alegeriName] = numeAlegeri.split('-');
     console.log(`Fetching ${alegeriName} - ${tipAlegere}`);
+    exec("curl --help", (error, stdout, stderr) => {
+        console.log(error, "\n", stdout,"\n", stderr);
+    })
     exec(`curl --output-dir ${__dirname}/data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(',')}}_${resultsKind}.json"`, (error) => {
         if (error) return console.error(`Error: ${error.message}`);
 
