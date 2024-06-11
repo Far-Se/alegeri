@@ -21,60 +21,63 @@
     <script src="createMap.js"></script>
     <script src="index.js"></script>
 
-<div id="unCollapse" class="collapsed"><span></span><span></span><span></span></div>
-<div class="controls">
-    <div class="wrapper">
-        <div class="buttons">
-            <div id="darkMode">🔆</div>
-            <div id="collapse">⇉</div>
-        </div>
-        <hr>
-        <div class="toggle">
-            <input type="checkbox" id="toggleAlegeri" class="toggleCheckbox" />
-            <label for="toggleAlegeri" class='toggleContainer'>
-                <div>Prezenta</div>
-                <div>Rezultate</div>
-            </label>
-        </div>
-        <hr>
-        <div class="alegeri">
-            <div class="custom-select">
-                <select id="alegeri">
-                    <script>
-                        for (const alegeri of Object.keys(window.alegeri)) {
-                            document.write(`<option value="${alegeri}" ${alegeri === window.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
-                        }</script>
-                </select>
-                <select id="prezenta">
-                    <script>
-                        for (const alegeri of Object.keys(window.prezenta)) {
-                            document.write(`<option value="${alegeri}" ${alegeri === window.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
-                        }</script>
-                </select>
+    <div id="unCollapse" class="collapsed"><span></span><span></span><span></span></div>
+    <div class="controls">
+        <div class="wrapper">
+            <div class="buttons">
+                <div id="darkMode">🔆</div>
+                <div id="collapse">⇉</div>
             </div>
-
-            <div id="rezultate">
-
-                <div class="toggle locul2">
-                    <input type="checkbox" id="toggleLocul2" class="toggleCheckbox" />
-                    <label for="toggleLocul2" class='toggleContainer'>
-                        <div>Castigator</div>
-                        <div>Locul 2</div>
-                    </label>
-                </div>
-                <div class="toggle prezentaProcent disabled">
-                    <input type="checkbox" id="prezentaProcent" class="toggleCheckbox" />
-                    <label for="prezentaProcent" class='toggleContainer'>
-                        <div>Prezenta</div>
-                        <div>Procent</div>
-                    </label>
+            <hr>
+            <div class="toggle">
+                <input type="checkbox" id="toggleAlegeri" class="toggleCheckbox" />
+                <label for="toggleAlegeri" class='toggleContainer'>
+                    <div>Prezenta</div>
+                    <div>Rezultate</div>
+                </label>
+            </div>
+            <hr>
+            <div class="alegeri">
+                <div class="custom-select">
+                    <select id="alegeri">
+                        <script>
+                            for (const alegeri of Object.keys(window.alegeri)) {
+                                document.write(`<option value="${alegeri}" ${alegeri === window.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
+                            }</script>
+                    </select>
+                    <select id="prezenta">
+                        <script>
+                            for (const alegeri of Object.keys(window.prezenta)) {
+                                document.write(`<option value="${alegeri}" ${alegeri === window.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
+                            }</script>
+                    </select>
                 </div>
 
+                <div id="rezultate">
+
+                    <div class="toggle locul2">
+                        <input type="checkbox" id="toggleLocul2" class="toggleCheckbox" />
+                        <label for="toggleLocul2" class='toggleContainer'>
+                            <div>Castigator</div>
+                            <div>Locul 2</div>
+                        </label>
+                    </div>
+                    <div class="toggle prezentaProcent disabled">
+                        <input type="checkbox" id="prezentaProcent" class="toggleCheckbox" />
+                        <label for="prezentaProcent" class='toggleContainer'>
+                            <div>Prezenta</div>
+                            <div>Procent</div>
+                        </label>
+                    </div>
+
+                </div>
+                <div id="elInfo">
+                    <div id="table"></div>
+
+                </div>
             </div>
-            <div id="table"></div>
         </div>
     </div>
-</div>
 </body>
 
 </html>

@@ -383,3 +383,9 @@ select#countiesSelect {
 #table .custom-select {
     margin-top: 10px;
 }
+div#table {
+    overflow-y: scroll;
+    max-height: 40vh;
+    min-height: 300px;
+    margin-bottom: 20px;
+}

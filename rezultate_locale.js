@@ -71,6 +71,8 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
                 }
                 else {
                     let pparty = partid.party ?? "INDEPENDENT";
+                    if(pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
+                    if(partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "ALIANȚA DREAPTA UNITĂ USR";
                     if (tipAlegeri != "P" && !partid.party) pparty = partid.candidate;
                     rezultate[judet][localitate].votes[partid.candidate] = {
                         name: partid.candidate,

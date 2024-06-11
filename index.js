@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.querySelector('#toggleAlegeri').addEventListener('change', function (e) {
-        document.querySelector('#table').innerHTML = '';
+        document.querySelector('#elInfo').innerHTML = '';
         window.partideAlese = [];
         document.querySelector('#rezultate')?.classList.toggle('toggle');
         isPagePresence = !isPagePresence;

@@ -52,9 +52,9 @@ let getCommunes = async () => {
     } else return window.Commune;
 }
 
-function sortByValues(obj, key) {
+function sortByValues(obj, key, subkey = '') {
     let candidatesArray = Object.values(obj);
-    candidatesArray.sort((a, b) => b[key] - a[key]);
+    candidatesArray.sort((a, b) => subkey != '' && a[key] == b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
     return candidatesArray;
 }
 String.prototype.clear = function () {
@@ -140,7 +140,6 @@ function loadResults(alegeri) {
                                     totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
                                 }
                                 feature.properties.data.votes = votes.map(v => {
-                                    // window.results[votes[index].party].votes += v.votes;
                                     v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
                                     v.procent = v.votes / feature.properties.data.totalVoturi;
                                     return v;
@@ -287,20 +286,21 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
 String.prototype.clip = function (n) { return this.length < n ? this : this.substring(0, n - 3) + '...' };
 function setTable(county = "") {
 
+    document.querySelector('#elInfo').innerHTML = "<div id='table'></div>";
     let table = document.querySelector('#table');
     table.innerHTML = `    `;
 
     let count = 0;
 
     let results = []
-    if (county == "") results = sortByValues(window.results, 'UAT');
-    else results = sortByValues(window.statsJudete[county], 'UAT');
+    if (county == "") results = sortByValues(window.results, 'UAT','votes');
+    else results = sortByValues(window.statsJudete[county], 'UAT','votes');
     //sum all votes
     let sum = results.reduce((a, b) => a + b.votes, 0);
     let totalUATs = results.reduce((a, b) => a + b.UAT, 0);
     for (let party of results) {
         count++;
-        if (count > 12) break;
+        if (count > 50) break;
 
         table.innerHTML += `<div>
         <p class="color" style="background-color:${getPartyColor(party.name)}">
@@ -309,12 +309,12 @@ function setTable(county = "") {
         ${!window.partideAlese.includes(party.name) && window.partideAlese.length >= 2 ? "disabled" : ""}
          ></p>
         <p>
-        <span><abbr title="${party.name}">${party.name.clip(30)}</abbr></span>
+        <span><abbr title="${party.name}">${party.name.clip(27)}</abbr></span>
         <span>${party.UAT.toLocaleString()} UAT ${county != "" ? `(${(party.UAT / totalUATs * 100).toFixed(2)}%)` : ''} - ${party.votes.toLocaleString()} voturi (${(party.votes / sum * 100).toFixed(2)}%)</span>
         </p>
         </div>`;
     }
-    table.insertAdjacentHTML('beforeend', `<div class="custom-select"><select id="countiesSelect" onchange="setTable(this.value)"><option value="">Alege Judet</option></select></div>`);
+    document.querySelector('#elInfo').insertAdjacentHTML('beforeend', `<div class="custom-select"><select id="countiesSelect" onchange="setTable(this.value)"><option value="">Alege Judet</option></select></div>`);
     let aJudete = [];
     for (let iCounty in window.statsJudete) {
         let totalUATs = 0;

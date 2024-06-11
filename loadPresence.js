@@ -2,7 +2,7 @@ function loadPresence(alegeri) {
     // alegeri = alegeri.replace(/(\d)[a-z]+/gi, '$1');
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "none";
-    document.querySelector('#table').innerHTML = '';
+    document.querySelector('#elInfo').innerHTML = '';
     const emptyData = {
         total_votanti: 0,
         total_voturi: 0,
@@ -80,7 +80,7 @@ function loadPresence(alegeri) {
         .catch(error => {
             console.error('Error:', error);
             document.querySelector('#loading').style.display = "none";
-            document.querySelector('#table').innerHTML = 'Nu exista date!';
+            document.querySelector('#elInfo').innerHTML = 'Nu exista date!';
         });
 }
 function onEachFeaturePresence(feature, layer) {
