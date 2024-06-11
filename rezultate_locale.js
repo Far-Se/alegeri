@@ -96,7 +96,9 @@ async function fetchWithRetry(url, retries = 3, delay = 300) {
             if (response.status !== 200) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            console.log(`Fetched ${url.split('/').pop()}`);
             writeFileSync(`./data/alegeri/raw/${url.split('/').pop()}`,response.data);
+            console.log(`Wrote ./data/alegeri/raw/${url.split('/').pop()}`);
             //exit(0);
             return true;
         } catch (error) {
