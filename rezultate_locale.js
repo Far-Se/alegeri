@@ -68,13 +68,15 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
                 rezultate[judet][localitate] = { votes: {} };
             }
             for (const partid of votes) {
+                
+                let pparty = partid.party ?? "INDEPENDENT";
+                if (pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
+                if (partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
+                
                 if (rezultate[judet][localitate].votes.hasOwnProperty(partid.candidate)) {
                     rezultate[judet][localitate].votes[partid.candidate].votes += Number(partid.votes);
                 }
                 else {
-                    let pparty = partid.party ?? "INDEPENDENT";
-                    if (pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
-                    if (partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
                     if (tipAlegeri != "P" && !partid.party) pparty = partid.candidate;
                     rezultate[judet][localitate].votes[partid.candidate] = {
                         name: partid.candidate,
@@ -96,9 +98,7 @@ async function fetchWithRetry(url, retries = 3, delay = 300) {
             if (response.status !== 200) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            console.log(`Fetched ${url.split('/').pop()}`);
             writeFileSync(`./data/alegeri/raw/${url.split('/').pop()}`,response.data);
-            console.log(`Wrote ./data/alegeri/raw/${url.split('/').pop()}`);
             //exit(0);
             return true;
         } catch (error) {
