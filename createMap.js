@@ -78,6 +78,7 @@ let conturGeoJSON = null;
 
 function loadResults(alegeri) {
     window.results = {};
+    window.statsJudete = {};
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "flex";
     const emptyData = {
@@ -121,6 +122,7 @@ function loadResults(alegeri) {
                                 weight = 0.0;
                             }
                         }
+                        if (!window.statsJudete.hasOwnProperty(county)) window.statsJudete[county] = {};
                         if (data.hasOwnProperty(countyCode)) {
                             if (data[countyCode].hasOwnProperty(name)) {
                                 let votes = sortByValues(data[countyCode][name].votes, 'votes');
@@ -139,10 +141,16 @@ function loadResults(alegeri) {
                                     return v;
                                 });
                                 for (const vote of votes) {
+                                    if (!window.statsJudete[county].hasOwnProperty(vote.party)) window.statsJudete[county][vote.party] = { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
+                                    window.statsJudete[county][vote.party].votes += vote.votes;
+
                                     if (!window.results.hasOwnProperty(vote.party)) window.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
                                     window.results[vote.party].votes += vote.votes;
                                 }
                                 if (feature.properties.data.votes.length == 0) feature.properties.data.votes = [{ party: "N/A", votes: 0, name: "N/A" }];
+                                else {
+                                    window.statsJudete[county][votes[index].party].UAT++;
+                                }
 
 
                             } else feature.properties.data = { ...emptyData };
@@ -256,9 +264,9 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
         <p >
         <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
         <span class="color" style="background-color:${fillColor}"></span>
-        ${votes.party == votes.name ? 
-            `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>`: 
-            `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
+        ${votes.party == votes.name ?
+                `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}%</span>` :
+                `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes.toLocaleString()} - ${votes.percentage}%</span>`}
         
         </p>`
     }
@@ -272,18 +280,22 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     layer.bindPopup(popup);
 }
 String.prototype.clip = function (n) { return this.length < n ? this : this.substring(0, n - 3) + '...' };
-function setTable() {
+function setTable(county = "") {
 
     let table = document.querySelector('#table');
     table.innerHTML = `    `;
 
     let count = 0;
-    let results = sortByValues(window.results, 'UAT');
+
+    let results = []
+    if (county == "") results = sortByValues(window.results, 'UAT');
+    else results = sortByValues(window.statsJudete[county], 'UAT');
     //sum all votes
     let sum = results.reduce((a, b) => a + b.votes, 0);
+    let totalUATs = results.reduce((a, b) => a + b.UAT, 0);
     for (let party of results) {
         count++;
-        if (count > 8) return;
+        if (count > 8) break;
 
         table.innerHTML += `<div>
         <p class="color" style="background-color:${getPartyColor(party.name)}">
@@ -293,8 +305,23 @@ function setTable() {
          ></p>
         <p>
         <span><abbr title="${party.name}">${party.name.clip(30)}</abbr></span>
-        <span>${party.UAT.toLocaleString()} UAT - ${party.votes.toLocaleString()} voturi (${(party.votes / sum * 100).toFixed(2)}%)</span>
+        <span>${party.UAT.toLocaleString()} UAT ${county != "" ? `(${(party.UAT / totalUATs * 100).toFixed(2)}%)` : ''} - ${party.votes.toLocaleString()} voturi (${(party.votes / sum * 100).toFixed(2)}%)</span>
         </p>
         </div>`;
+    }
+    table.insertAdjacentHTML('beforeend', `<div class="custom-select"><select id="countiesSelect" onchange="setTable(this.value)"><option value="">Alege Judet</option></select></div>`);
+    let aJudete = [];
+    for (let iCounty in window.statsJudete) {
+        let totalUATs = 0;
+        let totalVotes = 0;
+        for (let party in window.statsJudete[iCounty]) {
+            totalUATs += window.statsJudete[iCounty][party].UAT;
+            totalVotes += window.statsJudete[iCounty][party].votes;
+        }
+        aJudete.push({name: iCounty == "SR" ? "Strainatate" : iCounty, UAT: totalUATs, votes: totalVotes});
+    }
+    aJudete.sort((a, b) => b.votes - a.votes);
+    for (let party of aJudete) {
+        document.querySelector('#countiesSelect').innerHTML += `<option value="${party.name}" ${party.name == county ? "selected" : ""}>${party.name}: ${party.votes.toLocaleString()} (${party.UAT.toLocaleString()})</option>`
     }
 }

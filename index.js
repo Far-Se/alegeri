@@ -35,23 +35,31 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#prezentaProcent').addEventListener('change', function (e) {
         loadData()
     })
-    
+
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 });
-let loadData = () =>{
-    if(window.isPagePresence) {
+let loadData = () => {
+    if (window.isPagePresence) {
 
         loadPresence(window.alegeri[window.alegeriSelected]);
-    }else
-    {
+    } else {
         document.querySelector('#toggleAlegeri').checked = true;
         loadResults(window.alegeri[window.alegeriSelected]);
     }
 }
-function selectParty(party)
-{
+function selectParty(party) {
     let checked = document.querySelectorAll('input.iparty:checked');
     window.partideAlese = [...checked].map(el => el.value);
-    if(window.partideAlese.length == 1)document.querySelector('.prezentaProcent').classList.remove('disabled');
+    if (window.partideAlese.length == 1) document.querySelector('.prezentaProcent').classList.remove('disabled');
     else document.querySelector('.prezentaProcent').classList.add('disabled');
     loadData();
 }
