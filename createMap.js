@@ -82,6 +82,7 @@ let memFetch = async (alegeri) => {
     window.rezultateAlegeri[alegeri] = data;
     return data;
 }
+window.uatVotes = [];
 function loadResults(alegeri) {
     window.results = {};
     window.statsJudete = {};
@@ -139,6 +140,7 @@ function loadResults(alegeri) {
                                 feature.properties.data = {
                                     totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
                                 }
+                                window.uatVotes.push({name: name, county: county, votes: feature.properties.data.totalVoturi});
                                 feature.properties.data.votes = votes.map(v => {
                                     v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
                                     v.procent = v.votes / feature.properties.data.totalVoturi;
