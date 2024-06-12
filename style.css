@@ -389,3 +389,16 @@ div#table {
     min-height: 300px;
     margin-bottom: 20px;
 }
+div#sliderTransparenta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+}
+
+div#sliderTransparenta label {line-height: 10px;}
+
+input#slider {
+    filter: opacity(0.6);
+    margin-top: 7px;
+}

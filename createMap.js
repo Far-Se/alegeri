@@ -116,7 +116,8 @@ function loadResults(alegeri) {
 
                         let fillColor = "#333333";
                         let weight = 0.3;
-                        let fillOpacity = 1;
+                        let fillOpacity = document.querySelector('#slider').value / 100;
+                        //console.log(fillOpacity);
                         if (county == "SR") {
                             countyCode = county;
                             if (alegeri.includes("locale")) {
@@ -289,6 +290,7 @@ String.prototype.clip = function (n) { return this.length < n ? this : this.subs
 function setTable(county = "") {
 
     document.querySelector('#elInfo').innerHTML = "<div id='table'></div>";
+    document.querySelector('#sliderTransparenta').style.display = window.partideAlese.length ? "none": "flex";
     let table = document.querySelector('#table');
     table.innerHTML = `    `;
 

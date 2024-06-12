@@ -43,6 +43,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#prezentaProcent').addEventListener('change', function (e) {
         loadData()
     })
+    //generate code when slider is unfocused
+    document.querySelector('#slider').addEventListener('change', function (e) {   
+        loadData()
+    })
 
 });
 let loadData = () => {
