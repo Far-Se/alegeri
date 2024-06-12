@@ -1,6 +1,6 @@
 
 
-window.alegeriSelected = "locale2024";
+window.alegeriSelected = "primari2024";
 window.prezentaSelected = "locale2024";
 window.isPagePresence = false;
 window.partideAlese = [];

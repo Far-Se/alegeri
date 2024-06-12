@@ -6,7 +6,7 @@ window.alegeri = {
     "locale2020": "locale27092020P",
     "parlamentare CD 2020": "parlamentare06122020CD",
     "parlamentare Senat 2020": "parlamentare06122020S",
-    "locale2024": "locale09062024P",
+    "primari2024": "locale09062024P",
     "primari Noi2024": "primariNoi",
     "Consiliu Local 2024": "locale09062024CL",
     "Consiliu Judetean 2024": "locale09062024CJ",

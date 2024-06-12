@@ -1,3 +1,4 @@
+window.countyPopulation = {};
 function loadPresence(alegeri) {
     // alegeri = alegeri.replace(/(\d)[a-z]+/gi, '$1');
     document.querySelector('#loading').style.display = "flex";
@@ -28,6 +29,9 @@ function loadPresence(alegeri) {
                             if (data[countyCode].hasOwnProperty(name)) {
                                 feature.properties.data = { ...data[countyCode][name] };
                                 feature.properties.data.percentage = (data[countyCode][name].total_voturi / data[countyCode][name].total_votanti).toFixed(2);
+
+                                if (!window.countyPopulation.hasOwnProperty(countyCode)) window.countyPopulation[countyCode] = {};
+                                window.countyPopulation[countyCode][name] = data[countyCode][name].total_votanti;
                             } else feature.properties.data = { ...emptyData };
                         } else feature.properties.data = { ...emptyData };
 
@@ -65,7 +69,7 @@ function loadPresence(alegeri) {
                     style: (e) => {
                         return {
                             fillColor: "#ff0000",
-                            fillOpacity: 1, 
+                            fillOpacity: 1,
                             weight: 0.9,
                             color: "#000000"
 
@@ -84,7 +88,7 @@ function loadPresence(alegeri) {
         });
 }
 function onEachFeaturePresence(feature, layer) {
-    if(feature.properties.data.percentage == 0)return;
+    if (feature.properties.data.percentage == 0) return;
     popupContent = `
 <h1>${feature.properties.county}: ${feature.properties.name}</h1>
 <h3>
