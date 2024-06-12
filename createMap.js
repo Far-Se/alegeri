@@ -168,7 +168,7 @@ function loadResults(alegeri) {
                             if (feature.properties.data.votes.length > 1 && document.querySelector('#toggleLocul2').checked == true) index = 1;
                             if (window.partideAlese.includes(feature.properties.data.votes[index].party)) {
                                 fillOpacity = 1;
-                            } else fillOpacity = 0.2;
+                            } else fillOpacity = 0.0;
                             if (document.querySelector('#prezentaProcent').checked == true) {
                                 fillColor = getPartyColor(window.partideAlese[0]);
                                 let partid = feature.properties.data.votes.find(v => v.party == window.partideAlese[0]);
@@ -179,20 +179,19 @@ function loadResults(alegeri) {
                             }
                         } else if (window.partideAlese.length == 2) {
                             if (feature.properties.data.votes.length >= 2) {
-                                let found = 0;
+                                fillOpacity = 0.00;
                                 for (const p of feature.properties.data.votes) {
                                     if (p.party == window.partideAlese[0] || p.party == window.partideAlese[1]) {
                                         fillColor = getPartyColor(p.party);
                                         found = 1;
+                                        fillOpacity = 1.00;
                                         break;
                                     }
                                 }
-                                fillOpacity = 1;
-                                if (!found) fillOpacity = 0.05;
                             }
                             else {
 
-                                fillOpacity = 0.2;
+                                fillOpacity = 0.0;
                             }
                         }
                         if (compareAlegeri) {
