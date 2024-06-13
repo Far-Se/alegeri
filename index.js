@@ -33,10 +33,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }         
     for (const alegeri of Object.keys(window.prezenta)) {
         document.querySelector('#prezenta').insertAdjacentHTML('beforeend',`<option value="${alegeri}" ${alegeri === window.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
-    }                 
+    }  
+       for (const mapType of mapTiles) {
+        document.querySelector('#mapLayers').insertAdjacentHTML('beforeend',`<option value="${mapType.name}"> ${mapType.name}</option>`);
+    }       
+
     if (window.location.hash.length > 1) processHash(); 
     loadData();
+    document.querySelector('#mapLayers').addEventListener('change', function (e) {
+        let value = e.target.value;
+        let index = mapTiles.findIndex(t => t.name == value);
+        if(!~index)return;
+        mapTile.removeFrom(map);
+        mapTile = L.tileLayer(mapTiles[index].url, {
+            maxZoom: 18,
+            attribution: '&copy;',
+            id: 'cartoDB/dark-v9',
+            tileSize: 512,
+            zoomOffset: -1
+        });
+        mapTile.addTo(map);
+    });
     document.querySelector('#alegeri').addEventListener('change', function (e) {
+
         window.partideAlese = [];
         window.alegeriSelected = e.target.value;
         loadData();

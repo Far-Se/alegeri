@@ -75,7 +75,7 @@ window.countiesCodes = Object.fromEntries(Object.entries(window.countiesName).ma
 window.partide = [
     {
         "match": "(USR[- ]|UNIUNEA SALVA.I ROM.NIA|\bUSR\b)",
-        "properties": { 
+        "properties": {
             "fill": "#00A6FF"
         }
     },
@@ -88,7 +88,7 @@ window.partide = [
     {
         "match": "(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS)",
         "properties": {
-            "fill": "#F7D600"
+            "fill": "#F7D100"
         }
     },
     {
@@ -297,3 +297,35 @@ window.countries = {
     "ZWE": "ZIMBABZWE"
 };
 window.countriesCode = Object.fromEntries(Object.entries(window.countries).map(([key, value]) => [value, key]));
+
+let mapTiles = [
+    {
+        name: 'cartoDB Light',
+        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    },
+    {
+        name: 'cartoDB Dark',
+        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    },
+    {
+        name: "OSM Terrain",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    },
+    {
+        name: "ESRI",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    },
+    {
+        name: "Stadia Light",
+        url: "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png",
+    },
+    {
+        name: "Stadia Dark",
+        url: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+    },
+    {
+        name: "OpenTopoMap",
+        url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    },
+
+]

@@ -5,38 +5,14 @@ let map = L.map('map', {
     zomDelta: 5,
     wheelPxPerZoomLevel: 140,
 }).setView([45.9628666, 25.2081763], 7.4);
-let lightTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+let mapTile = L.tileLayer(mapTiles[0].url, {
     maxZoom: 18,
-    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
+    attribution: '&copy;',
     id: 'cartoDB/light-v9',
     tileSize: 512,
     zoomOffset: -1
 });
-let darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 18,
-    attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>',
-    id: 'cartoDB/dark-v9',
-    tileSize: 512,
-    zoomOffset: -1
-});
-
-lightTile.addTo(map);
-let isLight = true;
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('#darkMode')?.addEventListener('click', () => {
-        if (isLight) {
-            document.getElementById('darkMode').innerText = '🌙';
-            isLight = false;
-            darkTile.addTo(map);
-            lightTile.removeFrom(map);
-        } else {
-            document.getElementById('darkMode').innerText = '🔆';
-            isLight = true;
-            lightTile.addTo(map);
-            darkTile.removeFrom(map);
-        }
-    });
-});
+mapTile.addTo(map);
 
 window.Commune = null;
 window.conturJudete = null;
