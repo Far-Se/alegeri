@@ -79,11 +79,12 @@ let memFetch = async (alegeri) => {
     window.rezultateAlegeri[alegeri] = data;
     return data;
 }
-window.uatVotes = [];
+window.statsVotes = [];
+window.statsVotes.uat = [];
 async function loadResults(alegeri) {
     window.results = {};
-    window.statsJudete = {};
-    window.uatVotes = [];
+    window.statsVotes.judete = {};
+    window.statsVotes.uat = [];
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "flex";
     const emptyData = {
@@ -132,7 +133,7 @@ async function loadResults(alegeri) {
                 weight = 0.0;
             }
         }
-        if (!window.statsJudete.hasOwnProperty(county)) window.statsJudete[county] = {};
+        if (!window.statsVotes.judete.hasOwnProperty(county)) window.statsVotes.judete[county] = {};
         if (data.hasOwnProperty(countyCode) && data[countyCode].hasOwnProperty(name)) processCountyInfo();
         else feature.properties.data = { ...emptyData };
 
@@ -161,23 +162,24 @@ async function loadResults(alegeri) {
             feature.properties.data = {
                 totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
             };
-            window.uatVotes.push({ name: name, county: county, votes: feature.properties.data.totalVoturi, candidates: votes.length });
+            window.statsVotes.uat.push({ name: name, county: county, votes: feature.properties.data.totalVoturi, candidates: votes.length , population: window.countyPopulation?.[countyCode]?.[name] ?? 0});
             feature.properties.data.votes = votes.map(v => {
                 v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
                 v.procent = v.votes / feature.properties.data.totalVoturi;
                 return v;
             });
-            if(window.countyPopulation[countyCode].hasOwnProperty(name)) feature.properties.data.population = window.countyPopulation[countyCode][name];
+            if(window.countyPopulation?.[countyCode]?.hasOwnProperty(name))feature.properties.data.population = window.countyPopulation[countyCode][name];
+             
             for (const vote of votes) {
-                if (!window.statsJudete[county].hasOwnProperty(vote.party)) window.statsJudete[county][vote.party] = { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
-                window.statsJudete[county][vote.party].votes += vote.votes;
+                if (!window.statsVotes.judete[county].hasOwnProperty(vote.party)) window.statsVotes.judete[county][vote.party] = { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
+                window.statsVotes.judete[county][vote.party].votes += vote.votes;
 
                 if (!window.results.hasOwnProperty(vote.party)) window.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
                 window.results[vote.party].votes += vote.votes;
             }
             if (feature.properties.data.votes.length == 0) feature.properties.data.votes = [{ party: "N/A", votes: 0, name: "N/A" }];
             else {
-                window.statsJudete[county][votes[index].party].UAT++;
+                window.statsVotes.judete[county][votes[index].party].UAT++;
             }
         }
 
@@ -300,7 +302,7 @@ function setTable(county = "") {
 
     let results = []
     if (county == "") results = sortByValues(window.results, 'UAT', 'votes');
-    else results = sortByValues(window.statsJudete[county], 'UAT', 'votes');
+    else results = sortByValues(window.statsVotes.judete[county], 'UAT', 'votes');
     //sum all votes
     let sum = results.reduce((a, b) => a + b.votes, 0);
     let totalUATs = results.reduce((a, b) => a + b.UAT, 0);
@@ -322,12 +324,12 @@ function setTable(county = "") {
     }
     document.querySelector('#elInfo').insertAdjacentHTML('beforeend', `<div class="custom-select"><select id="countiesSelect" onchange="setTable(this.value)"><option value="">Alege Judet</option></select></div>`);
     let aJudete = [];
-    for (let iCounty in window.statsJudete) {
+    for (let iCounty in window.statsVotes.judete) {
         let totalUATs = 0;
         let totalVotes = 0;
-        for (let party in window.statsJudete[iCounty]) {
-            totalUATs += window.statsJudete[iCounty][party].UAT;
-            totalVotes += window.statsJudete[iCounty][party].votes;
+        for (let party in window.statsVotes.judete[iCounty]) {
+            totalUATs += window.statsVotes.judete[iCounty][party].UAT;
+            totalVotes += window.statsVotes.judete[iCounty][party].votes;
         }
         aJudete.push({ name: iCounty == "SR" ? "Strainatate" : iCounty, UAT: totalUATs, votes: totalVotes });
     }

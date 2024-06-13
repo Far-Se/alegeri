@@ -40,16 +40,8 @@
             <div class="alegeri">
                 <div class="custom-select">
                     <select id="alegeri">
-                        <script>
-                            for (const alegeri of Object.keys(window.alegeri)) {
-                                document.write(`<option value="${alegeri}" ${alegeri === window.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
-                            }</script>
                     </select>
                     <select id="prezenta">
-                        <script>
-                            for (const alegeri of Object.keys(window.prezenta)) {
-                                document.write(`<option value="${alegeri}" ${alegeri === window.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
-                            }</script>
                     </select>
                 </div>
 

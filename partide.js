@@ -86,13 +86,13 @@ window.partide = [
         }
     },
     {
-        "match": "(PNL|PARTIDUL NATIONAL LIBERAL)",
+        "match": "(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS)",
         "properties": {
             "fill": "#F7D600"
         }
     },
     {
-        "match": "(PSD|PARTIDUL SOCIAL DEMOCRAT)",
+        "match": "(PSD|PARTIDUL SOCIAL DEMOCRAT|DANCILA)",
         "properties": {
             "fill": "#EC1C24"
         }
