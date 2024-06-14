@@ -95,7 +95,8 @@ async function loadResults(alegeri) {
         let countyCode = window.countiesCodes[county];
 
         let fillColor = "#333333";
-        let weight = 0.3;
+        let weight = 0.1;
+        let borderColor = "#000000";
         let fillOpacity = document.querySelector('#slider').value / 100;
         //console.log(fillOpacity);
         if (county == "SR") {
@@ -124,7 +125,7 @@ async function loadResults(alegeri) {
         return {
             fillColor: fillColor,
             weight: weight,
-            color: "#000000",
+            color: borderColor,
             fillOpacity: fillOpacity
         }
 
@@ -138,14 +139,18 @@ async function loadResults(alegeri) {
             feature.properties.data = {
                 totalVoturi: votes.reduce((a, b) => a + b.votes, 0),
             };
-            window.statsVotes.uat.push({ name: name, county: county, votes: feature.properties.data.totalVoturi, candidates: votes.length , population: window.countyPopulation?.[countyCode]?.[name] ?? 0});
+            window.statsVotes.uat.push({ name: name, county: county, votes: feature.properties.data.totalVoturi, candidates: votes.length, population: window.countyPopulation?.[countyCode]?.[name] ?? 0 });
             feature.properties.data.votes = votes.map(v => {
                 v.percentage = (v.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
                 v.procent = v.votes / feature.properties.data.totalVoturi;
                 return v;
             });
-            if(window.countyPopulation?.[countyCode]?.hasOwnProperty(name))feature.properties.data.population = window.countyPopulation[countyCode][name];
-             
+            if (data[countyCode][name].special == "MUN") {
+                //borderColor = "#dddddd";
+                weight = 0.4;
+            }
+            if (window.countyPopulation?.[countyCode]?.hasOwnProperty(name)) feature.properties.data.population = window.countyPopulation[countyCode][name];
+
             for (const vote of votes) {
                 if (!window.statsVotes.judete[county].hasOwnProperty(vote.party)) window.statsVotes.judete[county][vote.party] = { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
                 window.statsVotes.judete[county][vote.party].votes += vote.votes;
@@ -230,30 +235,32 @@ async function loadResults(alegeri) {
 
 
 }
+let mainPopupActive = false;
 function onEachFeatureResults(feature, layer) {
     if (layer.options?.fillOpacity == 0) return;
+    let data = feature.properties.data;
     let popupContent = '';
     try {
         popupContent = `
 <h1>${feature.properties.county == "SR" ? `Diaspora: ${window.countries[feature.properties.name]}` : `${feature.properties.county}: ${feature.properties.name}`}</h1>
-<h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
-<h3>Partid: ${feature.properties.data?.votes[0].party ?? 'N/A'}</h3>
-<h3>Populatie: ${feature.properties.data?.population?.toLocaleString() ?? 'N/A'}</h3>
-<h3>Total voturi: ${feature.properties.data?.totalVoturi.toLocaleString() ?? 'N/A'} - ${(((feature.properties.data?.totalVoturi ?? 1) / (feature.properties.data?.population ?? 1)) * 100).toLocaleString()}%</h3>
-${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${feature.properties.data.fostPrimar}</h3>` : ''}
+<h3>Castigator: ${data?.votes[0].name ?? 'N/A'}</h3>
+<h3>Partid: ${data?.votes[0].party ?? 'N/A'}</h3>
+<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>
+<h3>Total voturi: ${data?.totalVoturi.toLocaleString() ?? 'N/A'} - ${(((data?.totalVoturi ?? 1) / (data?.population ?? 1)) * 100).toLocaleString()}%</h3>
+${data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : ''}
 <div class="votes">`;
     } catch (e) {
         console.log(feature.properties, e);
     }
-    for (let votes of feature.properties.data.votes) {
+    for (let votes of data.votes) {
         let fillColor = getPartyColor(votes.party);
         popupContent += `
         <p >
         <span class="bar" style=""><b style="width:${votes.percentage}%"></b></span>
         <span class="color" style="background-color:${fillColor}"></span>
         ${votes.party == votes.name ?
-                `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}% (${(votes.votes/ (feature.properties.data?.population ?? 1) * 100).toLocaleString()}%)</span>` :
-                `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes?.toLocaleString()} - ${votes.percentage}% (${(votes.votes/ (feature.properties.data?.population ?? 1) * 100).toLocaleString()}%)</span>`}
+                `<span class="nume">${votes.party}<br>${votes.votes?.toLocaleString()} Voturi - ${votes.percentage}% (${(votes.votes / (data?.population ?? 1) * 100).toLocaleString()}%)</span>` :
+                `<span class="nume">${votes.party}<br>${votes.name}: ${votes.votes?.toLocaleString()} - ${votes.percentage}% (${(votes.votes / (data?.population ?? 1) * 100).toLocaleString()}%)</span>`}
         
         </p>`
     }
@@ -265,6 +272,27 @@ ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${fea
     })
         .setContent(popupContent);
     layer.bindPopup(popup);
+
+
+
+    layer.on('mousemove', function (e) {
+        let mouse = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+        let popup = document.querySelector('#popupX');
+        popup.style.left = `${mouse.x}px`;
+        popup.style.top = `${mouse.y}px`;
+        popup.style.display = "block";
+        popup.innerHTML = `${feature.properties.county}: ${feature.properties.name}`;
+        // Open the popup on mouseover
+
+        // Close the popup on mouseout
+        layer.on('mouseout', function () {
+            popup.style.display = "none";
+        });
+        layer.on('click', function () {
+            popup.style.display = "none";
+        });
+    });
+
 }
 String.prototype.clip = function (n) { return this.length < n ? this : this.substring(0, n - 3) + '...' };
 function setTable(county = "") {

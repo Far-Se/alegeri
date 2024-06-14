@@ -77,6 +77,8 @@ function processResults(alegeriName, type) {
                 if (!rezultate[judet].hasOwnProperty(localitate)) {
                     rezultate[judet][localitate] = { votes: {} };
                 }
+                if(row.uat_name.toUpperCase().indexOf('MUNICIPIUL')== 0) rezultate[judet][localitate].special = "MUN";
+                if(row.uat_name.toUpperCase().indexOf('ORA') == 0) rezultate[judet][localitate].special = "ORAS";
                 for (const partid of votes) {
                     if (rezultate[judet][localitate].votes.hasOwnProperty(partid.candidate)) {
                         rezultate[judet][localitate].votes[partid.candidate].votes += Number(partid.votes);

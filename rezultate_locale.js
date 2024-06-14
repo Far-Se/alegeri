@@ -72,6 +72,8 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
                 let pparty = partid.party ?? "INDEPENDENT";
                 if (pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
                 if (partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
+                if(row.uat_name.toUpperCase().indexOf('MUNICIPIUL')== 0) rezultate[judet][localitate].special = "MUN";
+                if(row.uat_name.toUpperCase().indexOf('ORA') == 0) rezultate[judet][localitate].special = "ORAS";
                 
                 if (rezultate[judet][localitate].votes.hasOwnProperty(partid.candidate)) {
                     rezultate[judet][localitate].votes[partid.candidate].votes += Number(partid.votes);
