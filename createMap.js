@@ -238,12 +238,12 @@ function onEachFeatureResults(feature, layer) {
 <h1>${feature.properties.county == "SR" ? `Diaspora: ${window.countries[feature.properties.name]}` : `${feature.properties.county}: ${feature.properties.name}`}</h1>
 <h3>Castigator: ${feature.properties.data?.votes[0].name ?? 'N/A'}</h3>
 <h3>Partid: ${feature.properties.data?.votes[0].party ?? 'N/A'}</h3>
-<h3>Populatie: ${feature.properties.data?.population.toLocaleString() ?? 'N/A'}</h3>
+<h3>Populatie: ${feature.properties.data?.population?.toLocaleString() ?? 'N/A'}</h3>
 <h3>Total voturi: ${feature.properties.data?.totalVoturi.toLocaleString() ?? 'N/A'} - ${(((feature.properties.data?.totalVoturi ?? 1) / (feature.properties.data?.population ?? 1)) * 100).toLocaleString()}%</h3>
 ${feature.properties.data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${feature.properties.data.fostPrimar}</h3>` : ''}
 <div class="votes">`;
     } catch (e) {
-        console.log(feature.properties);
+        console.log(feature.properties, e);
     }
     for (let votes of feature.properties.data.votes) {
         let fillColor = getPartyColor(votes.party);
@@ -276,7 +276,7 @@ function setTable(county = "") {
 
     let count = 0;
 
-    let results = []
+    let results = [];
     if (county == "") results = sortByValues(window.results, 'UAT', 'votes');
     else results = sortByValues(window.statsVotes.judete[county], 'UAT', 'votes');
     //sum all votes
@@ -307,10 +307,10 @@ function setTable(county = "") {
             totalUATs += window.statsVotes.judete[iCounty][party].UAT;
             totalVotes += window.statsVotes.judete[iCounty][party].votes;
         }
-        aJudete.push({ name: iCounty == "SR" ? "Strainatate" : iCounty, UAT: totalUATs, votes: totalVotes });
+        aJudete.push({ name: iCounty, UAT: totalUATs, votes: totalVotes });
     }
     aJudete.sort((a, b) => b.votes - a.votes);
     for (let party of aJudete) {
-        document.querySelector('#countiesSelect').innerHTML += `<option value="${party.name}" ${party.name == county ? "selected" : ""}>${party.name}: ${party.votes.toLocaleString()} (${party.UAT.toLocaleString()})</option>`
+        document.querySelector('#countiesSelect').innerHTML += `<option value="${party.name}" ${party.name == county ? "selected" : ""}>${party.name == "SR" ? "Strainatate" : party.name}: ${party.votes.toLocaleString()} (${party.UAT.toLocaleString()})</option>`
     }
 }

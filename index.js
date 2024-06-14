@@ -7,11 +7,10 @@ window.isPagePresence = false;
 let processHash = () =>{
     let hash = window.location.hash.substring(1);
     hash = decodeURIComponent(hash);
-    console.log(hash);
     if (hash.includes('prezenta-')) {
         hash = hash.replace('prezenta-', '');
         if(!window.prezenta.hasOwnProperty(hash))return;
-        console.log("prezenta", hash);
+
         window.prezentaSelected = hash;
         window.isPagePresence = true;
         document.querySelector(`#prezenta option[value="${window.prezentaSelected}"]`).setAttribute("selected",true);
@@ -19,10 +18,8 @@ let processHash = () =>{
     }
     
     if(!window.alegeri.hasOwnProperty(hash))return;
-    console.log("selected", hash);
     window.alegeriSelected = hash;
     window.isPagePresence = false;
-    console.log(`#prezenta option[value="${window.alegeriSelected}"]`);
     document.querySelector(`#alegeri option[value="${window.alegeriSelected}"]`).setAttribute("selected",true);
 }
 window.partideAlese = [];
