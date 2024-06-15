@@ -95,7 +95,7 @@ async function loadResults(alegeri) {
         let countyCode = window.countiesCodes[county];
 
         let fillColor = "#333333";
-        let weight = 0.1;
+        let weight = 0.3;
         let borderColor = "#000000";
         let fillOpacity = document.querySelector('#slider').value / 100;
         //console.log(fillOpacity);

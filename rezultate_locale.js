@@ -3,8 +3,7 @@ Date:
 https://prezenta.roaep.ro/{ALEGERI}/data/json/sicpv/pv/pv_{JUDET}_{prov|part|final}.json
 */
 const { exec } = require('child_process');
-const { debug } = require('console');
-const { mkdir, mkdirSync, fstat, existsSync, readFileSync, writeFileSync } = require('fs');
+const { mkdirSync, existsSync, writeFileSync } = require('fs');
 const { default: axios } = require('axios');
 let countryCodes = require('./data/map/countries.json');
 
@@ -33,11 +32,6 @@ String.prototype.clear = function () {
         .replace(/ - /ig, '-')
         ;
 }
-function sortByValues(obj, key) {
-    let candidatesArray = Object.values(obj);
-    candidatesArray.sort((a, b) => b[key] - a[key]);
-    return candidatesArray;
-}
 let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
     let rezultate = {};
 
@@ -55,7 +49,17 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
             continue;
         }
         let table = [];
+        try{
         table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[tipAlegeri].table);
+        }catch(e){
+            try {
+            table = Object.values(json.stages[args[1].toUpperCase()].scopes.UAT.categories[tipAlegeri].table);
+            }catch(_){
+                console.log(`No data for ${judet} ${resultsKind}`);
+                console.log(Object.keys(json.stages[args[1].toUpperCase()].scopes));
+                return;
+            }
+        }
         for (const row of table) {
             let localitate = row.uat_name.clear();
             if (judet == "SR") {
