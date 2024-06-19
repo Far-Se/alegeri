@@ -15,7 +15,7 @@ const alegeri = {
 //const judete = ["s1","s2"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "s1", "s2", "s3", "s4", "s5", "s6", "sr"];
 if (args.length == 0) args[0] = "EP2024";
-args[1] = "part";
+args[1] = "final";
 if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node rezultate_parlamentare.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}] [prov|part|final]`);
 
 String.prototype.clear = function () {
