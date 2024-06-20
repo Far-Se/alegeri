@@ -30,17 +30,6 @@ function sortByValues(obj, key, subkey = '') {
     candidatesArray.sort((a, b) => subkey != '' && a[key] == b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
     return candidatesArray;
 }
-String.prototype.clear = function () {
-    return this.replace(/î/g, 'a')
-        .replace(/Î/g, 'I')
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase()
-        .replace(/(MUNICIPIUL|ORAS) ?/ig, '')
-        .replace(/\. /ig, '.')
-        .replace(/ - /ig, '-')
-        ;
-}
 let geoJSON = null;
 let conturGeoJSON = null;
 
@@ -241,8 +230,12 @@ function onEachFeatureResults(feature, layer) {
     let data = feature.properties.data;
     let popupContent = '';
     try {
+        let title = '';
+        if(feature.properties.county == "SR") title = `Diaspora: ${window.countries[feature.properties.name]}`;
+        else title = `<a href="/uat.html#${feature.properties.county.clear()}++${feature.properties.name.clear()}" target="_blank">${feature.properties.county}: ${feature.properties.name}</a>`
+
         popupContent = `
-<h1>${feature.properties.county == "SR" ? `Diaspora: ${window.countries[feature.properties.name]}` : `${feature.properties.county}: ${feature.properties.name}`}</h1>
+<h1>${title}</h1>
 <h3>Castigator: ${data?.votes[0].name ?? 'N/A'}</h3>
 <h3>Partid: ${data?.votes[0].party ?? 'N/A'}</h3>
 <h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>
