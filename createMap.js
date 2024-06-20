@@ -232,7 +232,7 @@ function onEachFeatureResults(feature, layer) {
     try {
         let title = '';
         if(feature.properties.county == "SR") title = `Diaspora: ${window.countries[feature.properties.name]}`;
-        else title = `<a href="/uat.html#${feature.properties.county.clear()}++${feature.properties.name.clear()}" target="_blank">${feature.properties.county}: ${feature.properties.name}</a>`
+        else title = `<a href="uat.html#${feature.properties.county.clear()}++${feature.properties.name.clear()}" target="_blank">${feature.properties.county}: ${feature.properties.name}</a>`
 
         popupContent = `
 <h1>${title}</h1>
