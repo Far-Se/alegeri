@@ -76,25 +76,25 @@ window.partide = [
     {
         "match": "(USR[- ]|UNIUNEA SALVA.I ROM.NIA|\bUSR\b)",
         "properties": {
-            "fill": "#00A6FF"
+            "fill": "#00b2ff"
         }
     },
     {
         "match": "(PSD PNL)",
         "properties": {
-            "fill": "#f75504"
+            "fill": "#ff5100"
         }
     },
     {
         "match": "(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS)",
         "properties": {
-            "fill": "#F7D100"
+            "fill": "#ffc300"
         }
     },
     {
         "match": "(PSD|PARTIDUL SOCIAL DEMOCRAT|DANCILA)",
         "properties": {
-            "fill": "#EC1C24"
+            "fill": "#ff001e"
         }
     },
     {
@@ -104,7 +104,7 @@ window.partide = [
         }
     },
     {
-        "match": "(UDMR|MAGHIAR)",
+        "match": "(UDMR|MAGHIAR|KELEMEN)",
         "properties": {
             "fill": "#1ED760"
         }

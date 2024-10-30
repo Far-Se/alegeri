@@ -117,9 +117,12 @@ function onEachFeaturePresence(feature, layer) {
 <h3>
 Numar Votanti: ${feature.properties.data.total_votanti.toLocaleString()}<br>
 Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}<br>
-<small>LS: ${feature.properties.data.lista_suplimentara} LP: ${feature.properties.data.lista_permanenta} UM: ${feature.properties.data.urna_mobila} LC:${feature.properties.data.lista_C}</small><br>
-Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%<br>
-</h3>`;
+<small><abbr title="Lista Suplimentara">LS</abbr>: ${feature.properties.data.lista_suplimentara} 
+<abbr title="Lista Permanenta">LP</abbr>: ${feature.properties.data.lista_permanenta}
+<abbr title="Urna mobila">UM</abbr>: ${feature.properties.data.urna_mobila} 
+<abbr title="Lista C">LC</abbr>: ${feature.properties.data.lista_C}</small><br></h3>
+<hr>
+<h2><center>Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%</center></h2>`;
     var popup = L.popup({
         maxWidth: 700,
         maxHeight: 800
@@ -151,7 +154,7 @@ function sortByValues(obj, key, subkey = '') {
     candidatesArray.sort((a, b) => subkey != '' && a[key] == b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
     return candidatesArray;
 }
-function makeTable(county = "") {
+function makeTable(selectedCounty = "") {
     document.querySelector('#elInfo').innerHTML = "<div id='prezentaTotala'></div><div id='table' class='prezentaTable'></div>";
     let totalVoturi = Object.values(window.countyStats).reduce((a, b) => a + b.voturi, 0);
     let totalVotanti = Object.values(window.countyStats).reduce((a, b) => a + b.votanti, 0);
@@ -173,18 +176,18 @@ function makeTable(county = "") {
 
     let table = document.querySelector('#table');
     let results = [];
-    if (county == "") results = sortByValues(window.countyStats, 'percentage', 'voturi');
+    if (selectedCounty == "") results = sortByValues(window.countyStats, 'percentage', 'voturi');
     else {
-        results = sortByValues(window.countyPopulation[county], 'percentage', 'voturi');
-        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p></div>`;
+        results = sortByValues(window.countyPopulation[selectedCounty], 'percentage', 'voturi');
+        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${selectedCounty}</p></div>`;
     }
     for (let county of results) {
-        table.innerHTML += `<div class="tCounty" onclick="makeTable('${county.code}')">
+        table.innerHTML += `<div class="tCounty" ${!selectedCounty.length ? `onclick="makeTable('${county.code}')"` : ""}>
         <p><span class="big">${county.name}<span></p>
         <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}</p>
         </div>`
     }
-    if (county != "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
+    if (selectedCounty != "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
 }
 //make on hover for any div
 document.addEventListener('DOMContentLoadedxxx', (event) => {

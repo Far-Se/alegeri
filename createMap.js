@@ -162,6 +162,9 @@ async function loadResults(alegeri) {
                         if (votes[0].name.clear() == compVotes[0].name.clear()) {
                             fillOpacity = 0.1;
                         } else {
+                            if(votes[0].party == compVotes[0].party) fillOpacity = 0.5;
+                            else
+                            weight = 0.7;
                             feature.properties.data.fostPrimar = `${compVotes[0].name} <br><i>${compVotes[0].party}</i>`;
                         }
                     }
@@ -300,6 +303,14 @@ function setTable(county = "") {
     let table = document.querySelector('#table');
     table.innerHTML = `    `;
 
+    try {
+        let regex = window.prezenta[window.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/);
+        const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(Number(regex[3]), Number(regex[2]) - 1));
+
+        dataAlegeri = `${regex[1]} ${monthName} ${regex[3]}`;
+    } catch (e) { console.log(e) }
+    document.querySelector("#electionDate")?.remove();
+    document.querySelector('#rezultate').insertAdjacentHTML('afterbegin',`<center id="electionDate"><p class="">${dataAlegeri}</p></center>`);
     let count = 0;
 
     let results = [];

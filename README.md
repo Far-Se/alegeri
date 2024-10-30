@@ -1,5 +1,5 @@
 
-[LINK SITE](https://far-se.github.io/alegeri/)
+# [LINK SITE](https://far-se.github.io/alegeri/)
 ## Prelucrare date:
 ### Prezenta
 `node prezenta.js [tipAlegeri]`

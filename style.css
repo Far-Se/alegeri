@@ -59,7 +59,7 @@ span.small {
     grid-template-columns: repeat(2, 1fr);
     width: fit-content;
     border: 3px solid #343434;
-    border-radius: 20px;
+    border-radius: 10px;
     background: #343434;
     font-weight: bold;
     color: #343434;
@@ -72,7 +72,7 @@ span.small {
     width: 50%;
     height: 100%;
     left: 0%;
-    border-radius: 20px;
+    border-radius: 10px;
     background: white;
     transition: all 0.3s;
 }
