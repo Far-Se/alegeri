@@ -5,7 +5,12 @@ body {
     height: 100%;
     margin: 0;
     background: #14161A;
-    font-family: "Inter", sans-serif;
+    /* font-family: "Inter", sans-serif; */
+    font-family: "Jetbrains Mono", sans-serif;
+}
+
+select {
+    font-family: "Jetbrains Mono", sans-serif;
 }
 
 #map {
@@ -19,6 +24,34 @@ h3 {
     margin: 5px;
 }
 
+hr {
+    border: 1px solid #e1e1e1;
+}
+
+.border1 {
+    border-radius: 24px;
+    border: 5px solid #e0e0e0;
+    outline: 10px solid #ECEDF0;
+}
+
+.border2 {
+    border-radius: 24px;
+    border: 1px solid #e0e0e0;
+    outline: 1px solid #ECEDF0;
+}
+
+span.small {
+    font-size: 11px;
+}
+
+.shadow1 {
+    --tw-shadow: 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;
+    --tw-ring-color: #3b82f680;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
 
 .toggleContainer {
     position: relative;
@@ -92,10 +125,21 @@ select {
     font-size: 1.15rem;
     padding: 0.675em 2em 0.675em 1em;
     background-color: #fff;
-    border: 1px solid #caced1;
+    border-bottom: 1px solid #caced1;
+    border-left: none;
+    border-right: none;
+    border-top: none;
     border-radius: 0.25rem;
     color: #000;
     cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+}
+
+select.shadow1 {
+    --tw-shadow: 0 10px 30px -15px #0000001a, 0 8px 10px -8px #0000001a;
 }
 
 .custom-select::before,
@@ -129,13 +173,13 @@ select {
     top: 10px;
     right: 10px;
     z-index: 99999;
-    background: #EBF3F3;
+    /* background: #EBF3F3; */
+    background: #FAFAFA;
     color: rgb(171, 177, 191);
     min-width: 250px;
     width: 300px;
     padding: 10px;
-    box-shadow: 0px 11px 21px 0px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e1e1e1;
+    border-top-right-radius: 0;
 }
 
 .wrapper {
@@ -366,6 +410,10 @@ abbr {
     font-size: 12px;
 }
 
+.leaflet-container {
+    font-family: 'JetBrains Mono';
+}
+
 .leaflet-popup-content-wrapper {
     background: #EBF3F3;
 }
@@ -383,12 +431,14 @@ select#countiesSelect {
 #table .custom-select {
     margin-top: 10px;
 }
+
 div#table {
     overflow-y: scroll;
     max-height: 40vh;
     min-height: 300px;
     margin-bottom: 20px;
 }
+
 div#sliderTransparenta {
     display: flex;
     align-items: center;
@@ -396,12 +446,15 @@ div#sliderTransparenta {
     height: 28px;
 }
 
-div#sliderTransparenta label {line-height: 10px;}
+div#sliderTransparenta label {
+    line-height: 10px;
+}
 
 input#slider {
     filter: opacity(0.6);
     margin-top: 7px;
 }
+
 div#popupX {
     position: absolute;
     /* display: block !important; */
@@ -409,7 +462,38 @@ div#popupX {
     background: white;
     padding: 5px;
     border-radius: 5px;
-    box-shadow: 0px 11px 21px 0px rgba(0, 0, 0, 0.1);
     pointer-events: none;
     margin-top: -30px;
+}
+
+#table.prezentaTable div {
+    justify-content: space-between;
+    border-bottom: 1px solid #f5f5f5;
+    padding: 5px;
+}
+
+#table.prezentaTable .small {
+    font-size: 11px;
+}
+
+.prezentaTable div {
+    cursor: pointer;
+}
+
+.prezentaTable div:hover {
+    font-weight: bold;
+    background: #f3f3f3;
+    box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.1);
+    padding-left: 10px !important;
+}
+
+#popShadow {
+    display: none;
+    pointer-events: none;
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    background: rgba(0, 0, 0, 0);
+    z-index: 9999999;
+    box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.1);
 }

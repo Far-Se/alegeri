@@ -42,11 +42,12 @@ String.prototype.clear = function () {
         .replace(/ - /ig, '-')
         ;
 }
-function processPresence(alegeriName) {
+function processPresence(alegeriName, date, hour) {
+    if (date == undefined) date = "now";
     //create dir raw if doesnt exist
     if (!fs.existsSync('./data/alegeri/raw')) fs.mkdirSync('./data/alegeri/raw');
     let prezenta = {};
-    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_now.json"`, (error) => {
+    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_${date}.json"`, (error) => {
         if (error) {
             console.error(`Error: ${error.message}`);
             return;
@@ -57,7 +58,7 @@ function processPresence(alegeriName) {
             prezenta[judet] = {};
             let json = [];
             try {
-                json = require(`./data/alegeri/raw/presence_${judet}_now.json`);
+                json = require(`./data/alegeri/raw/presence_${judet}_${date}.json`);
             } catch (_) {
                 continue;
             }
@@ -73,13 +74,27 @@ function processPresence(alegeriName) {
                 incrementOrSet(prezenta[judet][localitate], 'LS', row.LS); //lista_suplimentara
                 incrementOrSet(prezenta[judet][localitate], 'UM', row.UM); //urna_mobila
             }
-        }
-        fs.writeFileSync(`./data/alegeri/prezenta_${alegeriName}.json`, JSON.stringify(prezenta));
+        } 
+        if (date == "now")
+            fs.writeFileSync(`./data/alegeri/prezenta_${alegeriName}.json`, JSON.stringify(prezenta));
+        else
+            fs.writeFileSync(`./data/alegeri/prezenta_${alegeriName}_${hour}.json`, JSON.stringify(prezenta));
         exec(`rm -rf ./data/alegeri/raw`);
-        // fs.rmdir('./data/alegeri/raw', { recursive: true });
+        // try { fs.rmSync('./data/alegeri/raw', { recursive: true }, (_) => { }); { } } catch (_) { }
         //delete folder raw
 
         console.log("Done");
     });
 }
-processPresence(alegeri[args[0]]);
+if (args[1] != undefined) {
+    let hour = Number(args[1]);
+    if (hour < 8 || hour > 22) return console.log("Month must be between 7 and 22");
+    let xDate = alegeri[args[0]].match(/(\d{2})(\d{2})(\d{4})/);
+    let date = `${xDate[3]}-${xDate[2]}-${xDate[1]}_`;
+    const array = Array.from({ length: 15 }, (_, i) => (i + 8).toString().padStart(2, "0"));
+
+    date += `{${array.join(',')}}-00`;
+    processPresence(alegeri[args[0]], date, hour);
+}
+else
+    processPresence(alegeri[args[0]]);

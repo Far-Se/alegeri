@@ -264,7 +264,12 @@ ${data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${data.fostPrimar}</h3>`
         maxHeight: 800
     })
         .setContent(popupContent);
-    layer.bindPopup(popup);
+    layer.bindPopup(popup, {
+        closeButton: true,
+        closeOnEscapeKey: true,
+        className: 'shadow1',
+        autoPan: true,
+    });
 
 
 
@@ -315,7 +320,7 @@ function setTable(county = "") {
          ></p>
         <p>
         <span><abbr title="${party.name}">${party.name.clip(27)}</abbr></span>
-        <span>${party.UAT.toLocaleString()} UAT ${county != "" ? `(${(party.UAT / totalUATs * 100).toFixed(2)}%)` : ''} - ${party.votes.toLocaleString()} voturi (${(party.votes / sum * 100).toFixed(2)}%)</span>
+        <span>${party.UAT.toLocaleString()} UAT ${county != "" ? `(${(party.UAT / totalUATs * 100).toFixed(2)}%)` : ''} - ${party.votes.toLocaleString()} (${(party.votes / sum * 100).toFixed(2)}%)</span>
         </p>
         </div>`;
     }

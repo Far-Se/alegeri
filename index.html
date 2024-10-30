@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <title>Harta Alegeri Romania</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -22,7 +25,7 @@
     <script src="index.js"></script>
 
     <div id="unCollapse" class="collapsed"><span></span><span></span><span></span></div>
-    <div class="controls">
+    <div class="controls shadow1 border1">
         <div class="wrapper">
             <div class="buttons">
                 <div id="darkMode"> </div>
@@ -39,9 +42,9 @@
             <hr>
             <div class="alegeri">
                 <div class="custom-select">
-                    <select id="alegeri">
+                    <select class="shadow1" id="alegeri">
                     </select>
-                    <select id="prezenta">
+                    <select class="shadow1" id="prezenta">
                     </select>
                 </div>
 
@@ -77,14 +80,15 @@
                 </div>
                 <div class="mapLayers">
                     <div class="custom-select">
-                        <select id="mapLayers"></select>
+                        <select id="mapLayers" class="shadow1" style="font-size:0.8em"></select>
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
-    <div id="popupX"></div>
+    <div id="popupX" class="shadow1"></div>
+    <div id="popShadow" class="shadow1"></div>
 </body>
 
 </html>

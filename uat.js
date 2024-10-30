@@ -87,7 +87,7 @@ async function loadUAT(hash) {
         html +=popupContent;
         html += `</div></div></div>`
 
-        document.querySelector('#content').insertAdjacentHTML('beforeend', `<div class="col">${html}</div>`);
+        document.querySelector('#content').insertAdjacentHTML('beforeend', `<div class="col" draggable="true">${html}</div>`);
     }
     document.querySelector('#content').insertAdjacentHTML('beforeBegin', `<h1>${countyName}: ${UAT}</h1>`);
     document.querySelector('#loading').style.display = "none";

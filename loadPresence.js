@@ -1,5 +1,9 @@
 window.countyPopulation = {};
+window.countyStats = {};
 function loadPresence(alegeri) {
+    document.querySelector('#sliderTransparenta').style.display = "none";
+    window.countyStats = {};
+    window.countyPopulation = {};
     // alegeri = alegeri.replace(/(\d)[a-z]+/gi, '$1');
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "none";
@@ -19,8 +23,10 @@ function loadPresence(alegeri) {
             getCommunes().then(async (communes) => {
                 if (geoJSON) geoJSON.removeFrom(map);
                 if (conturGeoJSON) conturGeoJSON.removeFrom(map);
+                communes.features = communes.features.filter(feature => feature.properties.county !== 'SR');
                 geoJSON = await L.geoJSON(communes, {
                     style: function (feature) {
+
                         let county = feature.properties.county.clear();
                         let name = feature.properties.name.clear();
                         let countyCode = window.countiesCodes[county];
@@ -28,10 +34,27 @@ function loadPresence(alegeri) {
                         if (data.hasOwnProperty(countyCode)) {
                             if (data[countyCode].hasOwnProperty(name)) {
                                 feature.properties.data = { ...data[countyCode][name] };
-                                feature.properties.data.percentage = (data[countyCode][name].total_voturi / data[countyCode][name].total_votanti).toFixed(2);
+                                feature.properties.data.total_votanti = data[countyCode][name].TP;
+                                feature.properties.data.total_voturi = data[countyCode][name].TV;
+                                feature.properties.data.lista_permanenta = data[countyCode][name].LP;
+                                feature.properties.data.lista_C = data[countyCode][name].LC;
+                                feature.properties.data.lista_suplimentara = data[countyCode][name].LS;
+                                feature.properties.data.urna_mobila = data[countyCode][name].UM;
+                                feature.properties.data.percentage = (data[countyCode][name].TV / data[countyCode][name].TP).toFixed(2);
 
-                                if (!window.countyPopulation.hasOwnProperty(countyCode)) window.countyPopulation[countyCode] = {};
-                                window.countyPopulation[countyCode][name] = data[countyCode][name].total_votanti;
+                                if (!window.countyPopulation.hasOwnProperty(countyCode))
+                                    window.countyPopulation[countyCode] = {};
+                                if (!window.countyStats.hasOwnProperty(countyCode))
+                                    window.countyStats[countyCode] = { name: county, code: countyCode, votanti: 0, voturi: 0 };
+
+                                window.countyPopulation[countyCode][name] = {
+                                    name: name,
+                                    votanti: data[countyCode][name].TP,
+                                    voturi: data[countyCode][name].TV,
+                                    percentage: data[countyCode][name].TV / data[countyCode][name].TP
+                                };
+                                window.countyStats[countyCode].votanti += data[countyCode][name].TP;
+                                window.countyStats[countyCode].voturi += data[countyCode][name].TV;
                             } else feature.properties.data = { ...emptyData };
                         } else feature.properties.data = { ...emptyData };
 
@@ -53,8 +76,6 @@ function loadPresence(alegeri) {
                             weight = 0;
 
                         }
-
-
                         return {
                             fillColor: fillColor,
                             weight: weight,
@@ -77,8 +98,10 @@ function loadPresence(alegeri) {
                     }
                 });
                 geoJSONLayer.addTo(map);
-
                 document.querySelector('#loading').style.display = "none";
+                for (let county in window.countyPopulation)
+                    window.countyStats[county].percentage = (window.countyStats[county].voturi / window.countyStats[county].votanti);
+                makeTable();
             });
         })
         .catch(error => {
@@ -103,4 +126,86 @@ Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%<br>
     })
         .setContent(popupContent);
     layer.bindPopup(popup);
+
+
+    layer.on('mousemove', function (e) {
+        let mouse = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+        let popup = document.querySelector('#popupX');
+        popup.style.left = `${mouse.x}px`;
+        popup.style.top = `${mouse.y}px`;
+        popup.style.display = "block";
+        popup.innerHTML = `${feature.properties.county}: ${feature.properties.name} ${parseInt(feature.properties.data.percentage * 100)}%`;
+        // Open the popup on mouseover
+
+        // Close the popup on mouseout
+        layer.on('mouseout', function () {
+            popup.style.display = "none";
+        });
+        layer.on('click', function () {
+            popup.style.display = "none";
+        });
+    });
 }
+function sortByValues(obj, key, subkey = '') {
+    let candidatesArray = Object.values(obj);
+    candidatesArray.sort((a, b) => subkey != '' && a[key] == b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
+    return candidatesArray;
+}
+function makeTable(county = "") {
+    document.querySelector('#elInfo').innerHTML = "<div id='prezentaTotala'></div><div id='table' class='prezentaTable'></div>";
+    let totalVoturi = Object.values(window.countyStats).reduce((a, b) => a + b.voturi, 0);
+    let totalVotanti = Object.values(window.countyStats).reduce((a, b) => a + b.votanti, 0);
+    let totalPercentage = totalVoturi / totalVotanti;
+    let dataAlegeri = "";
+    try {
+        let regex = window.prezenta[window.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/);
+        const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(Number(regex[3]), Number(regex[2]) - 1));
+
+        dataAlegeri = `${regex[1]} ${monthName} ${regex[3]}`;
+    } catch (e) { console.log(e) }
+    document.querySelector('#prezentaTotala').innerHTML += `
+    <p>
+    <center><span class="">${dataAlegeri}</span></center><br>
+    Prezenta ${(totalPercentage * 100).toFixed(2)}%<br>
+    <span class="small">${totalVoturi.toLocaleString()} voturi din ${totalVotanti.toLocaleString()}</span></p>
+    <hr>
+    `;
+
+    let table = document.querySelector('#table');
+    let results = [];
+    if (county == "") results = sortByValues(window.countyStats, 'percentage', 'voturi');
+    else {
+        results = sortByValues(window.countyPopulation[county], 'percentage', 'voturi');
+        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p></div>`;
+    }
+    for (let county of results) {
+        table.innerHTML += `<div class="tCounty" onclick="makeTable('${county.code}')">
+        <p><span class="big">${county.name}<span></p>
+        <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}</p>
+        </div>`
+    }
+    if (county != "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
+}
+//make on hover for any div
+document.addEventListener('DOMContentLoadedxxx', (event) => {
+
+    document.querySelector('.controls').addEventListener('mouseover', function (event) {
+        if (event.target.classList.contains('tCounty')) {
+            let shadow = document.querySelector('#popShadow');
+            shadow.style.display = "block";
+            shadow.style.position = "absolute";
+            const rect = event.target.getBoundingClientRect();
+            shadow.style.left = `${rect.left}px`;
+            shadow.style.top = `${rect.top}px`;
+            shadow.style.width = `${rect.width}px`;
+            shadow.style.height = `${rect.height}px`;
+            shadow.style.zIndex = 99999999;
+        }
+    });
+    document.querySelector('.controls').addEventListener('mouseout', function (event) {
+        if (event.target.classList.contains('tCounty')) {
+            let shadow = document.querySelector('#popShadow');
+            shadow.style.display = "none";
+        }
+    });
+});
