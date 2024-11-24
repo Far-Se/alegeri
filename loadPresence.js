@@ -71,7 +71,7 @@ function loadPresence(alegeri) {
                             console.log(feature.properties.county, feature.properties.name, countyCode);
                         }
                         let weight = 0.3;
-                        if (fillColor == "#878787" && county == "SR") {
+                        if (fillColor === "#878787" && county === "SR") {
                             feature.properties.data.percentage = 0;
                             weight = 0;
 
@@ -111,7 +111,7 @@ function loadPresence(alegeri) {
         });
 }
 function onEachFeaturePresence(feature, layer) {
-    if (feature.properties.data.percentage == 0) return;
+    if (feature.properties.data.percentage === 0) return;
     popupContent = `
 <h1>${feature.properties.county}: ${feature.properties.name}</h1>
 <h3>
@@ -151,7 +151,7 @@ Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}<br>
 }
 function sortByValues(obj, key, subkey = '') {
     let candidatesArray = Object.values(obj);
-    candidatesArray.sort((a, b) => subkey != '' && a[key] == b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
+    candidatesArray.sort((a, b) => subkey !== '' && a[key] === b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
     return candidatesArray;
 }
 function makeTable(selectedCounty = "") {
@@ -162,9 +162,15 @@ function makeTable(selectedCounty = "") {
     let dataAlegeri = "";
     try {
         let regex = window.prezenta[window.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/);
-        const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(Number(regex[3]), Number(regex[2]) - 1));
-
+        const [year,month,day] = [Number(regex[3]), Number(regex[2]) - 1,Number(regex[1])];
+        const date = new Date(year,month,day);
+        const now = new Date();
+        const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
+        console.log(date, day, month, now.getDate(), now.getMonth());
+        
+        
         dataAlegeri = `${regex[1]} ${monthName} ${regex[3]}`;
+        if(day == now.getDate() && month == now.getMonth()) dataAlegeri += ` Ora ${now.getHours()}`;
     } catch (e) { console.log(e) }
     document.querySelector('#prezentaTotala').innerHTML += `
     <p>
@@ -176,7 +182,7 @@ function makeTable(selectedCounty = "") {
 
     let table = document.querySelector('#table');
     let results = [];
-    if (selectedCounty == "") results = sortByValues(window.countyStats, 'percentage', 'voturi');
+    if (selectedCounty === "") results = sortByValues(window.countyStats, 'percentage', 'voturi');
     else {
         results = sortByValues(window.countyPopulation[selectedCounty], 'percentage', 'voturi');
         table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${selectedCounty}</p></div>`;
@@ -187,7 +193,7 @@ function makeTable(selectedCounty = "") {
         <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}</p>
         </div>`
     }
-    if (selectedCounty != "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
+    if (selectedCounty !== "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
 }
 //make on hover for any div
 document.addEventListener('DOMContentLoadedxxx', (event) => {

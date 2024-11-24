@@ -17,7 +17,8 @@ window.prezenta = {
     "parlamentare 2020": "parlamentare06122020",
     "locale2020": "locale27092020",
     "locale2024": "locale09062024",
-    "europarlamentare2024": "europarlamentare09062024"
+    "europarlamentare2024": "europarlamentare09062024",
+    "prezidentiale2024": "prezidentiale24112024",
 }
 
 window.countiesName = {
@@ -190,7 +191,7 @@ let customColors = [
 let lastColor = 0;
 let customCandidates = {};
 function getPartyColor(party) {
-    if (party == undefined || party == null) return "#878787";
+    if (party === undefined || party == null) return "#878787";
     for (let colors of window.partide) {
         if (party.clear().match(new RegExp(colors.match, 'i'))) {
             return colors.properties.fill;

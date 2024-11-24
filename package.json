@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "Euro2024": "node rezultate_parlamentare.js EP2024",
-    "Locale2024": "node rezultate_locale.js 2024"
+    "Locale2024": "node rezultate_locale.js 2024",
+    "prezenta": "node prezenta.js prezidentiale2024"
   },
   "author": "",
   "license": "ISC",

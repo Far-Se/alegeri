@@ -1,8 +1,8 @@
 
 
 window.alegeriSelected = "Primari 2024";
-window.prezentaSelected = "locale2024";
-window.isPagePresence = false;
+window.prezentaSelected = "prezidentiale2024";
+window.isPagePresence = true;
 
 let processHash = () =>{
     let hash = window.location.hash.substring(1);
