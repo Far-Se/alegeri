@@ -4,13 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "git": "git add . && git commit -m \"-\" && git push origin main",
+    "T1 Prezidentiale": "node rezultate_prezidentiale.js",
     "Euro2024": "node rezultate_parlamentare.js EP2024",
     "Locale2024": "node rezultate_locale.js 2024",
-    "prezenta": "node prezenta.js prezidentiale2024"
+    "prezenta": "node prezenta.js prezidentiale2024",
+    "prezentaGIT": "node prezenta.js prezidentiale2024 && git add . && git commit -m \"-\" && git push origin main"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.2"
+    "axios": "^1.7.2",
+    "csv-parse": "^5.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0"
   }
 }

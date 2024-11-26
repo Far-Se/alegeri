@@ -14,30 +14,30 @@ function sortByValues(obj, key, subkey = '') {
 }
 let loadData = async () => {
 
-    if (!window.hasOwnProperty('rezultateAlegeri')) window.rezultateAlegeri = {};
-    if (Object.keys(window.rezultateAlegeri).length > 0) return window.rezultateAlegeri;
+    if (!window._w.hasOwnProperty('rezultateAlegeri')) window._w.rezultateAlegeri = {};
+    if (Object.keys(window._w.rezultateAlegeri).length > 0) return window._w.rezultateAlegeri;
 
-    for (const alegeri of Object.values(window.alegeri)) {
+    for (const alegeri of Object.values(window._w.alegeri)) {
         if (alegeri == "primariNoi") continue;
-        window.rezultateAlegeri[alegeri] = await (await fetch(`data/alegeri/rezultate_${alegeri}.json`)).json();
-        window.countyPopulation = await (await fetch('data/map/county_population.json')).json();
+        window._w.rezultateAlegeri[alegeri] = await (await fetch(`data/alegeri/rezultate_${alegeri}.json`)).json();
+        window._w.countyPopulation = await (await fetch('data/map/county_population.json')).json();
     }
-    return window.rezultateAlegeri;
+    return window._w.rezultateAlegeri;
 }
 async function loadUAT(hash) {
     let [countyName, UAT] = hash.split('++');
     UAT = decodeURIComponent(UAT);
-    county = window.countiesCodes[countyName];
+    county = window._w.countiesCodes[countyName];
     document.querySelector('#loading').style.display = "flex";
     await loadData();
     let data = {};
-    for (const alegeri of Object.entries(window.rezultateAlegeri)) {
+    for (const alegeri of Object.entries(window._w.rezultateAlegeri)) {
         try {
             let votes = alegeri[1][county][UAT].votes;
             data[alegeri[0]] = {};
             data[alegeri[0]].votes = sortByValues(votes, 'votes');
             data[alegeri[0]].totalVoturi = data[alegeri[0]].votes.reduce((a, b) => a+b.votes, 0);
-            if (window.countyPopulation?.[county]?.hasOwnProperty(UAT)) data[alegeri[0]].population = window.countyPopulation[county][UAT];
+            if (window._w.countyPopulation?.[county]?.hasOwnProperty(UAT)) data[alegeri[0]].population = window._w.countyPopulation[county][UAT];
             data[alegeri[0]].votes = data[alegeri[0]].votes.map(v => {
                 v.percentage = (v.votes / data[alegeri[0]].totalVoturi * 100).toFixed(2);
                 v.procent = v.votes / data[alegeri[0]].totalVoturi;
@@ -48,7 +48,7 @@ async function loadUAT(hash) {
     let alg = Object.keys(data);
     alg.reverse();
     for(const alegeri of alg) {
-        let numeAlegeri = Object.entries(window.alegeri).find(x => x[1] == alegeri)[0];
+        let numeAlegeri = Object.entries(window._w.alegeri).find(x => x[1] == alegeri)[0];
         let info = data[alegeri];
         let html = ``;
 

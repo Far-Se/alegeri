@@ -13,7 +13,26 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- HTML Meta Tags -->
+    <title>Harta Alegeri Romania</title>
+    <meta name="description" content="Harta interactiva cu rezultatele alegerilor din Romania.">
 
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://far-se.github.io/alegeri/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Harta Alegeri Romania">
+    <meta property="og:description" content="Harta interactiva cu rezultatele alegerilor din Romania.">
+    <meta property="og:image" content="https://far-se.github.io/alegeri/preview.png">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="far-se.github.io">
+    <meta property="twitter:url" content="https://far-se.github.io/alegeri/">
+    <meta name="twitter:title" content="Harta Alegeri Romania">
+    <meta name="twitter:description" content="Harta interactiva cu rezultatele alegerilor din Romania.">
+    <meta name="twitter:image" content="https://far-se.github.io/alegeri/preview.png">
+
+    <!-- Meta Tags Generated via https://www.opengraph.xyz -->
 
 </head>
 
@@ -22,9 +41,9 @@
         <div class="loadingText">LOADING</div>
     </div>
     <div id="map"></div>
-    <script src="partide.js"></script>
-    <script src="loadPresence.js"></script>
-    <script src="createMap.js"></script>
+    <script src="map_data.js"></script>
+    <script src="map_presence.js"></script>
+    <script src="map_results.js"></script>
     <script src="index.js"></script>
 
     <div id="unCollapse" class="collapsed"><span></span><span></span><span></span></div>
@@ -68,6 +87,9 @@
                         </label>
                     </div>
 
+                </div>
+                <div id="sortType">
+                    <a href="#">Sortare: UAT</a>
                 </div>
                 <div id="elInfo">
                     <div id="table"></div>

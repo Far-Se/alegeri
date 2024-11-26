@@ -1,41 +1,59 @@
 
 
-window.alegeriSelected = "Primari 2024";
-window.prezentaSelected = "prezidentiale2024";
-window.isPagePresence = true;
+window._w.alegeriSelected = "Prezidentiale Tur 1 2024";
+window._w.prezentaSelected = "prezidentiale Tur 1 2024";
+window._w.isPagePresence = false;
 
 let processHash = () =>{
     let hash = window.location.hash.substring(1);
     hash = decodeURIComponent(hash);
     if (hash.includes('prezenta-')) {
         hash = hash.replace('prezenta-', '');
-        if(!window.prezenta.hasOwnProperty(hash))return;
+        if(!window._w.prezenta.hasOwnProperty(hash))return;
 
-        window.prezentaSelected = hash;
-        window.isPagePresence = true;
-        document.querySelector(`#prezenta option[value="${window.prezentaSelected}"]`).setAttribute("selected",true);
+        window._w.prezentaSelected = hash;
+        window._w.isPagePresence = true;
+        document.querySelector(`#prezenta option[value="${window._w.prezentaSelected}"]`).setAttribute("selected",true);
         return;
     }
     
-    if(!window.alegeri.hasOwnProperty(hash))return;
-    window.alegeriSelected = hash;
-    window.isPagePresence = false;
-    document.querySelector(`#alegeri option[value="${window.alegeriSelected}"]`).setAttribute("selected",true);
+    if(!window._w.alegeri.hasOwnProperty(hash))return;
+    window._w.alegeriSelected = hash;
+    window._w.isPagePresence = false;
+    document.querySelector(`#alegeri option[value="${window._w.alegeriSelected}"]`).setAttribute("selected",true);
 }
-window.partideAlese = [];
-//on document ready
+window._w.partideAlese = [];
+
+window._w.sortType = ['UAT', 'votes'];
+let changeSort = () => {
+    if(window._w.sortType[0] == 'UAT') 
+        {
+            window._w.sortType = ['votes', 'UAT'];
+            document.querySelector('#sortType a').innerHTML = "Sortare: Voturi";
+        }
+    else {
+        window._w.sortType = ['UAT', 'votes'];
+        document.querySelector('#sortType a').innerHTML = "Sortare: UAT";
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-    for (const alegeri of Object.keys(window.alegeri)) {
-        document.querySelector('#alegeri').insertAdjacentHTML('beforeend',`<option value="${alegeri}" ${alegeri === window.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
+    for (const alegeri of Object.keys(window._w.alegeri)) {
+        document.querySelector('#alegeri').insertAdjacentHTML('beforeend',`<option value="${alegeri}" ${alegeri === window._w.alegeriSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
     }         
-    for (const alegeri of Object.keys(window.prezenta)) {
-        document.querySelector('#prezenta').insertAdjacentHTML('beforeend',`<option value="${alegeri}" ${alegeri === window.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
+    for (const alegeri of Object.keys(window._w.prezenta)) {
+        document.querySelector('#prezenta').insertAdjacentHTML('beforeend',`<option value="${alegeri}" ${alegeri === window._w.prezentaSelected ? 'selected' : ''}>${alegeri.charAt(0).toUpperCase() + alegeri.slice(1).replace(/([a-z])([0-9])/g, '$1 $2')}</option>`);
     }  
        for (const mapType of mapTiles) {
         document.querySelector('#mapLayers').insertAdjacentHTML('beforeend',`<option value="${mapType.name}"> ${mapType.name}</option>`);
     }       
+    document.querySelector('#sortType a').addEventListener('click', function (e) {
+        changeSort();
+        loadData();
+    })
 
     if (window.location.hash.length > 1) processHash(); 
+    if(window._w.alegeriSelected.includes('Prezidentiale'))changeSort();
     loadData();
     document.querySelector('#mapLayers').addEventListener('change', function (e) {
         let value = e.target.value;
@@ -53,13 +71,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     document.querySelector('#alegeri').addEventListener('change', function (e) {
 
-        window.partideAlese = [];
-        window.alegeriSelected = e.target.value;
+        window._w.partideAlese = [];
+        window._w.alegeriSelected = e.target.value;
         loadData();
     })
     document.querySelector('#prezenta').addEventListener('change', function (e) {
-        window.partideAlese = [];
-        window.prezentaSelected = e.target.value;
+        window._w.partideAlese = [];
+        window._w.prezentaSelected = e.target.value;
         loadData();
     })
 
@@ -74,11 +92,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelector('#toggleAlegeri').addEventListener('change', function (e) {
         document.querySelector('#elInfo').innerHTML = '';
-        window.partideAlese = [];
+        window._w.partideAlese = [];
         document.querySelector('#rezultate')?.classList.toggle('toggle');
-        isPagePresence = !isPagePresence;
-        document.querySelector('#prezenta').style.display = isPagePresence ? 'block' : 'none';
-        document.querySelector('#alegeri').style.display = !isPagePresence ? 'block' : 'none';
+        window._w.isPagePresence = !window._w.isPagePresence;
+        document.querySelector('#prezenta').style.display = window._w.isPagePresence ? 'block' : 'none';
+        document.querySelector('#alegeri').style.display = !window._w.isPagePresence ? 'block' : 'none';
         loadData();
     })
     document.querySelector('#toggleLocul2').addEventListener('change', function (e) {
@@ -94,21 +112,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 let loadData = () => {
-    if (window.isPagePresence) {
-        loadPresence(window.prezenta[window.prezentaSelected]);
-        window.location.hash = `prezenta-${window.prezentaSelected}`;
+    if (window._w.isPagePresence) {
+        loadPresence(window._w.prezenta[window._w.prezentaSelected]);
+        window.location.hash = `prezenta-${window._w.prezentaSelected}`;
     } else {
         document.querySelector('#toggleAlegeri').checked = true;
-        window.location.hash = window.alegeriSelected;
-        loadResults(window.alegeri[window.alegeriSelected]);
+        window.location.hash = window._w.alegeriSelected;
+        loadResults(window._w.alegeri[window._w.alegeriSelected]);
     }
-    document.querySelector('#prezenta').style.display = isPagePresence ? 'block' : 'none';
-    document.querySelector('#alegeri').style.display = !isPagePresence ? 'block' : 'none';
+    document.querySelector('#prezenta').style.display = window._w.isPagePresence ? 'block' : 'none';
+    document.querySelector('#alegeri').style.display = !window._w.isPagePresence ? 'block' : 'none';
 }
 function selectParty(party) {
     let checked = document.querySelectorAll('input.iparty:checked');
-    window.partideAlese = [...checked].map(el => el.value);
-    if (window.partideAlese.length == 1) document.querySelector('.prezentaProcent').classList.remove('disabled');
+    window._w.partideAlese = [...checked].map(el => el.value);
+    if (window._w.partideAlese.length == 1) document.querySelector('.prezentaProcent').classList.remove('disabled');
     else document.querySelector('.prezentaProcent').classList.add('disabled');
     loadData();
 }
