@@ -357,10 +357,10 @@ function setTable(county = "") {
     for (let i = 0; i < results.length; i++) {
         let party = results[i];
         if (i > 50) break;
-        const countySelect = county != "" ? `(${(party.UAT / totalUATs * 100).toFixed(2)}%)` : '';
+        const countySelect = `${(party.UAT / totalUATs * 100).toFixed(2)}%`;
         const percent = (party.votes / sum * 100).toFixed(2);
         let difference = "";
-        if(i< results.length-1) difference = `+${(party.votes - results[i + 1].votes).toLocaleString()} - `;
+        if(i< results.length-1) difference = `+${(party.votes - results[i + 1].votes).toLocaleString()} | `;
         const checked = window._w.partideAlese.includes(party.name) ? "checked" : "";
         const disabled = !window._w.partideAlese.includes(party.name) && window._w.partideAlese.length >= 2 ? "disabled" : "";
         table.innerHTML += `<div>
@@ -369,8 +369,8 @@ function setTable(county = "") {
             </p>
             <p>
                 <span><abbr title="${party.name}">${party.name.clip(27)}</abbr></span>
-                <span class="small">${party.UAT.toLocaleString()} UAT ${countySelect} - ${party.votes.toLocaleString()} Voturi</span>
-                <span class="small">${difference}${percent}%</span>
+                <span class="small">${party.votes.toLocaleString()} Voturi - ${percent}%</span>
+                <span class="small">${difference}${party.UAT.toLocaleString()} UAT - ${countySelect}</span>
             </p>
         </div>`;
     }

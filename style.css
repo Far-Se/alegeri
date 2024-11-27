@@ -512,3 +512,6 @@ div#popupX {
     color: inherit;
     font-weight: bold;
 }
+div#github {
+    margin-top: 5px;
+}
