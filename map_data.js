@@ -19,7 +19,7 @@ window._w.prezenta = {
     "locale2020": "locale27092020",
     "locale2024": "locale09062024",
     "europarlamentare2024": "europarlamentare09062024",
-    "prezidentiale Tur 1 2024": "prezidentiale1_24112024",
+    "prezidentiale Tur 1 2024": "prezidentiale1_24112024_HOURLY",
 }
 
 window._w.countiesName = {
@@ -76,107 +76,23 @@ window._w.countiesName = {
 };
 window._w.countiesCodes = Object.fromEntries(Object.entries(window._w.countiesName).map(([key, value]) => [value, key]));
 window._w.partide = [
-    {
-        "match": "(USR[- ]|UNIUNEA SALVA.I ROM.NIA|\bUSR\b|Lasconi)",
-        "properties": {
-            "fill": "#00b2ff"
-        }
-    },
-    {
-        "match": "(PSD PNL)",
-        "properties": {
-            "fill": "#ff5100"
-        }
-    },
-    {
-        "match": "(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS|CIUCA)",
-        "properties": {
-            "fill": "#ffc300"
-        }
-    },
-    {
-        "match": "(PSD|PARTIDUL SOCIAL DEMOCRAT|DANCILA|CIOLACU)",
-        "properties": {
-            "fill": "#ff001e"
-        }
-    },
-    {
-        "match": "(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)",
-        "properties": {
-            "fill": "#A16800"
-        }
-    }, 
-    {
-        "match": "(CALIN GEORGESCU)",
-        "properties": {
-            "fill": "#AC4959"
-        }
-    },
-    {
-        "match": "(UDMR|MAGHIAR|KELEMEN)",
-        "properties": {
-            "fill": "#1ED760"
-        }
-    },
-    {
-        "match": "(ALIANTA MAGHIARA)",
-        "properties": {
-            "fill": "#2e821b"
-        }
-    },
-    {
-        "match": "(PMP|MISCAREA POPULARA)",
-        "properties": {
-            "fill": "#6542B1"
-        }
-    },
-    {
-        "match": "(PRO ROMANIA|^PRO)",
-        "properties": {
-            "fill": "#e16bff"
-        }
-    },
-    {
-        "match": "(INDEPENDENT)",
-        "properties": {
-            "fill": "#394d4d"
-        }
-    }, {
-        "match": "(PROIECTUL EUROPEAN)",
-        "properties": {
-            "fill": "#C62979"
-        }
-    },
-    {
-        "match": "(S\.O\.S)",
-        "properties": {
-            "fill": "#F8B7C0"
-        }
-    },
-    {
-        "match": "(CMM|ALIANTA PENTRU )",
-        "properties": {
-            "fill": "#154066"
-        }
-    },
-    {
-        "match": "(ALDE|ALIANTA LIBERALILOR)",
-        "properties": {
-            "fill": "#534d82"
-        }
-    },
-    {
-        "match": "(ALIANTA SOCIAL LIBERALA)",
-        "properties": {
-            "fill": "#333331"
-        }
-    },
-    {
-        "match": "(ALIANTA PENTRU UNIREA ROMANILOR)",
-        "properties": {
-            "fill": "#C5A655"
-        }
-    }
+    { match: /(USR|UNIUNEA SALVA.I ROM.NIA|Lasconi)/i, fill: "#00b2ff" },
+    { match: /\b(PSD PNL)\b/i, fill: "#ff5100" },
+    { match: /\b(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS|CIUCA)\b/i, fill: "#ffc300" },
+    { match: /\b(PSD|PARTIDUL SOCIAL DEMOCRAT|DANCILA|CIOLACU)\b/i, fill: "#ff001e" },
+    { match: /\b(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)\b/i, fill: "#A16800" },
+    { match: /\b(CALIN GEORGESCU)\b/i, fill: "#AC4959" },
+    { match: /\b(UDMR|MAGHIAR|KELEMEN)/i, fill: "#1ED760" },
+    { match: /(ALIAN.A MAGHIAR.A)/i, fill: "#2e821b" },
+    { match: /\b(PMP|MISCAREA POPULARA)\b/i, fill: "#6542B1" },
+    { match: /(PRO ROMANIA|^PRO)\b/i, fill: "#e16bff" },
+    { match: /\b(INDEPENDENT)\b/i, fill: "#394d4d" },
+    { match: /\b(PROIECTUL EUROPEAN)\b/i, fill: "#C62979" },
+    { match: /\b(S\.O\.S)\b/i, fill: "#F8B7C0" },
+    { match: /\b(CMM|ALIANTA PENTRU )\b/i, fill: "#154066" },
+    { match: /\b(ALDE|ALIANTA LIBERALILOR)\b/i, fill: "#534d82" },
+    { match: /\b(ALIAN.A SOCIAL LIBERALA)\b/i, fill: "#333331" },
+    { match: /\b(ALIAN.A PENTRU UNIREA ROMANILOR)\b/i, fill: "#C5A655" }
 ];
 window._w.results = {};
 let customColors = [
@@ -199,15 +115,10 @@ let customColors = [
 let lastColor = 0;
 let customCandidates = {};
 function getPartyColor(party) {
-    if (party === undefined || party == null) return "#878787";
-    for (let colors of window._w.partide) {
-        if (party.clear().match(new RegExp(colors.match, 'i'))) {
-            return colors.properties.fill;
-        }
-    }
-    if (customCandidates.hasOwnProperty(party)) return customCandidates[party];
-    customCandidates[party] = customColors[lastColor++ % customColors.length];
-    return customCandidates[party];
+    if (!party) return "#878787";
+    party = party.clear();
+    return window._w.partide.find(colors => party.match(colors.match))?.fill || 
+        (customCandidates[party] || (customCandidates[party] = customColors[lastColor++ % customColors.length]));
 }
 window._w.countries = {
     "ZAF": "AFRICA DE SUD",
@@ -308,37 +219,13 @@ window._w.countries = {
 };
 window._w.countriesCode = Object.fromEntries(Object.entries(window._w.countries).map(([key, value]) => [value, key]));
 
-let mapTiles = [
-    {
-        name: 'cartoDB Light',
-        url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    },
-    {
-        name: 'cartoDB Dark',
-        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    },
-    {
-        name: "OSM Terrain",
-        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    },
-    {
-        name: "ESRI",
-        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    },
-    {
-        name: "Stadia Light",
-        url: "https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png",
-    },
-    {
-        name: "Stadia Dark",
-        url: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
-    },
-    {
-        name: "OpenTopoMap",
-        url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    },
-
-]
+const mapTiles = [
+    { name: 'cartoDB Light', url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
+    { name: 'cartoDB Dark', url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
+    { name: 'OSM Terrain', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
+    { name: 'ESRI', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' },
+    { name: 'OpenTopoMap', url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png' }
+];
 String.prototype.clear = function () {
     return this.replace(/î/g, 'a')
         .replace(/Î/g, 'I')

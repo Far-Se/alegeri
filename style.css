@@ -53,6 +53,188 @@ span.small {
     box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+[data-tooltip] {
+    position: relative
+}
+
+[data-tooltip]:not(a, button, input) {
+    border-bottom: 1px dotted;
+    text-decoration: none;
+}
+
+[data-tooltip]:after,
+[data-tooltip]:before,
+[data-tooltip][data-placement=top]:after,
+[data-tooltip][data-placement=top]:before {
+    display: block;
+    z-index: 99;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    padding: .25rem .5rem;
+    overflow: hidden;
+    transform: translate(-50%, -.25rem);
+    border-radius: .25rem;
+    background: #e7e7e7;
+    content: attr(data-tooltip);
+    color: #000;
+    font-style: normal;
+    font-weight: 400;
+    font-size: .875rem;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    border: 1px solid #b3b3b3;
+
+}
+
+[data-tooltip]:after,
+[data-tooltip][data-placement=top]:after {
+    padding: 0;
+    transform: translate(-50%);
+    border-top: .3rem solid;
+    border-right: .3rem solid transparent;
+    border-left: .3rem solid transparent;
+    border-radius: 0;
+    background-color: transparent;
+    content: "";
+    color: #eff1f4;
+}
+
+[data-tooltip][data-placement=bottom]:after,
+[data-tooltip][data-placement=bottom]:before {
+    top: 100%;
+    bottom: auto;
+    transform: translate(-50%, .25rem)
+}
+
+[data-tooltip][data-placement=bottom]:after {
+    transform: translate(-50%, -.3rem);
+    border: .3rem solid transparent;
+    border-bottom: .3rem solid
+}
+
+[data-tooltip][data-placement=left]:after,
+[data-tooltip][data-placement=left]:before {
+    inset: 50% 100% auto auto;
+    transform: translate(-.25rem, -50%)
+}
+
+[data-tooltip][data-placement=left]:after {
+    transform: translate(.3rem, -50%);
+    border: .3rem solid transparent;
+    border-left: .3rem solid
+}
+
+[data-tooltip][data-placement=right]:after,
+[data-tooltip][data-placement=right]:before {
+    inset: 50% auto auto 100%;
+    transform: translate(.25rem, -50%)
+}
+
+[data-tooltip][data-placement=right]:after {
+    transform: translate(-.3rem, -50%);
+    border: .3rem solid transparent;
+    border-right: .3rem solid
+}
+
+[data-tooltip]:focus:after,
+[data-tooltip]:focus:before,
+[data-tooltip]:hover:after,
+[data-tooltip]:hover:before {
+    opacity: 1
+}
+
+@media(hover: hover) and (pointer:fine) {
+
+    [data-tooltip]:focus:after,
+    [data-tooltip]:focus:before,
+    [data-tooltip]:hover:after,
+    [data-tooltip]:hover:before {
+        --pico-tooltip-slide-to: translate(-50%, -.25rem);
+        transform: translate(-50%, .75rem);
+        animation-duration: .2s;
+        animation-fill-mode: forwards;
+        animation-name: tooltip-slide;
+        opacity: 0
+    }
+
+    [data-tooltip]:focus:after,
+    [data-tooltip]:hover:after {
+        --pico-tooltip-caret-slide-to: translate(-50%, 0rem);
+        transform: translate(-50%, -.25rem);
+        animation-name: tooltip-caret-slide
+    }
+
+    [data-tooltip][data-placement=bottom]:focus:after,
+    [data-tooltip][data-placement=bottom]:focus:before,
+    [data-tooltip][data-placement=bottom]:hover:after,
+    [data-tooltip][data-placement=bottom]:hover:before {
+        --pico-tooltip-slide-to: translate(-50%, .25rem);
+        transform: translate(-50%, -.75rem);
+        animation-name: tooltip-slide
+    }
+
+    [data-tooltip][data-placement=bottom]:focus:after,
+    [data-tooltip][data-placement=bottom]:hover:after {
+        --pico-tooltip-caret-slide-to: translate(-50%, -.3rem);
+        transform: translate(-50%, -.5rem);
+        animation-name: tooltip-caret-slide
+    }
+
+    [data-tooltip][data-placement=left]:focus:after,
+    [data-tooltip][data-placement=left]:focus:before,
+    [data-tooltip][data-placement=left]:hover:after,
+    [data-tooltip][data-placement=left]:hover:before {
+        --pico-tooltip-slide-to: translate(-.25rem, -50%);
+        transform: translate(.75rem, -50%);
+        animation-name: tooltip-slide
+    }
+
+    [data-tooltip][data-placement=left]:focus:after,
+    [data-tooltip][data-placement=left]:hover:after {
+        --pico-tooltip-caret-slide-to: translate(.3rem, -50%);
+        transform: translate(.05rem, -50%);
+        animation-name: tooltip-caret-slide
+    }
+
+    [data-tooltip][data-placement=right]:focus:after,
+    [data-tooltip][data-placement=right]:focus:before,
+    [data-tooltip][data-placement=right]:hover:after,
+    [data-tooltip][data-placement=right]:hover:before {
+        --pico-tooltip-slide-to: translate(.25rem, -50%);
+        transform: translate(-.75rem, -50%);
+        animation-name: tooltip-slide
+    }
+
+    [data-tooltip][data-placement=right]:focus:after,
+    [data-tooltip][data-placement=right]:hover:after {
+        --pico-tooltip-caret-slide-to: translate(-.3rem, -50%);
+        transform: translate(-.05rem, -50%);
+        animation-name: tooltip-caret-slide
+    }
+}
+
+@keyframes tooltip-slide {
+    to {
+        transform: var(--pico-tooltip-slide-to);
+        opacity: 1
+    }
+}
+
+@keyframes tooltip-caret-slide {
+    50% {
+        opacity: 0
+    }
+
+    to {
+        transform: var(--pico-tooltip-caret-slide-to);
+        opacity: 1
+    }
+}
+
 .toggleContainer {
     position: relative;
     display: grid;
@@ -322,6 +504,7 @@ span.bar {
     z-index: 2;
     margin-left: 25px;
 }
+
 .votes {
     max-height: 30vh;
     overflow-y: scroll;
@@ -470,6 +653,8 @@ div#popupX {
     border-radius: 5px;
     pointer-events: none;
     margin-top: -30px;
+    top: 0;
+    left: 0;
 }
 
 #table.prezentaTable div {
@@ -512,6 +697,89 @@ div#popupX {
     color: inherit;
     font-weight: bold;
 }
+
 div#github {
     margin-top: 5px;
+}
+
+#table input[type="checkbox"] {
+    accent-color: black;
+}
+
+#table input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    box-shadow: inset 0px 0px 10px 1px #ffffff;
+    filter: drop-shadow(0px 0px 5px white);
+    cursor: pointer;
+}
+
+#table input[type="checkbox"]::before {
+    content: "";
+    width: 1.4rem;
+    height: 1.4rem;
+    clip-path: polygon(90.514% 14.414%, 90.514% 14.414%, 90.029% 14.001%, 89.498% 13.679%, 88.931% 13.45%, 88.341% 13.312%, 87.739% 13.266%, 87.137% 13.312%, 86.547% 13.45%, 85.98% 13.679%, 85.449% 14.001%, 84.964% 14.414%, 38.796% 60.571%, 15.019% 36.632%, 15.019% 36.632%, 14.535% 36.217%, 14.005% 35.894%, 13.44% 35.664%, 12.851% 35.526%, 12.251% 35.48%, 11.651% 35.526%, 11.062% 35.664%, 10.495% 35.894%, 9.962% 36.217%, 9.475% 36.632%, 1.144% 44.957%, 1.144% 44.957%, 0.732% 45.44%, 0.412% 45.971%, 0.183% 46.537%, 0.046% 47.126%, -0% 47.728%, 0.046% 48.33%, 0.183% 48.921%, 0.412% 49.488%, 0.732% 50.021%, 1.144% 50.507%, 35.998% 85.592%, 35.998% 85.592%, 36.483% 86.002%, 37.013% 86.321%, 37.578% 86.549%, 38.167% 86.686%, 38.767% 86.731%, 39.368% 86.686%, 39.958% 86.549%, 40.526% 86.321%, 41.06% 86.002%, 41.548% 85.592%, 98.839% 28.295%, 98.839% 28.295%, 99.257% 27.809%, 99.582% 27.275%, 99.814% 26.707%, 99.954% 26.115%, 100% 25.511%, 99.954% 24.907%, 99.814% 24.314%, 99.582% 23.745%, 99.257% 23.21%, 98.839% 22.722%, 90.514% 14.414%);
+    transform: scale(0);
+    background-color: black;
+}
+
+#table input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+#table input[type="checkbox"]:hover {
+    color: black;
+}
+
+ul.hourlyBar {
+    display: flex;
+    align-items: end;
+    margin: 0px;
+    padding: 0px;
+}
+
+.hourlyBar li {
+    display: block;
+}
+
+.hourlyBar .bar {
+    width: 8px;
+    background: black;
+    margin: 0px;
+}
+
+.hourlyBar .bar.totalVotes {
+    background: #a3a3a3;
+}
+
+.hourlyBar .bar.listaPermanenta {
+    background: #797979;
+}
+
+.hourlyBar .bar.listaSuplimentara {
+    background: #494949;
+}
+
+.hourlyBar .bars {
+    display: flex;
+    margin: 0px 3px;
+    align-items: end;
+}
+
+.hourlyBar .time {
+    text-align: center;
+}
+
+.bar.totalVotes {
+    position: absolute;
+    width: 100%;
+}
+
+.bars {
+    position: relative;
+    height: 100px;
 }

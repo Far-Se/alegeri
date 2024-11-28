@@ -4,23 +4,17 @@ window._w.alegeriSelected = "Prezidentiale Tur 1 2024";
 window._w.prezentaSelected = "prezidentiale Tur 1 2024";
 window._w.isPagePresence = false;
 
-let processHash = () =>{
-    let hash = window.location.hash.substring(1);
-    hash = decodeURIComponent(hash);
-    if (hash.includes('prezenta-')) {
-        hash = hash.replace('prezenta-', '');
-        if(!window._w.prezenta.hasOwnProperty(hash))return;
-
-        window._w.prezentaSelected = hash;
-        window._w.isPagePresence = true;
-        document.querySelector(`#prezenta option[value="${window._w.prezentaSelected}"]`).setAttribute("selected",true);
-        return;
+let processHash = () => {
+    const hash = decodeURIComponent(window.location.hash.substring(1));
+    window._w.isPagePresence = hash.startsWith('prezenta-');
+    const selected = hash.replace('prezenta-', '');
+    if (window._w.prezenta.hasOwnProperty(selected)) {
+        window._w.prezentaSelected = selected;
+        document.querySelector(`#prezenta option[value="${selected}"]`).selected = true;
+    } else if (window._w.alegeri.hasOwnProperty(selected)) {
+        window._w.alegeriSelected = selected;
+        document.querySelector(`#alegeri option[value="${selected}"]`).selected = true;
     }
-    
-    if(!window._w.alegeri.hasOwnProperty(hash))return;
-    window._w.alegeriSelected = hash;
-    window._w.isPagePresence = false;
-    document.querySelector(`#alegeri option[value="${window._w.alegeriSelected}"]`).setAttribute("selected",true);
 }
 window._w.partideAlese = [];
 
@@ -53,7 +47,10 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     if (window.location.hash.length > 1) processHash(); 
-    if(window._w.alegeriSelected.includes('Prezidentiale'))changeSort();
+    if(!window._w.isPagePresence) document.querySelector(`#toggleAlegeri`).checked = true;
+    else document.querySelector(`#toggleAlegeri`).checked = false;
+    changeSort();
+    // if(window._w.alegeriSelected.includes('Prezidentiale'))changeSort();
     loadData();
     document.querySelector('#mapLayers').addEventListener('change', function (e) {
         let value = e.target.value;
@@ -91,6 +88,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.querySelector('#toggleAlegeri').addEventListener('change', function (e) {
+        window._w.isPagePresence = !window._w.isPagePresence;
+        if(window._w.isPagePresence)
+        {
+            
+        window.location.hash = `prezenta-${window._w.prezentaSelected}`;
+        }else {
+            
+        window.location.hash = window._w.alegeriSelected;
+        }
+        window.location.reload();
+        return;
         document.querySelector('#elInfo').innerHTML = '';
         window._w.partideAlese = [];
         document.querySelector('#rezultate')?.classList.toggle('toggle');
@@ -112,16 +120,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 let loadData = () => {
-    if (window._w.isPagePresence) {
-        loadPresence(window._w.prezenta[window._w.prezentaSelected]);
-        window.location.hash = `prezenta-${window._w.prezentaSelected}`;
-    } else {
-        document.querySelector('#toggleAlegeri').checked = true;
-        window.location.hash = window._w.alegeriSelected;
-        loadResults(window._w.alegeri[window._w.alegeriSelected]);
-    }
-    document.querySelector('#prezenta').style.display = window._w.isPagePresence ? 'block' : 'none';
-    document.querySelector('#alegeri').style.display = !window._w.isPagePresence ? 'block' : 'none';
+    const isPresence = window._w.isPagePresence;
+    const selected = isPresence ? window._w.prezentaSelected : window._w.alegeriSelected;
+    isPresence ? loadPresence(window._w.prezenta[selected]) : loadResults(window._w.alegeri[selected]);
+    document.querySelector('#prezenta').style.display = isPresence ? 'block' : 'none';
+    document.querySelector('#alegeri').style.display = isPresence ? 'none' : 'block';
+    window.location.hash = isPresence ? `prezenta-${selected}` : selected;
 }
 function selectParty(party) {
     let checked = document.querySelectorAll('input.iparty:checked');
