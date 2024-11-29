@@ -1,6 +1,5 @@
 window._w.countyPopulation = {};
 window._w.countyStats = {};
-let debug = 0;
 // const featureGroup = L.featureGroup();
 async function loadPresence(alegeri) {
     document.querySelector('#sliderTransparenta').style.display = "none";
@@ -21,6 +20,7 @@ async function loadPresence(alegeri) {
     console.log(alegeri);
     let data = await (await fetch(`data/alegeri/prezenta_${alegeri}.json`)).json();
     if (!geoJSON) {
+        console.log('loaded');
         await getCommunes();
         window._w.commune.features = window._w.commune.features.filter(feature => !['SR', 'CO'].includes(feature.properties.county));
         geoJSON = L.geoJSON(window._w.commune, {});
@@ -57,14 +57,17 @@ async function loadPresence(alegeri) {
 
         if (data.hasOwnProperty(countyCode)) {
             if (data[countyCode].hasOwnProperty(name)) {
-                feature.properties.data = { ...data[countyCode][name] };
-                feature.properties.data.total_votanti = data[countyCode][name].TP;
-                feature.properties.data.total_voturi = data[countyCode][name].TV;
-                feature.properties.data.lista_permanenta = data[countyCode][name].LP;
-                feature.properties.data.lista_C = data[countyCode][name].LC;
-                feature.properties.data.lista_suplimentara = data[countyCode][name].LS;
-                feature.properties.data.urna_mobila = data[countyCode][name].UM;
-                feature.properties.data.percentage = (data[countyCode][name].TV / data[countyCode][name].TP).toFixed(2);
+                const fData = data[countyCode][name];
+                feature.properties.data = { ...fData };
+                Object.assign(feature.properties.data, {
+                    total_votanti: fData.TP,
+                    total_voturi: fData.TV,
+                    lista_permanenta: fData.LP,
+                    lista_C: fData.LC,
+                    lista_suplimentara: fData.LS,
+                    urna_mobila: fData.UM,
+                    percentage: (fData.TV / fData.TP).toFixed(2)
+                });
 
                 if (!window._w.countyPopulation.hasOwnProperty(countyCode))
                     window._w.countyPopulation[countyCode] = {};
@@ -100,55 +103,43 @@ async function loadPresence(alegeri) {
             weight = 0;
 
         }
+        let opacity = feature.properties.data.percentage;
+        if(window._w.prezentaExponentiala) opacity =  Math.pow((feature.properties.data.percentage*1.1),2);
         return {
             fillColor: fillColor,
             weight: weight,
             color: "#000000",
-            fillOpacity: feature.properties.data.percentage
+            fillOpacity: opacity
         };
 
     }
     function onEachFeaturePresence(feature, layer) {
         if (feature.properties.data.percentage === 0) return;
-        if(!debug)console.log(feature.properties.data);
-        debug = 1;
-        let hourly = ``
-        if(feature.properties.data["8"])
-        {
+        let hourly = ``;
+        if (feature.properties.data["8"]) {
             let fData = feature.properties.data;
             hourly = '<ul class="hourlyBar">';
             let hourlyData = [];
-            hourlyData.push({
-                TV: fData[8].TV,
-                LP: fData[8].LP,
-                LS: fData[8].LS,
-                hour: 8
-            })
-            for(let i = 9;i<22;i++)
-            {
-                if(!fData[i])continue;
-                hourlyData.push({
-                    TV: fData[i].TV - fData[i-1].TV,
-                    LP: fData[i].LP - fData[i-1].LP,
-                    LS: fData[i].LS - fData[i-1].LS,
-                    hour: i,
-                })
+            hourlyData.push({ TV: fData[8].TV, LP: fData[8].LP, LS: fData[8].LS, hour: 8 })
+            for (let i = 9; i < 22; i++) {
+                if (!fData[i]) hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: i, });
+                else
+                hourlyData.push({ TV: fData[i].TV - fData[i - 1].TV, LP: fData[i].LP - fData[i - 1].LP, LS: fData[i].LS - fData[i - 1].LS, hour: i, })
             }
             let maxTV = Math.max(...hourlyData.map(data => data.TV));
-            for(const data of hourlyData)
-            {
+            for (const data of hourlyData) {
                 hourly += `<li>
                 <div class="bars">
                 <div class="bar totalVotes" data-placement="top" data-tooltip="Total: ${data.TV}" style="height: ${data.TV / maxTV * 100}px"></div>
-                <div class="bar listaPermanenta" data-placement="top" data-tooltip="L. Permanenta: ${data.LP}" style="height: ${ data.LP / maxTV * 100}px"></div>
-                <div class="bar listaSuplimentara" data-placement="top" data-tooltip="L. Suplimentara: ${data.LS}" style="height: ${ data.LS / maxTV * 100}px"></div>
+                <div class="bar listaPermanenta" data-placement="top" data-tooltip="L. Permanenta: ${data.LP}" style="height: ${data.LP / maxTV * 100}px"></div>
+                <div class="bar listaSuplimentara" data-placement="top" data-tooltip="L. Suplimentara: ${data.LS}" style="height: ${data.LS / maxTV * 100}px"></div>
                 </div>
                 <div class="time">${data.hour.toString().padStart(2, '0')}</div>
                 </li>`
             }
             hourly += '</ul>';
         }
-        
+
         popupContent = `
     <h1>${feature.properties.county}: ${feature.properties.name}</h1>
     <h3>
@@ -194,8 +185,16 @@ function sortByValues(obj, key, subkey = '') {
     candidatesArray.sort((a, b) => subkey !== '' && a[key] === b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
     return candidatesArray;
 }
+window._w.prezentaExponentiala = false;
+function toggleExp(){
+    window._w.prezentaExponentiala = !window._w.prezentaExponentiala;
+    loadData();
+    
+
+}
 function makeTable(selectedCounty = "") {
     document.querySelector('#elInfo').innerHTML = "<div id='prezentaTotala'></div><div id='table' class='prezentaTable'></div>";
+    document.querySelector('#sortType')?.remove();
     let totalVoturi = Object.values(window._w.countyStats).reduce((a, b) => a + b.voturi, 0);
     let totalVotanti = Object.values(window._w.countyStats).reduce((a, b) => a + b.votanti, 0);
     let totalPercentage = totalVoturi / totalVotanti;
@@ -213,9 +212,13 @@ function makeTable(selectedCounty = "") {
     <p>
     <center><span class="">${dataAlegeri}</span></center><br>
     Prezenta ${(totalPercentage * 100).toFixed(2)}%<br>
-    <span class="small">${totalVoturi.toLocaleString()} voturi din ${totalVotanti.toLocaleString()}</span></p>
+    <span class="small">${totalVoturi.toLocaleString()} voturi din ${totalVotanti.toLocaleString()}</span>
+    </p>
+    <a href="#" onclick="toggleExp()" id="exponential">Exponential</a>
     <hr>
     `;
+    if(window._w.prezentaExponentiala) 
+        document.querySelector('#exponential').classList.add('active');
 
     let table = document.querySelector('#table');
     let results = [];

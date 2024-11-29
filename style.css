@@ -735,6 +735,10 @@ div#github {
     color: black;
 }
 
+#table input[type="checkbox"][disabled] {
+    display: none;
+}
+
 ul.hourlyBar {
     display: flex;
     align-items: end;
@@ -782,4 +786,19 @@ ul.hourlyBar {
 .bars {
     position: relative;
     height: 100px;
+}
+
+a#exponential {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+a#exponential:before {
+    content: "[o]";
+}
+
+a#exponential.active:before {
+    content: "[x]";
 }

@@ -83,6 +83,14 @@ function processPresence(alegeriName) {
             {
                 let hour = new Date().getHours() - 1;
                 fs.renameSync(`./data/alegeri/prezenta_${alegeriName}.json`, `./data/alegeri/prezenta_${alegeriName}_${hour}.json`);
+                let data = require(`./data/alegeri/prezenta_${alegeriName}_${hour}.json`);
+                for (const judet of Object.keys(data)) {
+                    for (const localitate of Object.keys(data[judet])) {
+                        if (!prezenta[judet]) prezenta[judet] = {};
+                        if (!prezenta[judet][localitate]) prezenta[judet][localitate] = {};
+                        prezenta[judet][localitate][hour] = { ...data[judet][localitate] };
+                    }
+                }
             }
         }
         fs.writeFileSync(`./data/alegeri/prezenta_${alegeriName}.json`, JSON.stringify(prezenta));
