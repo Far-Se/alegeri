@@ -139,9 +139,9 @@ async function loadPresence(alegeri) {
             {
                 hourly += `<li>
                 <div class="bars">
-                <div class="bar totalVotes" data-placement="bottom" data-tooltip="Total: ${data.TV}" style="height: ${data.TV / maxTV * 100}px"></div>
-                <div class="bar listaPermanenta" data-placement="bottom" data-tooltip="L. Permanenta: ${data.LP}" style="height: ${ data.LP / maxTV * 100}px"></div>
-                <div class="bar listaSuplimentara" data-placement="bottom" data-tooltip="L. Suplimentara: ${data.LS}" style="height: ${ data.LS / maxTV * 100}px"></div>
+                <div class="bar totalVotes" data-placement="top" data-tooltip="Total: ${data.TV}" style="height: ${data.TV / maxTV * 100}px"></div>
+                <div class="bar listaPermanenta" data-placement="top" data-tooltip="L. Permanenta: ${data.LP}" style="height: ${ data.LP / maxTV * 100}px"></div>
+                <div class="bar listaSuplimentara" data-placement="top" data-tooltip="L. Suplimentara: ${data.LS}" style="height: ${ data.LS / maxTV * 100}px"></div>
                 </div>
                 <div class="time">${data.hour.toString().padStart(2, '0')}</div>
                 </li>`

@@ -263,7 +263,7 @@ async function loadResults(alegeri) {
                 fillOpacity = selectedParties.includes(votes[voteIndex].party) ? 1.0 : 0.0;
                 if (isPrezentaProcentChecked) {
                     const partyVote = votes.find(vote => vote.party === selectedParty);
-                    fillOpacity = partyVote ? partyVote.procent : 0;
+                    fillOpacity = partyVote ? partyVote.procent * 2: 0;
                 }
                 fillColor = getPartyColor(selectedParty);
             } else if (selectedParties.length === 2 && votes.some(vote => selectedParties.includes(vote.party))) {
@@ -282,18 +282,21 @@ async function loadResults(alegeri) {
 let mainPopupActive = false;
 function onEachFeatureResults(feature, layer) {
     if (layer.options?.fillOpacity === 0) return;
+    const isSR = feature.properties.county == "SR";
 
     const data = feature.properties.data;
-    const title = feature.properties.county === "SR"
+    const title = isSR
         ? `Diaspora: ${window._w.countries[feature.properties.name]}`
         : `<a href="uat.html#${feature.properties.county.clear()}++${feature.properties.name.clear()}" target="_blank">${feature.properties.county}: ${feature.properties.name}</a>`;
 
+    const totalVoturiFormat = data?.totalVoturi.toLocaleString() ?? 'N/A';
+    const procentPopulatie = (data?.totalVoturi / (data?.population ?? 1) * 100).toLocaleString();
     let popupContent = [
         `<h1>${title}</h1>`,
         `<h3>Castigator: ${data?.votes[0].name ?? 'N/A'}</h3>`,
         `<h3>Partid: ${data?.votes[0].party ?? 'N/A'}</h3>`,
-        `<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>`,
-        `<h3>Total voturi: ${data?.totalVoturi.toLocaleString() ?? 'N/A'} - ${(data?.totalVoturi / (data?.population ?? 1) * 100).toLocaleString()}%</h3>`,
+        !isSR? (`<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>`) : "",
+        `<h3>Voturi Totale: ${totalVoturiFormat} ${!isSR ? `- ${procentPopulatie}%` : ''}</h3>`,
         data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : '',
         `<div class="votes">`
     ].join('');
@@ -301,9 +304,10 @@ function onEachFeatureResults(feature, layer) {
     for (const vote of data.votes) {
         const fillColor = getPartyColor(vote.party);
         const votePercentage = vote.percentage;
+        const perTotalPopPercent = isSR ? '' : `(${(vote.votes / (data?.population ?? 1) * 100).toLocaleString()}%)`;
         const voteDisplay = vote.party === vote.name
-            ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercentage}% (${(vote.votes / (data?.population ?? 1) * 100).toLocaleString()}%)`
-            : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercentage}% (${(vote.votes / (data?.population ?? 1) * 100).toLocaleString()}%)`;
+            ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercentage}% ${perTotalPopPercent}`
+            : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercentage}% ${perTotalPopPercent}`;
 
         popupContent += `
             <p>
