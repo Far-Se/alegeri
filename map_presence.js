@@ -206,11 +206,11 @@ async function loadPresence(alegeri) {
             let fData = feature.properties.data;
             hourly = '<ul class="graphBar perHour">';
             let hourlyData = [];
-            hourlyData.push({ TV: fData[8].TV, LP: fData[8].LP, LS: fData[8].LS, hour: 8 })
+            hourlyData.push({ TV: fData[8][1], LP: fData[8][2], LS: fData[8][3], hour: 8 })
             for (let i = 9; i < 22; i++) {
-                if (!fData[i]) hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: i, });
+                if (!fData[i]) hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: i});
                 else
-                    hourlyData.push({ TV: fData[i].TV - fData[i - 1].TV, LP: fData[i].LP - fData[i - 1].LP, LS: fData[i].LS - fData[i - 1].LS, hour: i, })
+                    hourlyData.push({ TV: fData[i][1] - fData[i - 1][1], LP: fData[i][2] - fData[i - 1][2], LS: fData[i][3] - fData[i - 1][3], hour: i})
             }
             let maxTV = Math.max(...hourlyData.map(data => data.TV));
             for (const data of hourlyData) {

@@ -113,27 +113,34 @@ async function processPresence(turAlegeri, hours) {
             });
         });
         if (alegeriName.includes('locale')) judete.push("sr");
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 400));
     }
     if (hours.length) {
         for (const judet of Object.keys(prezenta)) {
             for (const localitate of Object.keys(prezenta[judet])) {
-
                 prezenta[judet][localitate] = { ...prezenta[judet][localitate], ...prezenta[judet][localitate][hours[hours.length - 1]] };
-
+                delete prezenta[judet][localitate][hours[hours.length - 1]].AG;
             }
         }
     }
+    for(const judet of Object.keys(prezenta)){
+        for(const localitate of Object.keys(prezenta[judet])){
+            for(const hour of Object.keys(prezenta[judet][localitate]))
+                if(typeof prezenta[judet][localitate][hour] === 'object' && prezenta[judet][localitate][hour] !== null)
+                    prezenta[judet][localitate][hour] =  Object.values(prezenta[judet][localitate][hour]);
+        }
+    }
+
     fs.writeFileSync(`./data/alegeri/prezenta_${fileName}.json`, JSON.stringify(prezenta));
     console.log("----Done----");
 }
-https://prezenta.roaep.ro/parlamentare01122024/data/json/simpv/presence/presence_ab_2024-12-01_08-00.json
+//https://prezenta.roaep.ro/parlamentare01122024/data/json/simpv/presence/presence_ab_2024-12-01_08-00.json
 (async () => {
     // await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
     await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
     // await processPresence(alegeri[args[0]]);
     // for(const alegere of Object.values(alegeri)){
-        // await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
+    //     await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
     // }
     console.log("----Done----");
 })();
