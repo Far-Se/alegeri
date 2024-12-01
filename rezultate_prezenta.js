@@ -34,10 +34,10 @@ const alegeri = {
         roaep: "prezidentiale24112024",
         file: "prezidentiale24112024",
     },
-    // "parlamentare2024": {
-    //     roaep: "parlamentare01122024",
-    //     file: "parlamentare01122024",
-    // },
+    "parlamentare2024": {
+        roaep: "parlamentare01122024",
+        file: "parlamentare01122024",
+    },
 }
 //const judeteTEMP = ["is","b"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "sr"];
