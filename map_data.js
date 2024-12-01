@@ -12,14 +12,14 @@ window._w.alegeri = {
     "Consiliu Judetean 2024": "locale09062024CJ",
     "Presedinte C.J. 2024": "locale09062024PCJ",
     "Europarlamentare 2024": "europarlamentare09062024EUP",
-    "Prezidentiale Tur 1 2024": "prezidentiale1_24112024"
+    "Prezidentiale Tur 1 2024": "prezidentiale_24112024"
 }
 window._w.prezenta = {
     "parlamentare 2020": "parlamentare06122020",
     "locale2020": "locale27092020",
     "locale2024": "locale09062024",
     "europarlamentare2024": "europarlamentare09062024",
-    "prezidentiale Tur 1 2024": "prezidentiale1_24112024_HOURLY",
+    "prezidentiale Tur 1 2024": "prezidentiale24112024",
     "parlamentare2024": "parlamentare01122024",
 }
 

@@ -1,38 +1,39 @@
 window._w.countyPopulation = {};
 window._w.countyStats = {};
+let debug = 0;
 // const featureGroup = L.featureGroup();
 function mixColor(percentage) {
     percentage = Math.max(0, Math.min(100, percentage));
-  
-    const color0 = { r: 255, g: 255,  b: 255 };   // #ffcc00
-    const color50 = { r: 255, g: 0,  b: 0 }; // #66ccff
+
+    const color0 = { r: 255, g: 255, b: 255 };   // #ffcc00
+    const color50 = { r: 255, g: 0, b: 0 }; // #66ccff
     const color100 = { r: 128, g: 0, b: 0 };   // #0000ff
-  
+
     let start, end, factor;
-  
+
     if (percentage < 50) {
-      start = color0;
-      end = color50;
-      factor = percentage / 50;
+        start = color0;
+        end = color50;
+        factor = percentage / 50;
     } else {
-      start = color50;
-      end = color100;
-      factor = (percentage - 50) / 50;
+        start = color50;
+        end = color100;
+        factor = (percentage - 50) / 50;
     }
-  
+
     const r = start.r + factor * (end.r - start.r);
     const g = start.g + factor * (end.g - start.g);
     const b = start.b + factor * (end.b - start.b);
-  
+
     const red = Math.round(r);
     const green = Math.round(g);
     const blue = Math.round(b);
 
     const toHex = component => component.toString(16).padStart(2, '0');
     const hex = `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
-  
+
     return hex;
-  }
+}
 async function loadPresence(alegeri) {
     document.querySelector('#sliderTransparenta').style.display = "none";
     window._w.countyStats = {};
@@ -54,7 +55,7 @@ async function loadPresence(alegeri) {
     if (!geoJSON) {
         console.log('loaded');
         await getCommunes();
-        window._w.commune.features = window._w.commune.features.filter(feature => !['SR', 'CO'].includes(feature.properties.county));
+        window._w.commune.features = window._w.commune.features.filter(feature => !['SRX', 'CO'].includes(feature.properties.county));
         geoJSON = L.geoJSON(window._w.commune, {});
         featureGroup.addTo(map);
         geoJSON.addTo(featureGroup);
@@ -84,12 +85,21 @@ async function loadPresence(alegeri) {
 
     function processCounty(feature) {
         let county = feature.properties.county.clear();
-        let name = feature.properties.name.clear();
+        let nameUAT = feature.properties.name.clear();
         let countyCode = window._w.countiesCodes[county];
 
+        if (county === "SR") {
+            countyCode = county;
+            if (nameUAT === "ROU") {
+                fillOpacity = 0;
+                weight = 0.0;
+            }
+        }
+
         if (data.hasOwnProperty(countyCode)) {
-            if (data[countyCode].hasOwnProperty(name)) {
-                const fData = data[countyCode][name];
+            if (data[countyCode].hasOwnProperty(nameUAT)) {
+                const fData = data[countyCode][nameUAT];
+                if(county == "SR") fData.TP = fData.TV;
                 feature.properties.data = { ...fData };
                 Object.assign(feature.properties.data, {
                     total_votanti: fData.TP,
@@ -100,22 +110,23 @@ async function loadPresence(alegeri) {
                     urna_mobila: fData.UM,
                     percentage: (fData.TV / fData.TP).toFixed(2)
                 });
+                if(county == "SR") feature.properties.data.percentage = 0.1;
 
                 if (!window._w.countyPopulation.hasOwnProperty(countyCode))
                     window._w.countyPopulation[countyCode] = {};
                 if (!window._w.countyStats.hasOwnProperty(countyCode))
                     window._w.countyStats[countyCode] = { name: county, code: countyCode, votanti: 0, voturi: 0 };
 
-                window._w.countyPopulation[countyCode][name] = {
-                    name: name,
-                    votanti: data[countyCode][name].TP,
-                    voturi: data[countyCode][name].TV,
-                    percentage: data[countyCode][name].TV / data[countyCode][name].TP
+                window._w.countyPopulation[countyCode][nameUAT] = {
+                    name: nameUAT,
+                    votanti: fData.TP,
+                    voturi: fData.TV,
+                    percentage: fData.TV / fData.TP
                 };
-                window._w.countyStats[countyCode].votanti += data[countyCode][name].TP;
-                window._w.countyStats[countyCode].voturi += data[countyCode][name].TV;
-            } else feature.properties.data = { ...emptyData };
-        } else feature.properties.data = { ...emptyData };
+                window._w.countyStats[countyCode].votanti += fData.TP;
+                window._w.countyStats[countyCode].voturi += fData.TV;
+            } else feature.properties.data = { ...emptyData, error: `No UAT data for ${nameUAT}` };
+        } else feature.properties.data = { ...emptyData, error: `No county data for ${county}` };
 
         let fillColor = '#ff0000';
         fillColor = mixColor(feature.properties.data.percentage * 100);
@@ -124,19 +135,21 @@ async function loadPresence(alegeri) {
             fillColor = '#dddddd';
             console.log(feature.properties.data);
         }
-        if (feature.properties.data.total_votanti === 0) {
-            feature.properties.data.percentage = 1;
-            fillColor = '#878787';
-            console.log(county, name, countyCode);
-            console.log(feature.properties.county, feature.properties.name, countyCode);
-        }
-        let weight = 0.3;
-        if (fillColor === "#878787" && county === "SR") {
-            feature.properties.data.percentage = 0;
-            weight = 0;
-
-        }
         let opacity = feature.properties.data.percentage;
+        let weight = 0.3;
+        if (feature.properties.data.total_votanti === 0) {
+            if(county == "SR")
+            {
+                feature.properties.data.percentage = 0;
+                opacity = 0;
+                weight = 0;                
+            }else {
+                feature.properties.data.percentage = 1;
+                fillColor = '#878787';
+                console.log(county, nameUAT, countyCode, feature.properties.data.error);
+                console.log(feature.properties.county, feature.properties.name, countyCode);
+            }
+        }
         if (window._w.prezentaExponentiala) opacity = Math.pow((feature.properties.data.percentage * 1.1), 2);
         if (window._w.prezentaSuplimentara) opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
         return {
@@ -152,7 +165,7 @@ async function loadPresence(alegeri) {
         let hourly = ``;
         if (feature.properties.data["8"]) {
             let fData = feature.properties.data;
-            hourly = '<ul class="hourlyBar">';
+            hourly = '<ul class="graphBar perHour">';
             let hourlyData = [];
             hourlyData.push({ TV: fData[8].TV, LP: fData[8].LP, LS: fData[8].LS, hour: 8 })
             for (let i = 9; i < 22; i++) {
@@ -164,30 +177,67 @@ async function loadPresence(alegeri) {
             for (const data of hourlyData) {
                 hourly += `<li>
                 <div class="bars">
-                <div class="bar totalVotes" data-placement="top" data-tooltip="Total: ${data.TV}" style="height: ${data.TV / maxTV * 100}px"></div>
-                <div class="bar listaPermanenta" data-placement="top" data-tooltip="L. Permanenta: ${data.LP}" style="height: ${data.LP / maxTV * 100}px"></div>
-                <div class="bar listaSuplimentara" data-placement="top" data-tooltip="L. Suplimentara: ${data.LS}" style="height: ${data.LS / maxTV * 100}px"></div>
+                <div class="bar totalVotes" data-placement="top" data-tooltip="Total: ${data.TV.toLocaleString()}" style="height: ${data.TV / maxTV * 100}px"></div>
+                <div class="bar listaPermanenta" data-placement="top" data-tooltip="L. Permanenta: ${data.LP.toLocaleString()}" style="height: ${data.LP / maxTV * 100}px"></div>
+                <div class="bar listaSuplimentara" data-placement="top" data-tooltip="L. Suplimentara: ${data.LS.toLocaleString()}" style="height: ${data.LS / maxTV * 100}px"></div>
                 </div>
                 <div class="time">${data.hour.toString().padStart(2, '0')}</div>
                 </li>`
             }
             hourly += '</ul>';
         }
+        let ageGraph = ``;
+        if (feature.properties.data["AG"]) {
+            
+            ageGraph = '<h3>Varsta</h3><ul class="graphBar ageGroup">';
+            let ageData = feature.properties.data["AG"];
+            let maxTV = Math.max(...Object.values(ageData));
+            let data = {};
+            for(const aData of Object.keys(ageData)){
+                let form = aData.split('_');
+                let group = form[0];
+                let age = form.slice(1).join('-');
+                if(!data.hasOwnProperty(age)) data[age] = {};
+                data[age][group] = ageData[aData];
+            }
+            maxTV = Math.max(...Object.values(data).map(data => Object.values(data).reduce((a, b) => a + b)));
+            debug = 1;
+            for (const ageGroup of Object.keys(data)) {
+                let value = data[ageGroup];
+                ageGraph += `<li>
+                <div class="bars">
+                <div class="bar totalVotes" data-placement="top" data-tooltip="Total: ${(value["men"] + value["women"]).toLocaleString()}" style="height: ${(value["men"] + value["women"]) / maxTV * 100}px"></div>
+                <div class="bar listaPermanenta" data-placement="top" data-tooltip="Barbati: ${value["men"].toLocaleString()}" style="height: ${value["men"] / maxTV * 100}px"></div>
+                <div class="bar listaSuplimentara" data-placement="top" data-tooltip="Femei: ${value["women"].toLocaleString()}" style="height: ${value["women"] / maxTV * 100}px"></div>
+                </div>
+                <div class="time">${ageGroup}</div>
+                </li>`
+            }
+            ageGraph += '</ul>';
+        }
 
         popupContent = `
+        <div class="${feature.properties.county}">
     <h1>${feature.properties.county}: ${feature.properties.name}</h1>
-    <h3>
-    Numar Votanti: ${feature.properties.data.total_votanti.toLocaleString()}<br>
-    Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}<br>
-    </h3>
+    <h3>Numar Votanti: ${feature.properties.data.total_votanti.toLocaleString()}</h3>
+    <h3>Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}</h3>
     <p>
-    <span>Lista Permanenta: ${feature.properties.data.lista_permanenta.toLocaleString()} - ${((feature.properties.data.lista_permanenta / feature.properties.data.total_voturi*100).toFixed(2))}%</span><br>
-    <span>Lista Suplimentara: ${feature.properties.data.lista_suplimentara.toLocaleString()} - ${((feature.properties.data.lista_suplimentara / feature.properties.data.total_voturi*100).toFixed(2))}%</span><br>
-    <span>Urna mobila: ${feature.properties.data.urna_mobila?.toLocaleString()} - ${((feature.properties.data.urna_mobila ?? 0 / feature.properties.data.total_voturi*100).toFixed(2))}%</span>
+    <span>Lista Permanenta: ${feature.properties.data.lista_permanenta.toLocaleString()} - ${((feature.properties.data.lista_permanenta / feature.properties.data.total_voturi * 100).toFixed(2))}%</span><br>
+    <span>Lista Suplimentara: ${feature.properties.data.lista_suplimentara.toLocaleString()} - ${((feature.properties.data.lista_suplimentara / feature.properties.data.total_voturi * 100).toFixed(2))}%</span><br>
+    <span>Urna mobila: ${feature.properties.data.urna_mobila?.toLocaleString()} - ${((feature.properties.data.urna_mobila ?? 0 / feature.properties.data.total_voturi * 100).toFixed(2))}%</span>
     </p>
     <hr>
     <h2><center>Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%</center></h2>
-    ${hourly}`;
+    ${hourly}${ageGraph}</div>`;
+    if(feature.properties.county == "SR")
+    {
+        popupContent = `
+        <div class="${feature.properties.county}">
+    <h1>${window._w.countries[feature.properties.name] ?? feature.properties.name}</h1>
+    <h3>Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}</h3>
+    <hr>
+    ${hourly}${ageGraph}</div>`;
+    }
         var popup = L.popup({
             maxWidth: 700,
             maxHeight: 800
@@ -261,8 +311,8 @@ function makeTable(selectedCounty = "") {
     </div>
     <hr>
     `;
-    if (window._w.prezentaExponentiala)        document.querySelector('#exponential').classList.add('active');
-    if (window._w.prezentaSuplimentara)        document.querySelector('#lSuplim').classList.add('active');
+    if (window._w.prezentaExponentiala) document.querySelector('#exponential').classList.add('active');
+    if (window._w.prezentaSuplimentara) document.querySelector('#lSuplim').classList.add('active');
 
     let table = document.querySelector('#table');
     let results = [];

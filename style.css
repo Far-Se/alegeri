@@ -739,42 +739,45 @@ div#github {
     display: none;
 }
 
-ul.hourlyBar {
-    display: flex;
+ul.graphBar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     align-items: end;
     margin: 0px;
     padding: 0px;
 }
 
-.hourlyBar li {
+.graphBar li {
     display: block;
 }
 
-.hourlyBar .bar {
-    width: 8px;
+.graphBar .bar {
+    /* width: 8px; */
     background: black;
     margin: 0px;
 }
 
-.hourlyBar .bar.totalVotes {
+.graphBar .bar.totalVotes {
     background: #a3a3a3;
 }
 
-.hourlyBar .bar.listaPermanenta {
+.graphBar .bar.listaPermanenta {
     background: #797979;
 }
 
-.hourlyBar .bar.listaSuplimentara {
+.graphBar .bar.listaSuplimentara {
     background: #494949;
 }
 
-.hourlyBar .bars {
-    display: flex;
+.graphBar .bars {
+    display: grid;
+    
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     margin: 0px 3px;
     align-items: end;
 }
 
-.hourlyBar .time {
+.graphBar .time {
     text-align: center;
 }
 
@@ -807,4 +810,8 @@ ul.hourlyBar {
 
 .customToggles a.active:before {
     content: "[x]";
+}
+.leaflet-popup {
+    min-width: 350px;
+    max-width: 500px;
 }
