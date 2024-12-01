@@ -20,6 +20,7 @@ window._w.prezenta = {
     "locale2024": "locale09062024",
     "europarlamentare2024": "europarlamentare09062024",
     "prezidentiale Tur 1 2024": "prezidentiale1_24112024_HOURLY",
+    "parlamentare2024": "parlamentare01122024",
 }
 
 window._w.countiesName = {

@@ -788,17 +788,23 @@ ul.hourlyBar {
     height: 100px;
 }
 
-a#exponential {
+.customToggles {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.customToggles a {
     text-decoration: none;
     color: inherit;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
 }
 
-a#exponential:before {
+.customToggles a:before {
     content: "[o]";
 }
 
-a#exponential.active:before {
+.customToggles a.active:before {
     content: "[x]";
 }

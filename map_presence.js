@@ -1,6 +1,38 @@
 window._w.countyPopulation = {};
 window._w.countyStats = {};
 // const featureGroup = L.featureGroup();
+function mixColor(percentage) {
+    percentage = Math.max(0, Math.min(100, percentage));
+  
+    const color0 = { r: 255, g: 255,  b: 255 };   // #ffcc00
+    const color50 = { r: 255, g: 0,  b: 0 }; // #66ccff
+    const color100 = { r: 128, g: 0, b: 0 };   // #0000ff
+  
+    let start, end, factor;
+  
+    if (percentage < 50) {
+      start = color0;
+      end = color50;
+      factor = percentage / 50;
+    } else {
+      start = color50;
+      end = color100;
+      factor = (percentage - 50) / 50;
+    }
+  
+    const r = start.r + factor * (end.r - start.r);
+    const g = start.g + factor * (end.g - start.g);
+    const b = start.b + factor * (end.b - start.b);
+  
+    const red = Math.round(r);
+    const green = Math.round(g);
+    const blue = Math.round(b);
+
+    const toHex = component => component.toString(16).padStart(2, '0');
+    const hex = `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+  
+    return hex;
+  }
 async function loadPresence(alegeri) {
     document.querySelector('#sliderTransparenta').style.display = "none";
     window._w.countyStats = {};
@@ -86,6 +118,7 @@ async function loadPresence(alegeri) {
         } else feature.properties.data = { ...emptyData };
 
         let fillColor = '#ff0000';
+        fillColor = mixColor(feature.properties.data.percentage * 100);
         if (isNaN(feature.properties.data.percentage)) {
             feature.properties.data.percentage = 0;
             fillColor = '#dddddd';
@@ -104,7 +137,8 @@ async function loadPresence(alegeri) {
 
         }
         let opacity = feature.properties.data.percentage;
-        if(window._w.prezentaExponentiala) opacity =  Math.pow((feature.properties.data.percentage*1.1),2);
+        if (window._w.prezentaExponentiala) opacity = Math.pow((feature.properties.data.percentage * 1.1), 2);
+        if (window._w.prezentaSuplimentara) opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
         return {
             fillColor: fillColor,
             weight: weight,
@@ -124,7 +158,7 @@ async function loadPresence(alegeri) {
             for (let i = 9; i < 22; i++) {
                 if (!fData[i]) hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: i, });
                 else
-                hourlyData.push({ TV: fData[i].TV - fData[i - 1].TV, LP: fData[i].LP - fData[i - 1].LP, LS: fData[i].LS - fData[i - 1].LS, hour: i, })
+                    hourlyData.push({ TV: fData[i].TV - fData[i - 1].TV, LP: fData[i].LP - fData[i - 1].LP, LS: fData[i].LS - fData[i - 1].LS, hour: i, })
             }
             let maxTV = Math.max(...hourlyData.map(data => data.TV));
             for (const data of hourlyData) {
@@ -145,10 +179,12 @@ async function loadPresence(alegeri) {
     <h3>
     Numar Votanti: ${feature.properties.data.total_votanti.toLocaleString()}<br>
     Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}<br>
-    <small><abbr title="Lista Suplimentara">LS</abbr>: ${feature.properties.data.lista_suplimentara} 
-    <abbr title="Lista Permanenta">LP</abbr>: ${feature.properties.data.lista_permanenta}
-    <abbr title="Urna mobila">UM</abbr>: ${feature.properties.data.urna_mobila} 
     </h3>
+    <p>
+    <span>Lista Permanenta: ${feature.properties.data.lista_permanenta.toLocaleString()} - ${((feature.properties.data.lista_permanenta / feature.properties.data.total_voturi*100).toFixed(2))}%</span><br>
+    <span>Lista Suplimentara: ${feature.properties.data.lista_suplimentara.toLocaleString()} - ${((feature.properties.data.lista_suplimentara / feature.properties.data.total_voturi*100).toFixed(2))}%</span><br>
+    <span>Urna mobila: ${feature.properties.data.urna_mobila?.toLocaleString()} - ${((feature.properties.data.urna_mobila ?? 0 / feature.properties.data.total_voturi*100).toFixed(2))}%</span>
+    </p>
     <hr>
     <h2><center>Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%</center></h2>
     ${hourly}`;
@@ -186,11 +222,16 @@ function sortByValues(obj, key, subkey = '') {
     return candidatesArray;
 }
 window._w.prezentaExponentiala = false;
-function toggleExp(){
+function toggleExp() {
     window._w.prezentaExponentiala = !window._w.prezentaExponentiala;
+    window._w.prezentaSuplimentara = 0;
     loadData();
-    
-
+}
+window._w.prezentaSuplimentara = false;
+function toggleSuplimentara() {
+    window._w.prezentaSuplimentara = !window._w.prezentaSuplimentara;
+    window._w.prezentaExponentiala = 0;
+    loadData();
 }
 function makeTable(selectedCounty = "") {
     document.querySelector('#elInfo').innerHTML = "<div id='prezentaTotala'></div><div id='table' class='prezentaTable'></div>";
@@ -214,18 +255,21 @@ function makeTable(selectedCounty = "") {
     Prezenta ${(totalPercentage * 100).toFixed(2)}%<br>
     <span class="small">${totalVoturi.toLocaleString()} voturi din ${totalVotanti.toLocaleString()}</span>
     </p>
-    <a href="#" onclick="toggleExp()" id="exponential">Exponential</a>
+    <div class="customToggles">
+    <a href="#" onclick="toggleExp()" id="exponential">Exponential</a> 
+    <a href="#" onclick="toggleSuplimentara()" id="lSuplim">Exp. L.Suplim</a>
+    </div>
     <hr>
     `;
-    if(window._w.prezentaExponentiala) 
-        document.querySelector('#exponential').classList.add('active');
+    if (window._w.prezentaExponentiala)        document.querySelector('#exponential').classList.add('active');
+    if (window._w.prezentaSuplimentara)        document.querySelector('#lSuplim').classList.add('active');
 
     let table = document.querySelector('#table');
     let results = [];
     if (selectedCounty === "") results = sortByValues(window._w.countyStats, 'percentage', 'voturi');
     else {
         results = sortByValues(window._w.countyPopulation[selectedCounty], 'percentage', 'voturi');
-        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${selectedCounty}</p></div>`;
+        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${window._w.countiesName[selectedCounty] ?? selectedCounty}</p></div>`;
     }
     for (let county of results) {
         table.innerHTML += `<div class="tCounty" ${!selectedCounty.length ? `onclick="makeTable('${county.code}')"` : ""}>
