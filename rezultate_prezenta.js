@@ -74,6 +74,8 @@ async function processPresence(turAlegeri, hours) {
 
         if (!fs.existsSync('./data/alegeri/raw')) fs.mkdirSync('./data/alegeri/raw');
         console.log(`Processing ${elDate}...`);
+
+        if(alegeriName.includes('locale'))judete = judete.filter(judet => judet !== "sr");
         await new Promise((resolve) => {
             exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_${elDate}.json"`, (error) => {
                 if (error) {
@@ -99,13 +101,11 @@ async function processPresence(turAlegeri, hours) {
                         }
                         if (!prezenta[judet].hasOwnProperty(localitate)) prezenta[judet][localitate] = {};
                         if (!prezenta[judet][localitate].hasOwnProperty(hour)) prezenta[judet][localitate][hour] = {};
-                        // Object.assign(prezenta[judet][localitate][hour], row);
 
                         Object.assign(prezenta[judet][localitate][hour], {
                             TP: (prezenta[judet][localitate][hour].TP || 0) + row.initial_count_lc + row.initial_count_lp,
                             TV: (prezenta[judet][localitate][hour].TV || 0) + row.LT,
                             LP: (prezenta[judet][localitate][hour].LP || 0) + row.LP,
-                            // LC: (prezenta[judet][localitate][hour].LC || 0) + row.LSC,
                             LS: (prezenta[judet][localitate][hour].LS || 0) + row.LS,
                             UM: (prezenta[judet][localitate][hour].UM || 0) + row.UM,
                         });
@@ -122,6 +122,7 @@ async function processPresence(turAlegeri, hours) {
                 resolve();
             });
         });
+        if(alegeriName.includes('locale'))judete.push("sr");
         await new Promise((resolve) => setTimeout(resolve, 500));
     }
     if (hours.length) {
@@ -136,12 +137,12 @@ async function processPresence(turAlegeri, hours) {
 }
 https://prezenta.roaep.ro/parlamentare01122024/data/json/simpv/presence/presence_ab_2024-12-01_08-00.json
 (async () => {
-    // await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
+    // await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
     await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
+    // await processPresence(alegeri[args[0]]);
     // for(const alegere of Object.values(alegeri)){
     //     await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
     // }
     console.log("----Done----");
-    // await processPresence(alegeri[args[0]]);
 })();
 let countryCodes = require('./data/map/countries.json');
