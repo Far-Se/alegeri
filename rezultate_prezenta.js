@@ -88,8 +88,15 @@ async function processPresence(turAlegeri, hours) {
                     for (const row of json.precinct) {
                         let localitate = row.uat.name.clear();
                         if (judet === "SR") {
-                            if (!Object.prototype.hasOwnProperty.call(countryCodes, localitate)) continue;
-                            localitate = countryCodes[localitate];
+                            if(row.uat.name === "ROMANIA") {
+                                judet = "CORESPONDENTA";
+                                localitate = "CORESPONDENTA";
+                                if(!prezenta["CORESPONDENTA"])
+                                    prezenta["CORESPONDENTA"] = {};
+                            }else {
+                                if (!Object.prototype.hasOwnProperty.call(countryCodes, localitate)) continue;
+                                localitate = countryCodes[localitate];
+                            }
                         }
                         if (!Object.prototype.hasOwnProperty.call(prezenta[judet], localitate)) prezenta[judet][localitate] = {};
                         if (!Object.prototype.hasOwnProperty.call(prezenta[judet][localitate], hour)) prezenta[judet][localitate][hour] = {};
@@ -101,11 +108,16 @@ async function processPresence(turAlegeri, hours) {
                             LS: (prezenta[judet][localitate][hour].LS || 0) + row.LS,
                             UM: (prezenta[judet][localitate][hour].UM || 0) + row.UM,
                         });
+                        if(row.LSC > 0)
+                        {
+                            prezenta[judet][localitate][hour].LS += row.LSC;
+                        }
                         if (i === hours.length - 1)
                             if (Object.prototype.hasOwnProperty.call(prezenta[judet][localitate][hour], "AG"))
                                 for (let i = 0; i < Object.keys(row.age_ranges).length; i++)
                                     prezenta[judet][localitate][hour].AG[i] += Object.values(row.age_ranges)[i];
                             else prezenta[judet][localitate][hour].AG = [...Object.values(row.age_ranges)];
+                        if(judet === "CORESPONDENTA")judet = "SR";
                     }
                 }
                 // exec(`rm -rf ./data/alegeri/raw`);

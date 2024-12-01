@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 
 
 let map = L.map('map', {
@@ -159,7 +161,7 @@ async function loadResults(alegeri) {
                     try {
                         countyVotes[key].party = key;
                         countyVotes[key].name = key;
-                    } catch (error) {
+                    } catch (_error) {
                         // Handle error if necessary
                     }
                 }

@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 window._w.countyPopulation = {};
 window._w.countyStats = {};
 let debug = 0;
@@ -55,7 +57,7 @@ async function loadPresence(alegeri) {
     if (!geoJSON) {
         console.log('loaded');
         await getCommunes();
-        window._w.commune.features = window._w.commune.features.filter(feature => !['SRX', 'CO'].includes(feature.properties.county));
+        // window._w.commune.features = window._w.commune.features.filter(feature => !['SRX', 'CO'].includes(feature.properties.county));
         geoJSON = L.geoJSON(window._w.commune, {});
         featureGroup.addTo(map);
         geoJSON.addTo(featureGroup);
@@ -95,9 +97,11 @@ async function loadPresence(alegeri) {
                 weight = 0.0;
             }
         }
-
-        if (data.hasOwnProperty(countyCode)) {
-            if (data[countyCode].hasOwnProperty(nameUAT)) {
+        if (county === "CO") {
+            countyCode = "CORESPONDENTA";
+        }
+        if (Object.prototype.hasOwnProperty.call(data, countyCode)) {
+            if (Object.prototype.hasOwnProperty.call(data[countyCode], nameUAT)) {
                 const fData = data[countyCode][nameUAT];
                 if (fData["AG"]) {
                     if (fData["AG"] !== null && Array.isArray(fData["AG"])) {
@@ -117,7 +121,7 @@ async function loadPresence(alegeri) {
                         fData.AG = { ...obj };
                     }
                 }
-                if (county == "SR") fData.TP = fData.TV;
+                if (["SR", "CO"].includes(county)) fData.TP = fData.TV;
                 feature.properties.data = { ...fData };
                 Object.assign(feature.properties.data, {
                     total_votanti: fData.TP,
@@ -127,11 +131,11 @@ async function loadPresence(alegeri) {
                     urna_mobila: fData.UM,
                     percentage: (fData.TV / fData.TP).toFixed(2)
                 });
-                if (county == "SR") feature.properties.data.percentage = 0.1;
+                if (["SR", "CO"].includes(county)) feature.properties.data.percentage = 0.1;
 
-                if (!window._w.countyPopulation.hasOwnProperty(countyCode))
+                if (!Object.prototype.hasOwnProperty.call(window._w.countyPopulation, countyCode))
                     window._w.countyPopulation[countyCode] = {};
-                if (!window._w.countyStats.hasOwnProperty(countyCode))
+                if (!Object.prototype.hasOwnProperty.call(window._w.countyStats, countyCode))
                     window._w.countyStats[countyCode] = { name: county, code: countyCode, votanti: 0, voturi: 0 };
 
                 window._w.countyPopulation[countyCode][nameUAT] = {
@@ -140,7 +144,9 @@ async function loadPresence(alegeri) {
                     voturi: fData.TV,
                     percentage: fData.TV / fData.TP
                 };
-                window._w.countyStats[countyCode].votanti += fData.TP;
+                if (!["SR", "CO"].includes(county)) {
+                    window._w.countyStats[countyCode].votanti += fData.TP;
+                }
                 window._w.countyStats[countyCode].voturi += fData.TV;
             } else feature.properties.data = { ...emptyData, error: `No UAT data for ${nameUAT}` };
         } else feature.properties.data = { ...emptyData, error: `No county data for ${county}` };
@@ -155,7 +161,7 @@ async function loadPresence(alegeri) {
         let opacity = feature.properties.data.percentage;
         let weight = 0.3;
         if (feature.properties.data.total_votanti === 0) {
-            if (county == "SR") {
+            if (["SR", "CO"].includes(county)) {
                 feature.properties.data.percentage = 0;
                 opacity = 0;
                 weight = 0;
@@ -208,9 +214,9 @@ async function loadPresence(alegeri) {
             let hourlyData = [];
             hourlyData.push({ TV: fData[8][1], LP: fData[8][2], LS: fData[8][3], hour: 8 })
             for (let i = 9; i < 22; i++) {
-                if (!fData[i]) hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: i});
+                if (!fData[i]) hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: i });
                 else
-                    hourlyData.push({ TV: fData[i][1] - fData[i - 1][1], LP: fData[i][2] - fData[i - 1][2], LS: fData[i][3] - fData[i - 1][3], hour: i})
+                    hourlyData.push({ TV: fData[i][1] - fData[i - 1][1], LP: fData[i][2] - fData[i - 1][2], LS: fData[i][3] - fData[i - 1][3], hour: i })
             }
             let maxTV = Math.max(...hourlyData.map(data => data.TV));
             for (const data of hourlyData) {
@@ -236,7 +242,7 @@ async function loadPresence(alegeri) {
                 let form = aData.split('_');
                 let group = form[0];
                 let age = form.slice(1).join('-');
-                if (!data.hasOwnProperty(age)) data[age] = {};
+                if (!Object.prototype.hasOwnProperty.call(data, age)) data[age] = {};
                 data[age][group] = ageData[aData];
             }
             maxTV = Math.max(...Object.values(data).map(data => Object.values(data).reduce((a, b) => a + b)));
@@ -268,7 +274,7 @@ async function loadPresence(alegeri) {
     <hr>
     <h2><center>Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%</center></h2>
     ${hourly}${ageGraph}</div>`;
-        if (feature.properties.county == "SR") {
+        if (["SR", "CO"].includes(feature.properties.county)) {
             popupContent = `
         <div class="${feature.properties.county}">
     <h1>${window._w.countries[feature.properties.name] ?? feature.properties.name}</h1>
@@ -291,7 +297,7 @@ async function loadPresence(alegeri) {
             popup.style.top = `${mouse.y}px`;
             popup.style.display = "block";
             popup.innerHTML = `${feature.properties.county}: ${feature.properties.name} ${parseInt(feature.properties.data.percentage * 100)}%`;
-            if (feature.properties.county == "SR") popup.innerHTML = `${window._w.countries[feature.properties.name] ?? feature.properties.name}`;
+            if (["SR", "CO"].includes(feature.properties.county)) popup.innerHTML = `${window._w.countries[feature.properties.name] ?? feature.properties.name}`;
             // Open the popup on mouseover
 
             // Close the popup on mouseout
@@ -373,7 +379,7 @@ function makeTable(selectedCounty = "") {
     for (let county of results) {
         table.innerHTML += `<div class="tCounty" ${!selectedCounty.length ? `onclick="makeTable('${county.code}')"` : ""}>
         <p><span class="big">${county.name}<span></p>
-        <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}</p>
+        ${!["SR","CO"].includes(county.name) ? `<p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}` : `<p class="small">${county.voturi.toLocaleString()} Voturi</p>`}
         </div>`
     }
     if (selectedCounty !== "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
