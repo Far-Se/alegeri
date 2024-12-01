@@ -99,7 +99,7 @@ async function loadPresence(alegeri) {
         if (data.hasOwnProperty(countyCode)) {
             if (data[countyCode].hasOwnProperty(nameUAT)) {
                 const fData = data[countyCode][nameUAT];
-                if(county == "SR") fData.TP = fData.TV;
+                if (county == "SR") fData.TP = fData.TV;
                 feature.properties.data = { ...fData };
                 Object.assign(feature.properties.data, {
                     total_votanti: fData.TP,
@@ -110,7 +110,7 @@ async function loadPresence(alegeri) {
                     urna_mobila: fData.UM,
                     percentage: (fData.TV / fData.TP).toFixed(2)
                 });
-                if(county == "SR") feature.properties.data.percentage = 0.1;
+                if (county == "SR") feature.properties.data.percentage = 0.1;
 
                 if (!window._w.countyPopulation.hasOwnProperty(countyCode))
                     window._w.countyPopulation[countyCode] = {};
@@ -138,20 +138,47 @@ async function loadPresence(alegeri) {
         let opacity = feature.properties.data.percentage;
         let weight = 0.3;
         if (feature.properties.data.total_votanti === 0) {
-            if(county == "SR")
-            {
+            if (county == "SR") {
                 feature.properties.data.percentage = 0;
                 opacity = 0;
-                weight = 0;                
-            }else {
+                weight = 0;
+            } else {
                 feature.properties.data.percentage = 1;
                 fillColor = '#878787';
                 console.log(county, nameUAT, countyCode, feature.properties.data.error);
                 console.log(feature.properties.county, feature.properties.name, countyCode);
             }
         }
-        if (window._w.prezentaExponentiala) opacity = Math.pow((feature.properties.data.percentage * 1.1), 2);
-        if (window._w.prezentaSuplimentara) opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
+        if (window._w.factor == "exponential") opacity = Math.pow((opacity * 1.1), 2);
+        else if (window._w.factor == "suplimentara") opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
+        else if (window._w.factor.includes("varsta")) {
+            if (feature.properties.data.AG) {
+                const varsta = window._w.factor.replace('varsta', '');
+                let ageTV = feature.properties.data.AG[`men_${varsta}`] + feature.properties.data.AG[`women_${varsta}`];
+                opacity = ageTV / (feature.properties.data.total_voturi - ageTV);
+                // opacity = Math.pow((opacity * 1.1), 2);
+                opacity = 1 / (1 + Math.exp(-(opacity - 0.5) * 10));
+            }
+        } else if (window._w.factor == "tineri") {
+            if (feature.properties.data.AG) {
+                let ageGroupVotes = 0;
+                let ageRanges = ["men_18_24", "women_18_24", "men_25_34", "women_25_34", "men_35_44", "women_35_44",];
+                for (const ageRange of ageRanges) {
+                    ageGroupVotes += feature.properties.data.AG[ageRange];
+                }
+                opacity = ageGroupVotes / feature.properties.data.total_voturi;
+            }
+        } else if (window._w.factor == "batrani") {
+            if (feature.properties.data.AG) {
+                let ageGroupVotes = 0;
+                let ageRanges = [ "men_45_64", "women_45_64", "men_65+", "women_65+"];
+                for (const ageRange of ageRanges) {
+                    ageGroupVotes += feature.properties.data.AG[ageRange];
+                }
+                opacity = ageGroupVotes / feature.properties.data.total_voturi;
+            }
+        }
+        if (window._w.factorPercentile) opacity = Math.pow((opacity * 1.1), 2);
         return {
             fillColor: fillColor,
             weight: weight,
@@ -188,16 +215,16 @@ async function loadPresence(alegeri) {
         }
         let ageGraph = ``;
         if (feature.properties.data["AG"]) {
-            
+
             ageGraph = '<h3>Varsta</h3><ul class="graphBar ageGroup">';
             let ageData = feature.properties.data["AG"];
             let maxTV = Math.max(...Object.values(ageData));
             let data = {};
-            for(const aData of Object.keys(ageData)){
+            for (const aData of Object.keys(ageData)) {
                 let form = aData.split('_');
                 let group = form[0];
                 let age = form.slice(1).join('-');
-                if(!data.hasOwnProperty(age)) data[age] = {};
+                if (!data.hasOwnProperty(age)) data[age] = {};
                 data[age][group] = ageData[aData];
             }
             maxTV = Math.max(...Object.values(data).map(data => Object.values(data).reduce((a, b) => a + b)));
@@ -229,15 +256,14 @@ async function loadPresence(alegeri) {
     <hr>
     <h2><center>Procent: ${(feature.properties.data.percentage * 100).toFixed(2)}%</center></h2>
     ${hourly}${ageGraph}</div>`;
-    if(feature.properties.county == "SR")
-    {
-        popupContent = `
+        if (feature.properties.county == "SR") {
+            popupContent = `
         <div class="${feature.properties.county}">
     <h1>${window._w.countries[feature.properties.name] ?? feature.properties.name}</h1>
     <h3>Total voturi: ${feature.properties.data.total_voturi.toLocaleString()}</h3>
     <hr>
     ${hourly}${ageGraph}</div>`;
-    }
+        }
         var popup = L.popup({
             maxWidth: 700,
             maxHeight: 800
@@ -271,16 +297,14 @@ function sortByValues(obj, key, subkey = '') {
     candidatesArray.sort((a, b) => subkey !== '' && a[key] === b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
     return candidatesArray;
 }
-window._w.prezentaExponentiala = false;
-function toggleExp() {
-    window._w.prezentaExponentiala = !window._w.prezentaExponentiala;
-    window._w.prezentaSuplimentara = 0;
+window._w.factor = "";
+function changeFactor() {
+    window._w.factor = document.querySelector('#factorSelect').value;
     loadData();
 }
-window._w.prezentaSuplimentara = false;
-function toggleSuplimentara() {
-    window._w.prezentaSuplimentara = !window._w.prezentaSuplimentara;
-    window._w.prezentaExponentiala = 0;
+window._w.factorPercentile = false;
+function toggleExp() {
+    window._w.factorPercentile = !window._w.factorPercentile;
     loadData();
 }
 function makeTable(selectedCounty = "") {
@@ -305,14 +329,26 @@ function makeTable(selectedCounty = "") {
     Prezenta ${(totalPercentage * 100).toFixed(2)}%<br>
     <span class="small">${totalVoturi.toLocaleString()} voturi din ${totalVotanti.toLocaleString()}</span>
     </p>
-    <div class="customToggles">
-    <a href="#" onclick="toggleExp()" id="exponential">Exponential</a> 
-    <a href="#" onclick="toggleSuplimentara()" id="lSuplim">Exp. L.Suplim</a>
-    </div>
-    <hr>
-    `;
-    if (window._w.prezentaExponentiala) document.querySelector('#exponential').classList.add('active');
-    if (window._w.prezentaSuplimentara) document.querySelector('#lSuplim').classList.add('active');
+    <div class="custom-select"><select id="factorSelect" onchange="changeFactor()">
+        <option value="">Prezenta</option>
+        <option value="exponential">Exponential</option>
+        <option value="suplimentara">Lista Suplimentara</option>
+        <option value="tineri">Tineri 18-44</option>
+        <option value="batrani">Varstnici 45+</option>
+        <option value="varsta18_24">Varsta 18-24</option>
+        <option value="varsta25_34">Varsta 25-34</option>
+        <option value="varsta35_44">Varsta 35-44</option>
+        <option value="varsta45_64">Varsta 45-64</option>
+        <option value="varsta65+">Varsta 65+</option>
+    </select></div>
+        <hr>`;
+    /*
+    
+<div class="customToggles">
+<a href="#" onclick="toggleExp()" id="exponential" class="${window._w.factorPercentile ? "active" : ""}">Exponential</a> 
+</div>
+    */
+    if (window._w.factor != "") document.querySelector('#factorSelect').value = window._w.factor;
 
     let table = document.querySelector('#table');
     let results = [];
