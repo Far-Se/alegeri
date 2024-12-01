@@ -1,11 +1,7 @@
-/*
-Date:
-https://prezenta.roaep.ro/{ALEGERI}/data/json/sicpv/pv/pv_{JUDET}_{prov|part|final}.json
-*/
-const { exec } = require('child_process');
-const { mkdirSync, existsSync, writeFileSync } = require('fs');
-const { default: axios } = require('axios');
-let countryCodes = require('./data/map/countries.json');
+const { exec } = require("child_process");
+const { mkdirSync, existsSync, writeFileSync } = require("fs");
+const { default: axios } = require("axios");
+let countryCodes = require("./data/map/countries.json");
 
 const args = process.argv.slice(2);
 const alegeri = {
@@ -16,22 +12,24 @@ const alegeri = {
     "CL2024": "CL-locale09062024",
     "PCJ2024": "PCJ-locale09062024",
 
-}
-//const judete = ["is"];
-const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn"];
+};
+const judete = [...Object.keys(require("./data/map/county_population.json")).map(e=>e.toLowerCase())];
 args[1] ??= "part";
-if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}] [prov|part|final]`);
+if (args.length < 1 || !alegeri[args[0]]){
 
+    console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join("|")}] [prov|part|final]`);
+    process.exit(0);
+}
 String.prototype.clear = function () {
     return this
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toUpperCase()
-        .replace(/(MUNICIPIUL|ORAS) ?/ig, '')
-        .replace(/\. /ig, '.')
-        .replace(/ - /ig, '-')
-        ;
-}
+        .replace(/(MUNICIPIUL|ORAS) ?/ig, "")
+        .replace(/\. /ig, ".")
+        .replace(/ - /ig, "-")
+    ;
+};
 let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
     let rezultate = {};
 
@@ -50,10 +48,10 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
         }
         let table = [];
         try{
-        table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[tipAlegeri].table);
-        }catch(e){
+            table = Object.values(json.stages[args[1].toUpperCase()].scopes.PRCNCT.categories[tipAlegeri].table);
+        }catch(_e){
             try {
-            table = Object.values(json.stages[args[1].toUpperCase()].scopes.UAT.categories[tipAlegeri].table);
+                table = Object.values(json.stages[args[1].toUpperCase()].scopes.UAT.categories[tipAlegeri].table);
             }catch(_){
                 console.log(`No data for ${judet} ${resultsKind}`);
                 console.log(Object.keys(json.stages[args[1].toUpperCase()].scopes));
@@ -62,13 +60,13 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
         }
         for (const row of table) {
             let localitate = row.uat_name.clear();
-            if (judet == "SR") {
-                if (!countryCodes.hasOwnProperty(localitate)) continue;
+            if (judet === "SR") {
+                if (!Object.prototype.hasOwnProperty.call(countryCodes, localitate)) continue;
                 localitate = countryCodes[localitate];
             }
             let votes = [...row.votes];
 
-            if (!rezultate[judet].hasOwnProperty(localitate)) {
+            if (!Object.prototype.hasOwnProperty.call(rezultate[judet], localitate)) {
                 rezultate[judet][localitate] = { votes: {} };
             }
             for (const partid of votes) {
@@ -76,14 +74,14 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
                 let pparty = partid.party ?? "INDEPENDENT";
                 if (pparty.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b|\bPMP\b|FOR.A DREPTEI)/)) pparty = "USR - ALIANȚA DREAPTA UNITĂ";
                 if (partid.candidate.clear().match(/(UNIUNEA SALVATI ROMANIA|\bUSR\b)/)) partid.candidate = "USR - ALIANȚA DREAPTA UNITĂ";
-                if(row.uat_name.toUpperCase().indexOf('MUNICIPIUL')== 0) rezultate[judet][localitate].special = "MUN";
-                if(row.uat_name.toUpperCase().indexOf('ORA') == 0) rezultate[judet][localitate].special = "ORAS";
+                if(row.uat_name.toUpperCase().indexOf("MUNICIPIUL")=== 0) rezultate[judet][localitate].special = "MUN";
+                if(row.uat_name.toUpperCase().indexOf("ORA") === 0) rezultate[judet][localitate].special = "ORAS";
                 
-                if (rezultate[judet][localitate].votes.hasOwnProperty(partid.candidate)) {
+                if (Object.prototype.hasOwnProperty.call(rezultate[judet][localitate].votes, partid.candidate)) {
                     rezultate[judet][localitate].votes[partid.candidate].votes += Number(partid.votes);
                 }
                 else {
-                    if (tipAlegeri != "P" && !partid.party) pparty = partid.candidate;
+                    if (tipAlegeri !== "P" && !partid.party) pparty = partid.candidate;
                     rezultate[judet][localitate].votes[partid.candidate] = {
                         name: partid.candidate,
                         party: pparty,
@@ -93,18 +91,18 @@ let processFiles = (alegeriName, tipAlegeri, resultsKind) => {
             }
         }
     }
-    require('fs').writeFileSync(`./data/alegeri/rezultate_${alegeriName}${tipAlegeri}.json`, JSON.stringify(rezultate));
+    require("fs").writeFileSync(`./data/alegeri/rezultate_${alegeriName}${tipAlegeri}.json`, JSON.stringify(rezultate));
     console.log("Done");
-}
+};
 
 async function fetchWithRetry(url, retries = 3, delay = 300) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
-            const response = await axios.get(url, { responseType: 'text/plain' });
+            const response = await axios.get(url, { responseType: "text/plain" });
             if (response.status !== 200) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            writeFileSync(`./data/alegeri/raw/${url.split('/').pop()}`,response.data);
+            writeFileSync(`./data/alegeri/raw/${url.split("/").pop()}`,response.data);
             //exit(0);
             return true;
         } catch (error) {
@@ -131,9 +129,9 @@ async function fetchMultipleUrlsConcurrently(urls, retries = 3, delay = 300) {
 }
 
 async function fetchResults(numeAlegeri, resultsKind) {
-    if (!existsSync('./data/alegeri/raw')) mkdirSync('./data/alegeri/raw');
+    if (!existsSync("./data/alegeri/raw")) mkdirSync("./data/alegeri/raw");
 
-    let [tipAlegere, alegeriName] = numeAlegeri.split('-');
+    let [tipAlegere, alegeriName] = numeAlegeri.split("-");
     console.log(`Fetching ${alegeriName} - ${tipAlegere}`);
     let links = [];
     for (const judet of judete) {
@@ -143,30 +141,26 @@ async function fetchResults(numeAlegeri, resultsKind) {
         await fetchMultipleUrlsConcurrently(links);
         processResults(numeAlegeri, resultsKind);
     } catch (error) {
-        console.error('Error fetching URLs:', error);
+        console.error("Error fetching URLs:", error);
     }
     return;
-    /* exec(`curl --output-dir ${__dirname}/data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(',')}}_${resultsKind}.json"`, (error) => {
-        if (error) return console.error(`Error: ${error.message}`);
-        return processResults(numeAlegeri, resultsKind);
-    }); */
 }
 function processResults(numeAlegeri, resultsKind) {
 
-    let [tipAlegere, alegeriName] = numeAlegeri.split('-');
+    let [tipAlegere, alegeriName] = numeAlegeri.split("-");
     if (tipAlegere.match(/^[0-9]+$/)) {
         for (const atipAlegere of Object.values(alegeri)) {
             if (atipAlegere.includes(alegeriName)) {
-                let [xtipAlegere, xalegeriName] = atipAlegere.split('-');
-                if (tipAlegere == xtipAlegere) continue;
+                let [xtipAlegere, xalegeriName] = atipAlegere.split("-");
+                if (tipAlegere === xtipAlegere) continue;
                 processFiles(xalegeriName, xtipAlegere, resultsKind);
             }
         }
-        exec(`rm -rf ./data/alegeri/raw`);
+        exec("rm -rf ./data/alegeri/raw");
         return;
     }
     processFiles(alegeriName, tipAlegere, resultsKind);
-    exec(`rm -rf ./data/alegeri/raw`);
+    exec("rm -rf ./data/alegeri/raw");
 
 }
 fetchResults(alegeri[args[0]], args[1]);

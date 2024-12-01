@@ -1,5 +1,5 @@
-const { exec } = require('child_process');
-const fs = require('fs');
+const { exec } = require("child_process");
+const fs = require("fs");
 
 
 const args = process.argv.slice(2);
@@ -28,11 +28,13 @@ const alegeri = {
         roaep: "parlamentare01122024",
         file: "parlamentare01122024",
     },
+};
+let judete = [...Object.keys(require("./data/map/county_population.json")).map(e=>e.toLowerCase()), "sr"];
+if (args.length === 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
+if (args.length < 1 || !alegeri[args[0]]){
+    console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join("|")}]`);
+    process.exit(0);
 }
-//const judeteTEMP = ["is","b"];
-let judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "sr"];
-if (args.length == 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
-if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}]`);
 
 
 String.prototype.clear = function () {
@@ -40,11 +42,11 @@ String.prototype.clear = function () {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toUpperCase()
-        .replace(/(MUNICIPIUL|ORAS) ?/ig, '')
-        .replace(/\. /ig, '.')
-        .replace(/ - /ig, '-')
-        ;
-}
+        .replace(/(MUNICIPIUL|ORAS) ?/ig, "")
+        .replace(/\. /ig, ".")
+        .replace(/ - /ig, "-")
+    ;
+};
 async function processPresence(turAlegeri, hours) {
     const alegeriName = turAlegeri.roaep;
     const fileName = turAlegeri.file;
@@ -58,16 +60,16 @@ async function processPresence(turAlegeri, hours) {
             try {
                 const reg = alegeriName.match(/([0-9]{2})([0-9]{2})([0-9]{4})/);
                 elDate = `${reg[3]}-${reg[2]}-${reg[1]}`;
-                elDate = `${elDate}_${hour.toString().padStart(2, '0')}-00`;
+                elDate = `${elDate}_${hour.toString().padStart(2, "0")}-00`;
             } catch (e) { console.log(e); }
         } else elDate = "now";
 
-        if (!fs.existsSync('./data/alegeri/raw')) fs.mkdirSync('./data/alegeri/raw');
+        if (!fs.existsSync("./data/alegeri/raw")) fs.mkdirSync("./data/alegeri/raw");
         console.log(`Processing ${alegeriName} ${hour}...`);
 
-        if (alegeriName.includes('locale')) judete = judete.filter(judet => judet !== "sr");
+        if (alegeriName.includes("locale")) judete = judete.filter(judet => judet !== "sr");
         await new Promise((resolve) => {
-            exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_${elDate}.json"`, (error) => {
+            exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(",")}}_${elDate}.json"`, (error) => {
                 if (error) {
                     console.error(`Error: ${error.message}`);
                     return;
@@ -78,19 +80,19 @@ async function processPresence(turAlegeri, hours) {
                     let json = [];
                     try {
                         json = require(`./data/alegeri/raw/presence_${judet}_${elDate}.json`);
-                    } catch (_) {
+                    } catch (_a) {
                         console.log(`No data for ${judet}: ${elDate}`);
                         console.log(`https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_${judet}_${elDate}.json`);
                         continue;
                     }
                     for (const row of json.precinct) {
                         let localitate = row.uat.name.clear();
-                        if (judet == "SR") {
-                            if (!countryCodes.hasOwnProperty(localitate)) continue;
+                        if (judet === "SR") {
+                            if (!Object.prototype.hasOwnProperty.call(countryCodes, localitate)) continue;
                             localitate = countryCodes[localitate];
                         }
-                        if (!prezenta[judet].hasOwnProperty(localitate)) prezenta[judet][localitate] = {};
-                        if (!prezenta[judet][localitate].hasOwnProperty(hour)) prezenta[judet][localitate][hour] = {};
+                        if (!Object.prototype.hasOwnProperty.call(prezenta[judet], localitate)) prezenta[judet][localitate] = {};
+                        if (!Object.prototype.hasOwnProperty.call(prezenta[judet][localitate], hour)) prezenta[judet][localitate][hour] = {};
 
                         Object.assign(prezenta[judet][localitate][hour], {
                             TP: (prezenta[judet][localitate][hour].TP || 0) + row.initial_count_lc + row.initial_count_lp,
@@ -99,20 +101,20 @@ async function processPresence(turAlegeri, hours) {
                             LS: (prezenta[judet][localitate][hour].LS || 0) + row.LS,
                             UM: (prezenta[judet][localitate][hour].UM || 0) + row.UM,
                         });
-                        if (i == hours.length - 1)
-                            if (prezenta[judet][localitate][hour].hasOwnProperty('AG'))
+                        if (i === hours.length - 1)
+                            if (Object.prototype.hasOwnProperty.call(prezenta[judet][localitate][hour], "AG"))
                                 for (let i = 0; i < Object.keys(row.age_ranges).length; i++)
                                     prezenta[judet][localitate][hour].AG[i] += Object.values(row.age_ranges)[i];
                             else prezenta[judet][localitate][hour].AG = [...Object.values(row.age_ranges)];
                     }
                 }
                 // exec(`rm -rf ./data/alegeri/raw`);
-                fs.rmSync('./data/alegeri/raw', { recursive: true, force: true });
+                fs.rmSync("./data/alegeri/raw", { recursive: true, force: true });
                 // console.log("Done ", elDate);
                 resolve();
             });
         });
-        if (alegeriName.includes('locale')) judete.push("sr");
+        if (alegeriName.includes("locale")) judete.push("sr");
         await new Promise((resolve) => setTimeout(resolve, 400));
     }
     if (hours.length) {
@@ -126,7 +128,7 @@ async function processPresence(turAlegeri, hours) {
     for(const judet of Object.keys(prezenta)){
         for(const localitate of Object.keys(prezenta[judet])){
             for(const hour of Object.keys(prezenta[judet][localitate]))
-                if(typeof prezenta[judet][localitate][hour] === 'object' && prezenta[judet][localitate][hour] !== null)
+                if(typeof prezenta[judet][localitate][hour] === "object" && prezenta[judet][localitate][hour] !== null)
                     prezenta[judet][localitate][hour] =  Object.values(prezenta[judet][localitate][hour]);
         }
     }
@@ -144,4 +146,4 @@ async function processPresence(turAlegeri, hours) {
     // }
     console.log("----Done----");
 })();
-let countryCodes = require('./data/map/countries.json');
+let countryCodes = require("./data/map/countries.json");
