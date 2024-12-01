@@ -279,6 +279,7 @@ async function loadPresence(alegeri) {
             popup.style.top = `${mouse.y}px`;
             popup.style.display = "block";
             popup.innerHTML = `${feature.properties.county}: ${feature.properties.name} ${parseInt(feature.properties.data.percentage * 100)}%`;
+            if(feature.properties.county == "SR") popup.innerHTML = `${window._w.countries[feature.properties.name] ?? feature.properties.name}`;
             // Open the popup on mouseover
 
             // Close the popup on mouseout
