@@ -169,30 +169,23 @@ async function loadPresence(alegeri) {
         if (county !== "SR") {
             if (window._w.factor == "exponential") opacity = Math.pow((opacity * 1.1), 2);
             else if (window._w.factor == "suplimentara") opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
-            else if (window._w.factor.includes("varsta")) {
-                if (feature.properties.data.AG) {
+            else if (feature.properties.data.AG) {
+                if (window._w.factor.includes("varsta")) {
                     const varsta = window._w.factor.replace('varsta', '');
                     let ageTV = feature.properties.data.AG[`men_${varsta}`] + feature.properties.data.AG[`women_${varsta}`];
                     opacity = ageTV / (feature.properties.data.total_voturi - ageTV);
                     // opacity = Math.pow((opacity * 1.1), 2);
-                    opacity = 1 / (1 + Math.exp(-(opacity - 0.5) * 10));
+                    // opacity = 1 / (1 + Math.exp(-(opacity - 0.5) * 10));
                 }
-            } else if (window._w.factor == "tineri") {
-                if (feature.properties.data.AG) {
+                else if (["tineri", "batrani"].includes(window._w.factor)) {
                     let ageGroupVotes = 0;
-                    let ageRanges = ["men_18_24", "women_18_24", "men_25_34", "women_25_34", "men_35_44", "women_35_44",];
-                    for (const ageRange of ageRanges) {
+                    const ageRanges =
+                        window._w.factor == "tineri" ?
+                            ["men_18_24", "women_18_24", "men_25_34", "women_25_34", "men_35_44", "women_35_44",]
+                            : ["men_45_64", "women_45_64", "men_65+", "women_65+"];
+                    for (const ageRange of ageRanges)
                         ageGroupVotes += feature.properties.data.AG[ageRange];
-                    }
-                    opacity = ageGroupVotes / feature.properties.data.total_voturi;
-                }
-            } else if (window._w.factor == "batrani") {
-                if (feature.properties.data.AG) {
-                    let ageGroupVotes = 0;
-                    let ageRanges = ["men_45_64", "women_45_64", "men_65+", "women_65+"];
-                    for (const ageRange of ageRanges) {
-                        ageGroupVotes += feature.properties.data.AG[ageRange];
-                    }
+
                     opacity = ageGroupVotes / feature.properties.data.total_voturi;
                 }
             }

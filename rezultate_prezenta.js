@@ -40,8 +40,8 @@ const alegeri = {
     },
 }
 //const judeteTEMP = ["is","b"];
-const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "sr"];
-if(args.length == 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
+let judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "sr"];
+if (args.length == 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
 if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}]`);
 
 
@@ -60,9 +60,9 @@ async function processPresence(turAlegeri, hours) {
     const fileName = turAlegeri.file;
     if (hours === undefined) hours = ["now"];
     let prezenta = {};
-    console.log(alegeriName, ' - ', hours);
+    console.log(alegeriName);
     for (let i = 0; i < hours.length; i++) {
-        let hour = hours[i];
+        const hour = hours[i];
         let elDate = "";
         if (hour !== "now") {
             try {
@@ -70,12 +70,12 @@ async function processPresence(turAlegeri, hours) {
                 elDate = `${reg[3]}-${reg[2]}-${reg[1]}`;
                 elDate = `${elDate}_${hour.toString().padStart(2, '0')}-00`;
             } catch (e) { console.log(e); }
-        }else elDate = "now";
+        } else elDate = "now";
 
         if (!fs.existsSync('./data/alegeri/raw')) fs.mkdirSync('./data/alegeri/raw');
-        console.log(`Processing ${elDate}...`);
+        console.log(`Processing ${alegeriName} ${hour}...`);
 
-        if(alegeriName.includes('locale'))judete = judete.filter(judet => judet !== "sr");
+        if (alegeriName.includes('locale')) judete = judete.filter(judet => judet !== "sr");
         await new Promise((resolve) => {
             exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/simpv/presence/presence_{${judete.join(',')}}_${elDate}.json"`, (error) => {
                 if (error) {
@@ -109,26 +109,28 @@ async function processPresence(turAlegeri, hours) {
                             LS: (prezenta[judet][localitate][hour].LS || 0) + row.LS,
                             UM: (prezenta[judet][localitate][hour].UM || 0) + row.UM,
                         });
-
-                        if (prezenta[judet][localitate][hour].hasOwnProperty('AG'))
-                            for (let i=0;i<Object.keys(row.age_ranges).length;i++)
-                                prezenta[judet][localitate][hour].AG[i] += Object.values(row.age_ranges)[i];
-                        else prezenta[judet][localitate][hour].AG = [...Object.values(row.age_ranges) ];
+                        if (i == hours.length - 1)
+                            if (prezenta[judet][localitate][hour].hasOwnProperty('AG'))
+                                for (let i = 0; i < Object.keys(row.age_ranges).length; i++)
+                                    prezenta[judet][localitate][hour].AG[i] += Object.values(row.age_ranges)[i];
+                            else prezenta[judet][localitate][hour].AG = [...Object.values(row.age_ranges)];
                     }
                 }
                 // exec(`rm -rf ./data/alegeri/raw`);
                 fs.rmSync('./data/alegeri/raw', { recursive: true, force: true });
-                console.log("Done ", elDate);
+                // console.log("Done ", elDate);
                 resolve();
             });
         });
-        if(alegeriName.includes('locale'))judete.push("sr");
+        if (alegeriName.includes('locale')) judete.push("sr");
         await new Promise((resolve) => setTimeout(resolve, 500));
     }
     if (hours.length) {
         for (const judet of Object.keys(prezenta)) {
             for (const localitate of Object.keys(prezenta[judet])) {
-                prezenta[judet][localitate] = {...prezenta[judet][localitate], ...prezenta[judet][localitate][hours[hours.length - 1]] };
+
+                prezenta[judet][localitate] = { ...prezenta[judet][localitate], ...prezenta[judet][localitate][hours[hours.length - 1]] };
+
             }
         }
     }
@@ -141,7 +143,7 @@ https://prezenta.roaep.ro/parlamentare01122024/data/json/simpv/presence/presence
     await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
     // await processPresence(alegeri[args[0]]);
     // for(const alegere of Object.values(alegeri)){
-    //     await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
+        // await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
     // }
     console.log("----Done----");
 })();
