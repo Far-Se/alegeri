@@ -17,7 +17,7 @@ window._w.alegeri = {
 window._w.prezenta = {
     "parlamentare 2020": "parlamentare06122020",
     "locale2020": "locale27092020",
-    "locale2024": "locale09062024",
+    "locale2024": "locale09062024v2",
     "europarlamentare2024": "europarlamentare09062024",
     "prezidentiale Tur 1 2024": "prezidentiale24112024",
     "parlamentare2024": "parlamentare01122024",

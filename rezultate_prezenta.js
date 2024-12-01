@@ -34,10 +34,10 @@ const alegeri = {
         roaep: "prezidentiale24112024",
         file: "prezidentiale24112024",
     },
-    "parlamentare2024": {
-        roaep: "parlamentare01122024",
-        file: "parlamentare01122024",
-    },
+    // "parlamentare2024": {
+    //     roaep: "parlamentare01122024",
+    //     file: "parlamentare01122024",
+    // },
 }
 //const judeteTEMP = ["is","b"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "sr"];
@@ -99,20 +99,21 @@ async function processPresence(turAlegeri, hours) {
                         }
                         if (!prezenta[judet].hasOwnProperty(localitate)) prezenta[judet][localitate] = {};
                         if (!prezenta[judet][localitate].hasOwnProperty(hour)) prezenta[judet][localitate][hour] = {};
-                        Object.assign(prezenta[judet][localitate][hour], row);
+                        // Object.assign(prezenta[judet][localitate][hour], row);
 
                         Object.assign(prezenta[judet][localitate][hour], {
                             TP: (prezenta[judet][localitate][hour].TP || 0) + row.initial_count_lc + row.initial_count_lp,
                             TV: (prezenta[judet][localitate][hour].TV || 0) + row.LT,
                             LP: (prezenta[judet][localitate][hour].LP || 0) + row.LP,
-                            LC: (prezenta[judet][localitate][hour].LC || 0) + row.LSC,
+                            // LC: (prezenta[judet][localitate][hour].LC || 0) + row.LSC,
                             LS: (prezenta[judet][localitate][hour].LS || 0) + row.LS,
                             UM: (prezenta[judet][localitate][hour].UM || 0) + row.UM,
                         });
+
                         if (prezenta[judet][localitate][hour].hasOwnProperty('AG'))
-                            for (const age of Object.keys(row.age_ranges))
-                                prezenta[judet][localitate][hour].AG[age] += row.age_ranges[age];
-                        else prezenta[judet][localitate][hour].AG = { ...row.age_ranges };
+                            for (let i=0;i<Object.keys(row.age_ranges).length;i++)
+                                prezenta[judet][localitate][hour].AG[i] += Object.values(row.age_ranges)[i];
+                        else prezenta[judet][localitate][hour].AG = [...Object.values(row.age_ranges) ];
                     }
                 }
                 // exec(`rm -rf ./data/alegeri/raw`);
@@ -135,8 +136,11 @@ async function processPresence(turAlegeri, hours) {
 }
 https://prezenta.roaep.ro/parlamentare01122024/data/json/simpv/presence/presence_ab_2024-12-01_08-00.json
 (async () => {
-    // await processPresence(alegeri[Object.keys(alegeri)[4]], Array.from({ length: 14 }, (v, k) => k + 8));
+    // await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
     await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
+    // for(const alegere of Object.values(alegeri)){
+    //     await processPresence(alegere, Array.from({ length: 14 }, (v, k) => k + 8));
+    // }
     console.log("----Done----");
     // await processPresence(alegeri[args[0]]);
 })();

@@ -99,13 +99,30 @@ async function loadPresence(alegeri) {
         if (data.hasOwnProperty(countyCode)) {
             if (data[countyCode].hasOwnProperty(nameUAT)) {
                 const fData = data[countyCode][nameUAT];
+                if (fData["AG"]) {
+                    if (fData["AG"] !== null && Array.isArray(fData["AG"])) {
+                        let obj = {};
+                        Object.assign(obj, {
+                            "men_18_24": fData["AG"][0],
+                            "men_25_34": fData["AG"][1],
+                            "men_35_44": fData["AG"][2],
+                            "men_45_64": fData["AG"][3],
+                            "men_65+": fData["AG"][4],
+                            "women_18_24": fData["AG"][5],
+                            "women_25_34": fData["AG"][6],
+                            "women_35_44": fData["AG"][7],
+                            "women_45_64": fData["AG"][8],
+                            "women_65+": fData["AG"][9],
+                        });
+                        fData.AG = {...obj};
+                    }
+                }
                 if (county == "SR") fData.TP = fData.TV;
                 feature.properties.data = { ...fData };
                 Object.assign(feature.properties.data, {
                     total_votanti: fData.TP,
                     total_voturi: fData.TV,
                     lista_permanenta: fData.LP,
-                    lista_C: fData.LC,
                     lista_suplimentara: fData.LS,
                     urna_mobila: fData.UM,
                     percentage: (fData.TV / fData.TP).toFixed(2)
@@ -171,7 +188,7 @@ async function loadPresence(alegeri) {
         } else if (window._w.factor == "batrani") {
             if (feature.properties.data.AG) {
                 let ageGroupVotes = 0;
-                let ageRanges = [ "men_45_64", "women_45_64", "men_65+", "women_65+"];
+                let ageRanges = ["men_45_64", "women_45_64", "men_65+", "women_65+"];
                 for (const ageRange of ageRanges) {
                     ageGroupVotes += feature.properties.data.AG[ageRange];
                 }
@@ -279,7 +296,7 @@ async function loadPresence(alegeri) {
             popup.style.top = `${mouse.y}px`;
             popup.style.display = "block";
             popup.innerHTML = `${feature.properties.county}: ${feature.properties.name} ${parseInt(feature.properties.data.percentage * 100)}%`;
-            if(feature.properties.county == "SR") popup.innerHTML = `${window._w.countries[feature.properties.name] ?? feature.properties.name}`;
+            if (feature.properties.county == "SR") popup.innerHTML = `${window._w.countries[feature.properties.name] ?? feature.properties.name}`;
             // Open the popup on mouseover
 
             // Close the popup on mouseout
