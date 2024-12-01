@@ -1,8 +1,6 @@
-const { exec } = require('child_process');
-const { mkdirSync, existsSync, readFileSync, rmSync, writeFileSync, createWriteStream } = require('fs');
+const { mkdirSync, existsSync, readFileSync, writeFileSync, createWriteStream } = require('fs');
 let countryCodes = require('./data/map/countries.json');
 const { parse } = require('csv-parse');
-const csvParser = require('csv-parser');
 const { default: axios } = require('axios');
 
 String.prototype.clear = function () {

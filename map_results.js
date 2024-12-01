@@ -126,9 +126,9 @@ async function loadResults(alegeri) {
             weight = 0.0;
         }
 
-        if (!window._w.statsVotes.judete.hasOwnProperty(county)) window._w.statsVotes.judete[county] = {};
+        if (!Object.prototype.hasOwnProperty.call(window._w.statsVotes.judete, county)) window._w.statsVotes.judete[county] = {};
 
-        if (data.hasOwnProperty(countyCode) && data[countyCode].hasOwnProperty(name)) processCountyInfo();
+        if (Object.prototype.hasOwnProperty.call(data, countyCode) && Object.prototype.hasOwnProperty.call(data[countyCode], name)) processCountyInfo();
         else {
             feature.properties.data = { ...emptyData };
         }
@@ -183,7 +183,7 @@ async function loadResults(alegeri) {
             fillColor = getPartyColor(sortedVotes[index].party);
 
             // Update results and statsVotes
-            if (!window._w.results.hasOwnProperty(sortedVotes[index].party)) {
+            if (!Object.prototype.hasOwnProperty.call(window._w.results, sortedVotes[index].party)) {
                 window._w.results[sortedVotes[index].party] = { name: sortedVotes[index].party, UAT: 0, votes: 0 };
             }
             window._w.results[sortedVotes[index].party].UAT++;
@@ -216,12 +216,12 @@ async function loadResults(alegeri) {
 
             // Update statsVotes and results for each party
             for (const vote of sortedVotes) {
-                if (!window._w.statsVotes.judete[county].hasOwnProperty(vote.party)) {
+                if (!Object.prototype.hasOwnProperty.call(window._w.statsVotes.judete[county], vote.party)) {
                     window._w.statsVotes.judete[county][vote.party] = { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
                 }
                 window._w.statsVotes.judete[county][vote.party].votes += vote.votes;
 
-                if (!window._w.results.hasOwnProperty(vote.party)) {
+                if (!Object.prototype.hasOwnProperty.call(window._w.results, vote.party)) {
                     window._w.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
                 }
                 window._w.results[vote.party].votes += vote.votes;
@@ -279,7 +279,6 @@ async function loadResults(alegeri) {
     setTable();
 }
 
-let mainPopupActive = false;
 function onEachFeatureResults(feature, layer) {
     if (layer.options?.fillOpacity === 0) return;
     const isSR = feature.properties.county == "SR";
@@ -297,7 +296,7 @@ function onEachFeatureResults(feature, layer) {
         `<h3>Partid: ${data?.votes[0].party ?? 'N/A'}</h3>`,
         !isSR? (`<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>`) : "",
         `<h3>Voturi Totale: ${totalVoturiFormat} ${!isSR ? `- ${procentPopulatie}%` : ''}</h3>`,
-        data.hasOwnProperty('fostPrimar') ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : '',
+        data['fostPrimar'] ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : '',
         `<div class="votes">`
     ].join('');
 

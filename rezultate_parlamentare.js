@@ -3,8 +3,7 @@ Date:
 https://prezenta.roaep.ro/{ALEGERI}/data/json/sicpv/pv/pv_{JUDET}_{prov|part|final}.json
 */
 const { exec } = require('child_process');
-const { debug } = require('console');
-const { mkdir, mkdirSync, fstat, existsSync, rmSync } = require('fs');
+const { mkdirSync, existsSync, rmSync } = require('fs');
 
 const args = process.argv.slice(2);
 const alegeri = {
