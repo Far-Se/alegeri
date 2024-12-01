@@ -43,13 +43,6 @@ const alegeri = {
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn", "sr"];
 if(args.length == 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
 if (args.length < 1 || !alegeri[args[0]]) return console.log(`Format: node prezenta.js [${Object.keys(alegeri).map(key => `${key}`).join('|')}]`);
-function incrementOrSet(obj, key, value) {
-    if (obj.hasOwnProperty(key)) {
-        obj[key] += value;
-    } else {
-        obj[key] = value;
-    }
-}
 
 
 String.prototype.clear = function () {
@@ -106,13 +99,16 @@ async function processPresence(turAlegeri, hours) {
                         }
                         if (!prezenta[judet].hasOwnProperty(localitate)) prezenta[judet][localitate] = {};
                         if (!prezenta[judet][localitate].hasOwnProperty(hour)) prezenta[judet][localitate][hour] = {};
+                        Object.assign(prezenta[judet][localitate][hour], row);
 
-                        incrementOrSet(prezenta[judet][localitate][hour], 'TP', row.initial_count_lc + row.initial_count_lp); //total_votanti
-                        incrementOrSet(prezenta[judet][localitate][hour], 'TV', row.LT); //total_voturi
-                        incrementOrSet(prezenta[judet][localitate][hour], 'LP', row.LP); //lista_permanenta
-                        incrementOrSet(prezenta[judet][localitate][hour], 'LC', row.LSC); //lista_C
-                        incrementOrSet(prezenta[judet][localitate][hour], 'LS', row.LS); //lista_suplimentara
-                        incrementOrSet(prezenta[judet][localitate][hour], 'UM', row.UM); //urna_mobila
+                        Object.assign(prezenta[judet][localitate][hour], {
+                            TP: (prezenta[judet][localitate][hour].TP || 0) + row.initial_count_lc + row.initial_count_lp,
+                            TV: (prezenta[judet][localitate][hour].TV || 0) + row.LT,
+                            LP: (prezenta[judet][localitate][hour].LP || 0) + row.LP,
+                            LC: (prezenta[judet][localitate][hour].LC || 0) + row.LSC,
+                            LS: (prezenta[judet][localitate][hour].LS || 0) + row.LS,
+                            UM: (prezenta[judet][localitate][hour].UM || 0) + row.UM,
+                        });
                         if (prezenta[judet][localitate][hour].hasOwnProperty('AG'))
                             for (const age of Object.keys(row.age_ranges))
                                 prezenta[judet][localitate][hour].AG[age] += row.age_ranges[age];
