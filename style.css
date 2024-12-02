@@ -816,3 +816,35 @@ ul.graphBar {
     min-width: 350px;
     max-width: 500px;
 }
+div#cGuvern {
+    display: flex; 
+    height: 20px;
+    justify-content: center;
+    position:relative;
+}
+#cGuvern p {
+    margin: 0px;
+    height: 20px;
+    padding: 0px;
+    cursor: pointer;
+    outline: 1px solid #adadad;
+}
+
+div#cGuvern:before {
+    content: "|";
+    pointer-events: none;
+    color: transparent;
+    width: 2px;
+    background: black;
+    margin-top: -5px;
+    padding-bottom: 10px;
+    z-index: 9999;
+    position: absolute;
+    left:50%;
+    /* transform: translateX(-50%); */
+}
+div#procentGuvern {
+    font-size: 11px;
+    text-align: center;
+    margin-top: 5px;
+}

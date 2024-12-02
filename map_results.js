@@ -376,9 +376,11 @@ function setTable(county = "") {
     const totalVotes = results.reduce((a, b) => a + b.votes, 0);
     const totalUATs = results.reduce((a, b) => a + b.UAT, 0);
 
+    const pentruGuven = [];
     const rows = results.slice(0, 51).map(party => {
         const countyPercentage = (party.UAT / totalUATs * 100).toFixed(2) + "%";
-        const percent = (party.votes / totalVotes * 100).toFixed(2) + "%";
+        const percent = (party.votes / totalVotes * 100);
+        if (percent > 5) pentruGuven.push({ name: party.name, percent: percent, color: getPartyColor(party.name) });
         const difference = results.indexOf(party) < results.length - 1 ? `+${(party.votes - results[results.indexOf(party) + 1].votes).toLocaleString()} | ` : "";
         const checked = window._w.partideAlese.includes(party.name) ? "checked" : "";
         const disabled = !window._w.partideAlese.includes(party.name) && window._w.partideAlese.length >= 2 ? "disabled" : "";
@@ -390,7 +392,7 @@ function setTable(county = "") {
                 </p>
                 <p>
                     <span><abbr title="${party.name}">${party.name.clip(27)}</abbr></span>
-                    <span class="small">${party.votes.toLocaleString()} Voturi - ${percent}</span>
+                    <span class="small">${party.votes.toLocaleString()} Voturi - ${percent.toFixed(2)}%</span>
                     <span class="small">${difference}${party.UAT.toLocaleString()} UAT - ${countyPercentage}</span>
                 </p>
             </div>
@@ -398,6 +400,15 @@ function setTable(county = "") {
     }).join('');
 
     tableContainer.innerHTML = rows;
+
+    if (window._w.alegeriSelected.includes('Parlamentare')) {
+        let totalPercent = pentruGuven.map(e=>e.percent).reduce((a,b)=>a+b,0);
+        let perGuv = (100 - totalPercent) / pentruGuven.length;
+        for (let i = 0; i < pentruGuven.length; i++) {
+            pentruGuven[i].percent += perGuv;
+        }
+        insertCreateGuvern(pentruGuven);
+    }
 
     const countiesSelectContainer = document.querySelector("#elInfo");
     countiesSelectContainer.insertAdjacentHTML("beforeend", `<div class="custom-select"><select id="countiesSelect" onchange="setTable(this.value)"><option value="">Alege Judet</option></select></div>`);
@@ -413,6 +424,35 @@ function setTable(county = "") {
             ${countySelect.name === "SR" ? "Strainatate" : countySelect.name}: ${countySelect.votes.toLocaleString()} (${countySelect.UAT.toLocaleString()})
         </option>
     `).join('');
-
     document.querySelector("#countiesSelect").innerHTML += countiesSelect;
+}
+
+const insertCreateGuvern = (pentruGuven) => {
+    document.querySelector('#cGuvern')?.remove();
+    document.querySelector('#procentGuvern')?.remove();
+    document.querySelector('#sortType').insertAdjacentHTML('beforebegin', `<div id="cGuvern"></div>`);
+    const container = document.querySelector("#cGuvern");
+    let guv = 0;
+    let percentGuv = [];
+    for (let i = 0; i < pentruGuven.length; i++) {
+        const { name, percent, color } = pentruGuven[i];
+        if(guv <50)
+        {
+            percentGuv.push(percent);
+            guv += percent;
+        }
+        container.innerHTML += `<p class="color shadow1" data-id="${i}" style="width: ${percent.toFixed(2)}%;background-color:${color}" data-tooltip="${percent.toFixed(2)}% : ${name}"></p>`;
+    }
+    container.insertAdjacentHTML('afterend',
+        `<div id="procentGuvern">${percentGuv.map(e=>e.toFixed(2)).join('% + ')}% = ${guv.toFixed(2)}%</div>`
+    );
+    document.querySelectorAll('#cGuvern .color').forEach(el => el.addEventListener('click', (e) => {
+        const idx = +e.target.dataset.id;
+        if (idx !== pentruGuven.length-1) {
+            [pentruGuven[idx], pentruGuven[idx + 1]] = [pentruGuven[idx + 1], pentruGuven[idx]];
+        } else {
+            pentruGuven.unshift(pentruGuven.pop());
+        }
+        insertCreateGuvern(pentruGuven);
+    }));
 }
