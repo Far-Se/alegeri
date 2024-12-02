@@ -1,7 +1,7 @@
 
 
-window._w.alegeriSelected = "Prezidentiale Tur 1 2024";
-window._w.prezentaSelected = "parlamentare2024";
+window._w.alegeriSelected = Object.keys(window._w.alegeri)[Object.keys(window._w.alegeri).length - 1];
+window._w.prezentaSelected =  Object.keys(window._w.prezenta)[Object.keys(window._w.prezenta).length - 1];
 window._w.isPagePresence = false;
 
 let processHash = () => {

@@ -32,7 +32,7 @@ window._w.statsVotes = [];
 window._w.statsVotes.uat = [];
 window._w.processedAreas = [];
 const getCommunes = async () => {
-    if(window._w.commune) return;
+    if (window._w.commune) return;
     const promises = [
         fetch('data/map/county_population.json').then(r => r.json()),
         fetch('data/map/comune.geojson').then(r => r.json()),
@@ -144,7 +144,6 @@ async function loadResults(alegeri) {
             fillOpacity = 0;
             weight = 0;
         }
-
         return {
             fillColor,
             weight,
@@ -265,7 +264,7 @@ async function loadResults(alegeri) {
                 fillOpacity = selectedParties.includes(votes[voteIndex].party) ? 1.0 : 0.0;
                 if (isPrezentaProcentChecked) {
                     const partyVote = votes.find(vote => vote.party === selectedParty);
-                    fillOpacity = partyVote ? partyVote.procent * 2: 0;
+                    fillOpacity = partyVote ? partyVote.procent * 2 : 0;
                 }
                 fillColor = getPartyColor(selectedParty);
             } else if (selectedParties.length === 2 && votes.some(vote => selectedParties.includes(vote.party))) {
@@ -276,7 +275,7 @@ async function loadResults(alegeri) {
     }
 
 
-    
+
     document.querySelector('#loading').style.display = "none";
     setTable();
 }
@@ -296,7 +295,7 @@ function onEachFeatureResults(feature, layer) {
         `<h1>${title}</h1>`,
         `<h3>Castigator: ${data?.votes[0].name ?? 'N/A'}</h3>`,
         `<h3>Partid: ${data?.votes[0].party ?? 'N/A'}</h3>`,
-        !isSR? (`<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>`) : "",
+        !isSR ? (`<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>`) : "",
         `<h3>Voturi Totale: ${totalVoturiFormat} ${!isSR ? `- ${procentPopulatie}%` : ''}</h3>`,
         data['fostPrimar'] ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : '',
         `<div class="votes">`
