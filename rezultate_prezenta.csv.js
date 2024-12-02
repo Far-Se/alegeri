@@ -89,9 +89,9 @@ async function processPresence(turAlegeri, hours) {
             exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/csv/simpv/presence_{${hoursFormat.join(",")}}.csv`, (e) =>
                 !e ? resolve() : (console.log(e) && process.exit(1))));
 
-    } else 
+    } else
         await downloadFile(`https://prezenta.roaep.ro/parlamentare01122024//data/csv/simpv/presence_now.csv`, `./data/alegeri/raw/presence_now.csv`);
-    
+
 
     for (let i = 0; i < hours.length; i++) {
 
@@ -108,28 +108,29 @@ async function processPresence(turAlegeri, hours) {
                     if (judet === "SR") {
                         if (row.UAT === "ROMANIA") {
                             judet = localitate = "CORESPONDENTA";
-                            prezenta[judet] = prezenta[judet] || {};
+                            prezenta[judet] ??= {};
                         } else {
                             if (!countryCodes[localitate]) return;
                             localitate = countryCodes[localitate];
                         }
                     }
 
-                    if (!prezenta[judet]) prezenta[judet] = {};
-                    if (!prezenta[judet][localitate]) prezenta[judet][localitate] = {};
-                    if (!prezenta[judet][localitate][hour]) prezenta[judet][localitate][hour] = {};
+                    prezenta[judet] ??= {};
+                    prezenta[judet][localitate] ??= {};
+                    prezenta[judet][localitate][hour] ??= {};
+                    const hourData = prezenta[judet][localitate][hour];
 
-                    Object.assign(prezenta[judet][localitate][hour], {
-                        TP: (prezenta[judet][localitate][hour].TP || 0) + parseInt(row["Înscriși pe liste permanente"]),
-                        TV: (prezenta[judet][localitate][hour].TV || 0) + parseInt(row.LT),
-                        LP: (prezenta[judet][localitate][hour].LP || 0) + parseInt(row.LP),
-                        LS: (prezenta[judet][localitate][hour].LS || 0) + parseInt(row.LS),
-                        UM: (prezenta[judet][localitate][hour].UM || 0) + parseInt(row.UM),
+                    Object.assign(hourData, {
+                        TP: (hourData.TP || 0) + parseInt(row["Înscriși pe liste permanente"]),
+                        TV: (hourData.TV || 0) + parseInt(row.LT),
+                        LP: (hourData.LP || 0) + parseInt(row.LP),
+                        LS: (hourData.LS || 0) + parseInt(row.LS),
+                        UM: (hourData.UM || 0) + parseInt(row.UM),
                     });
-                    if (row.LSC > 0) 
-                        prezenta[judet][localitate][hour].LS += parseInt(row.LSC);
-                    
-                    let ages = [
+                    if (row.LSC > 0)
+                        hourData.LS += parseInt(row.LSC);
+
+                    const ages = [
                         parseInt(row["Barbati 18-24"]),
                         parseInt(row["Barbati 25-34"]),
                         parseInt(row["Barbati 35-44"]),
@@ -142,10 +143,9 @@ async function processPresence(turAlegeri, hours) {
                         parseInt(row["Femei 65+"]),
                     ]
                     if (i === hours.length - 1) {
-                        const currentHour = prezenta[judet][localitate][hour];
                         const ageCounts = ages.map(Number);
-                        if (currentHour.AG) currentHour.AG = currentHour.AG.map((count, index) => count + ageCounts[index]);
-                        else currentHour.AG = ageCounts;
+                        if (hourData.AG) hourData.AG = hourData.AG.map((count, index) => count + ageCounts[index]);
+                        else hourData.AG = ageCounts;
                     }
                 })
                 .on('end', () => resolve());
@@ -165,6 +165,7 @@ async function processPresence(turAlegeri, hours) {
                     prezenta[judet][localitate][hour] = Object.values(prezenta[judet][localitate][hour]);
 
     fs.writeFileSync(`./data/alegeri/prezenta_${fileName}.json`, JSON.stringify(prezenta));
+    fs.rmSync("./data/alegeri/raw", { recursive: true, force: true });
     console.log("--------");
 }
 //https://prezenta.roaep.ro/parlamentare01122024/data/json/simpv/presence/presence_ab_2024-12-01_08-00.json

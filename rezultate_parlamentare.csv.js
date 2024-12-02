@@ -129,8 +129,7 @@ async function processResults() {
     }
     console.log("Done");
     writeFileSync("./data/alegeri/rezultate_parlamentare01122024.json", JSON.stringify(rezultate));
-    // rmSync("./data/alegeri/raw/alegeri.csv");
-    // fs.rmSync("./data/alegeri/raw", { recursive: true, force: true });
+    fs.rmSync("./data/alegeri/raw", { recursive: true, force: true });
 
 }
 processResults();
