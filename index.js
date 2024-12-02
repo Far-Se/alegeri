@@ -2,7 +2,7 @@
 
 window._w.alegeriSelected = "Prezidentiale Tur 1 2024";
 window._w.prezentaSelected = "parlamentare2024";
-window._w.isPagePresence = true;
+window._w.isPagePresence = false;
 
 let processHash = () => {
     const hash = decodeURIComponent(window.location.hash.substring(1));

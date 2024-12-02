@@ -374,7 +374,8 @@ function makeTable(selectedCounty = "") {
     if (selectedCounty === "") results = sortByValues(window._w.countyStats, 'percentage', 'voturi');
     else {
         results = sortByValues(window._w.countyPopulation[selectedCounty], 'percentage', 'voturi');
-        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${window._w.countiesName[selectedCounty] ?? selectedCounty}</p></div>`;
+        table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${window._w.countiesName[selectedCounty]
+             ?? selectedCounty}</p></div>`;
     }
     for (let county of results) {
         table.innerHTML += `<div class="tCounty" ${!selectedCounty.length ? `onclick="makeTable('${county.code}')"` : ""}>

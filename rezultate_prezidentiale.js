@@ -13,7 +13,59 @@ String.prototype.clear = function () {
         .replace(/ - /ig, "-")
     ;
 };
-const countiesCodes = [...Object.keys(require("./data/map/county_population.json")),"s1", "s2", "s3", "s4", "s5", "s6", "sr"].map(e=>e.toUpperCase());
+let countiesName = {
+    "AB": "ALBA",
+    "AR": "ARAD",
+    "AG": "ARGES",
+    "BC": "BACAU",
+    "BH": "BIHOR",
+    "BN": "BISTRITA-NASAUD",
+    "BT": "BOTOSANI",
+    "BR": "BRAILA",
+    "BV": "BRASOV",
+    "BZ": "BUZAU",
+    "CL": "CALARASI",
+    "CS": "CARAS-SEVERIN",
+    "CJ": "CLUJ",
+    "CT": "CONSTANTA",
+    "CV": "COVASNA",
+    "DB": "DAMBOVITA",
+    "DJ": "DOLJ",
+    "GL": "GALATI",
+    "GR": "GIURGIU",
+    "GJ": "GORJ",
+    "HR": "HARGHITA",
+    "HD": "HUNEDOARA",
+    "IL": "IALOMITA",
+    "IS": "IASI",
+    "IF": "ILFOV",
+    "MM": "MARAMURES",
+    "MH": "MEHEDINTI",
+    "B": "BUCURESTI",
+    "S1": "BUCURESTI SECTORUL 1",
+    "S2": "BUCURESTI SECTORUL 2",
+    "S3": "BUCURESTI SECTORUL 3",
+    "S4": "BUCURESTI SECTORUL 4",
+    "S5": "BUCURESTI SECTORUL 5",
+    "S6": "BUCURESTI SECTORUL 6",
+    "MS": "MURES",
+    "NT": "NEAMT",
+    "OT": "OLT",
+    "PH": "PRAHOVA",
+    "SJ": "SALAJ",
+    "SM": "SATU MARE",
+    "SB": "SIBIU",
+    "SR": "STRAINATATE",
+    "SV": "SUCEAVA",
+    "TR": "TELEORMAN",
+    "TM": "TIMIS",
+    "TL": "TULCEA",
+    "VL": "VALCEA",
+    "VS": "VASLUI",
+    "VN": "VRANCEA"
+};
+let countiesCodes = Object.fromEntries(Object.entries(countiesName).map(([key, value]) => [value, key]));
+
 async function downloadFile(url, file) {
 
     const writer = createWriteStream(file);
@@ -76,7 +128,7 @@ async function processResults() {
         }
     }
     console.log("Done");
-    writeFileSync("./data/alegeri/rezultate_prezidentiale1_24112024.json", JSON.stringify(rezultate));
+    writeFileSync("./data/alegeri/rezultate_prezidentiale_24112024.json", JSON.stringify(rezultate));
 
 }
 processResults();
