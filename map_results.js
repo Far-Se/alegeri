@@ -88,7 +88,7 @@ async function loadResults(alegeri) {
     if (comparaPrimari2020) compData = await memFetch("locale27092020P");
 
     map.closePopup();
-    
+
     let done = false;
     featureGroup.eachLayer(layer => {
         if (done) return;
@@ -124,11 +124,11 @@ async function loadResults(alegeri) {
             }
         }
 
-        if (county === "CO" && window._w.alegeriSelected === "Prezidentiale Tur 1 2024") {
+        // if (county === "CO" && window._w.alegeriSelected === "Prezidentiale Tur 1 2024") {
+        if (county === "CO") {
             countyCode = "CORESPONDENTA";
-        } else if (county === "CO") {
-            fillOpacity = 0;
-            weight = 0.0;
+            // fillOpacity = 0;
+            // weight = 0.0;
         }
 
         if (!Object.prototype.hasOwnProperty.call(window._w.statsVotes.judete, county)) window._w.statsVotes.judete[county] = {};
@@ -143,9 +143,11 @@ async function loadResults(alegeri) {
         if (window._w.partideAlese.length !== 0) processSelectedParties();
         if (comparaPrimari2020) compareMayors();
 
-        if (fillColor === "#333333" && county === "SR") {
-            fillOpacity = 0;
-            weight = 0;
+        if (fillColor === "#333333" && county === "SR" ) {
+            fillOpacity = weight =  0;
+        }
+        if(fillColor === "#333333" && county === "CO" ) {
+            fillOpacity = weight =  0;
         }
         return {
             fillColor,
@@ -363,6 +365,7 @@ function setTable(county = "") {
     const electionDate = document.querySelector("#rezultate");
 
     document.querySelector("#elInfo .custom-select")?.remove();
+    document.querySelector('#cGuvern')?.remove();
     document.querySelector('#procentGuvern')?.remove();
     tableContainer.innerHTML = "";
     electionDateContainer?.remove();
@@ -406,7 +409,7 @@ function setTable(county = "") {
     }).join('');
 
     tableContainer.innerHTML = rows;
-
+    console.log(window._w.alegeriSelected);
     if (window._w.alegeriSelected.includes('Parlamentare')) {
         let totalPercent = pentruGuven.map(e=>e.percent).reduce((a,b)=>a+b,0);
         let perGuv = (100 - totalPercent) / pentruGuven.length;
