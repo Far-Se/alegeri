@@ -3,7 +3,11 @@ let countryCodes = require("./data/map/countries.json");
 const { parse } = require("csv-parse");
 const { default: axios } = require("axios");
 const misc = require("./rezultate_misc.js");
-
+const alegeriAll = {
+    "2020" : "parlamentare06122020",
+    "2024" : "parlamentare01122024"
+};
+const alegeri = alegeriAll["2020"];
 async function downloadFile(url, file) {
 
     const writer = fs.createWriteStream(file);
@@ -24,7 +28,7 @@ async function processResults() {
     if (!fs.existsSync("./data/alegeri/raw")) fs.mkdirSync("./data/alegeri/raw");
     let rezultate = {};
 
-    await downloadFile("https://prezenta.roaep.ro/parlamentare01122024/data/csv/sicpv/pv_part_cntry_s.csv", "./data/alegeri/raw/alegeri.csv");
+    await downloadFile(`https://prezenta.roaep.ro/${alegeri}/data/csv/sicpv/pv_part_cntry_s.csv`, "./data/alegeri/raw/alegeri.csv");
 
     console.log("Processing...");
     let csv = fs.readFileSync("./data/alegeri/raw/alegeri.csv");
@@ -52,7 +56,7 @@ async function processResults() {
             rezultate[judet][localitate].votes[candidat].votes += parseInt(row[key]);
         }
     }
-    await downloadFile("https://prezenta.roaep.ro/parlamentare01122024/data/csv/sicpv/pv_part_cntry_s_c.csv", "./data/alegeri/raw/alegeri.csv");
+    await downloadFile(`https://prezenta.roaep.ro/${alegeri}/data/csv/sicpv/pv_part_cntry_s_c.csv`, "./data/alegeri/raw/alegeri.csv");
 
     csv = fs.readFileSync("./data/alegeri/raw/alegeri.csv");
     data = await new Promise((resolve) => parse(csv, { columns: true }, (_, data) => resolve(data)));
@@ -67,7 +71,7 @@ async function processResults() {
         }
     }
     console.log("Done");
-    fs.writeFileSync("./data/alegeri/rezultate_parlamentare01122024.json", JSON.stringify(rezultate));
+    fs.writeFileSync(`./data/alegeri/rezultate_${alegeri}.json`, JSON.stringify(rezultate));
     fs.rmSync("./data/alegeri/raw", { recursive: true, force: true });
 }
 processResults();

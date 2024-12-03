@@ -9,8 +9,8 @@ const alegeri = {
     "EP2024": "EUP-europarlamentare09062024"
 };
 
-const judete = [...Object.keys(require("./data/map/county_population.json")),"s1", "s2", "s3", "s4", "s5", "s6", "sr"];
-if (args.length === 0) args[0] = "EP2024";
+const judete = [...Object.keys(require("./data/map/county_population.json")),"s1", "s2", "s3", "s4", "s5", "s6", "sr"].map(e=>e.toLowerCase());
+if (args.length === 0) args[0] = "CD2020";
 args[1] = "final";
 if (args.length < 1 || !alegeri[args[0]]){
     console.log(`Format: node rezultate_parlamentare.js [${Object.keys(alegeri).map(key => `${key}`).join("|")}] [prov|part|final]`);
@@ -41,12 +41,13 @@ function processResults(alegeriName, type) {
     }
     if (!existsSync("./data/alegeri/raw")) mkdirSync("./data/alegeri/raw");
     let rezultate = {};
-    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(",")}}_${type}.json"`, (error) => {
+    //https://prezenta.roaep.ro/parlamentare06122020/data/json/sicpv/pv/pv_ab_final.json
+    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/json/sicpv/pv/pv_{${judete.join(",")}}_final.json"`, (error) => {
         if (error) {
             console.error(`Error: ${error.message}`);
             return;
         }
-        console.log("Processing...");
+        console.log(`Processing ${alegeriName} ${prlType} ${type}...`);
         for (const judet1 of judete) {
 
             let judet = judet1.clear();
@@ -68,7 +69,11 @@ function processResults(alegeriName, type) {
             for (const row of table) {
                 let localitate = row.uat_name.clear();
                 if (judet === "SR") {
-                    if (!Object.prototype.hasOwnProperty.call(countryCodes, localitate)) continue;
+                    if (!Object.prototype.hasOwnProperty.call(countryCodes, localitate))
+                        {
+                            console.log(`No data for ${localitate}`);
+                            continue;
+                        }
                     localitate = countryCodes[localitate];
                 }
                 let votes = [...row.votes];
@@ -103,7 +108,7 @@ function processResults(alegeriName, type) {
         }
 
         require("fs").writeFileSync(`./data/alegeri/rezultate_${alegeriName}${prlType}.json`, JSON.stringify(rezultate));
-        rmSync("./data/alegeri/raw", { recursive: true });
+        // rmSync("./data/alegeri/raw", { recursive: true });
         console.log("Done");
 
 
