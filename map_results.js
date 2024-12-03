@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 
 
@@ -88,6 +87,8 @@ async function loadResults(alegeri) {
     let compData = [];
     if (comparaPrimari2020) compData = await memFetch("locale27092020P");
 
+    map.closePopup();
+    
     let done = false;
     featureGroup.eachLayer(layer => {
         if (done) return;
@@ -95,6 +96,8 @@ async function loadResults(alegeri) {
         if (layer.setStyle) {
             layer.setStyle(processCounty);
             for (const subLayer of Object.values(layer._layers)) {
+                
+                subLayer.unbindPopup();
                 onEachFeatureResults(subLayer.feature, subLayer);
             }
         }
@@ -360,11 +363,14 @@ function setTable(county = "") {
     const electionDate = document.querySelector("#rezultate");
 
     document.querySelector("#elInfo .custom-select")?.remove();
+    document.querySelector('#procentGuvern')?.remove();
     tableContainer.innerHTML = "";
     electionDateContainer?.remove();
 
     try {
-        const regex = window._w.prezenta[window._w.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/);
+        let regex = 0 ;
+        if(window._w.isPagePresence) regex = window._w.prezenta[window._w.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/);
+        else regex = window._w.alegeri[window._w.alegeriSelected].match(/(\d{2})(\d{2})(\d{4})/);
         const monthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date(Number(regex[3]), Number(regex[2]) - 1));
         const electionDateString = `${regex[1]} ${monthName} ${regex[3]}`;
         electionDate.insertAdjacentHTML("afterbegin", `<center id="electionDate"><p class="">${electionDateString}</p></center>`);

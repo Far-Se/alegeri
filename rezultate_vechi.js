@@ -2,13 +2,14 @@
 Date:
 https://prezenta.bec.ro/prezidentiale10112019/data/pv/csv/pv_AB_PRSD_FINAL.csv
 https://prezenta.bec.ro/europarlamentare26052019/data/pv/csv/pv_AB_EUP_FINAL.csv
+prezidentiale24112019
 */
 const { exec } = require('child_process');
-const { mkdirSync, existsSync, readFileSync, rmSync } = require('fs');
+const fs = require('fs');
 //const judete = ["is"];
 const judete = ["ab", "ar", "ag", "bc", "bh", "bn", "bt", "br", "bv", "bz", "cl", "cs", "cj", "ct", "cv", "db", "dj", "gl", "gr", "gj", "hr", "hd", "il", "is", "if", "mm", "mh", "b", "ms", "nt", "ot", "ph", "sj", "sm", "sb", "sv", "tr", "tm", "tl", "vl", "vs", "vn","s1","s2","s3","s4","s5","s6","sr"];
 
-const alegeriName = "europarlamentare2019";
+const alegeriName = "prezidentiale24112019";
 
 String.prototype.clear = function () {
     return this
@@ -36,6 +37,8 @@ const prezidentiale = {
     13: "VIOREL CATARAMĂ",
     14: "ALEXANDRU CUMPĂNAŞU"
 }
+prezidentiale[2] = "VASILICA-VIORICA DĂNCILĂ";
+
 const euro =  {
     g1: "PARTIDUL SOCIAL DEMOCRAT",
     g2: "ALIANȚA 2020 USR PLUS",
@@ -55,9 +58,11 @@ const euro =  {
     g16: "PETER COSTEA"
 }
 function processResults() {
-    if (!existsSync('./data/alegeri/raw')) mkdirSync('./data/alegeri/raw');
+    if (!fs.existsSync('./data/alegeri/raw')) fs.mkdirSync('./data/alegeri/raw');
     let rezultate = {};
-    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.bec.ro/europarlamentare26052019/data/pv/csv/pv_{${judete.join(',').toUpperCase()}}_EUP_FINAL.csv"`, (error) => {
+    
+    // exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.bec.ro/${alegeriName}/data/pv/csv/pv_{${judete.join(',').toUpperCase()}}_EUP_FINAL.csv"`, (error) => {
+    exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.bec.ro/${alegeriName}/data/pv/csv/pv_{${judete.join(',').toUpperCase()}}_PRSD_FINAL.csv"`, (error) => {
         if (error) {
             console.error(`Error: ${error.message}`);
             return;
@@ -68,7 +73,7 @@ function processResults() {
             rezultate[judet] = {};
             let json = [];
             try{
-            json = readFileSync(`./data/alegeri/raw/pv_${judet.toUpperCase()}_EUP_FINAL.csv`, 'utf8').split('\n')
+            json = fs.readFileSync(`./data/alegeri/raw/pv_${judet.toUpperCase()}_PRSD_FINAL.csv`, 'utf8').split('\n')
             }catch(_)
             {
                 console.log(`No data for ${judet}`);
@@ -76,7 +81,7 @@ function processResults() {
             }
 
             let headers = json[0].split(',').map(x => x.trim());
-            values = json.slice(1).map(line => line.split(',').map(x => x.trim()));
+            let values = json.slice(1).map(line => line.split(',').map(x => x.trim()));
 
             let table = [];
             for (const row of values) {
@@ -88,7 +93,7 @@ function processResults() {
             }
 
             if (judet.match(/S\d/)) {
-                if (!rezultate.hasOwnProperty('B')) rezultate["B"] = {};
+                if (!rezultate['B']) rezultate["B"] = {};
                 judet = 'B';
             }
 
@@ -103,19 +108,19 @@ function processResults() {
                     continue;
                 }
                 if (judet == "SR") {
-                    if (!countryCodes.hasOwnProperty(localitate)) continue;
+                    if (!countryCodes[localitate]) continue;
                     localitate = countryCodes[localitate];
                 }
-                if (!rezultate[judet].hasOwnProperty(localitate)) {
+                if (!rezultate[judet][localitate]) {
                     rezultate[judet][localitate] = { votes: {} };
                 }
                 for (const key of Object.keys(row)) {
                     if (key.indexOf('g') == 0) {
-                        // const candidat = prezidentiale[Number(key.replace('g', ''))].clear(); // Prezidential
-                        const candidat = euro[key].clear();
+                        const candidat = prezidentiale[Number(key.replace('g', ''))].clear(); // Prezidential
+                        // const candidat = euro[key].clear(); // Euro
                         if (candidat) {
 
-                            if (rezultate[judet][localitate].votes.hasOwnProperty(candidat)) {
+                            if (rezultate[judet][localitate].votes[candidat]) {
                                 rezultate[judet][localitate].votes[candidat].votes += Number(row[key]);
                             }
                             else
@@ -131,9 +136,9 @@ function processResults() {
             }
         }
 
-        require('fs').writeFileSync(`./data/alegeri/rezultate_${alegeriName}.json`, JSON.stringify(rezultate));
+        fs.writeFileSync(`./data/alegeri/rezultate_${alegeriName}.json`, JSON.stringify(rezultate));
         // exec(`rm -rf ./data/alegeri/raw`);
-        rmSync(`./data/alegeri/raw`, { recursive: true });
+        fs.rmSync(`./data/alegeri/raw`, { recursive: true, force: true });
 
         console.log("Done");
 

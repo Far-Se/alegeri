@@ -8,10 +8,10 @@ let processHash = () => {
     const hash = decodeURIComponent(window.location.hash.substring(1));
     window._w.isPagePresence = hash.startsWith('prezenta-');
     const selected = hash.replace('prezenta-', '');
-    if (window._w.prezenta.hasOwnProperty(selected)) {
+    if (window._w.prezenta[selected]) {
         window._w.prezentaSelected = selected;
         document.querySelector(`#prezenta option[value="${selected}"]`).selected = true;
-    } else if (window._w.alegeri.hasOwnProperty(selected)) {
+    } else if (window._w.alegeri[selected]) {
         window._w.alegeriSelected = selected;
         document.querySelector(`#alegeri option[value="${selected}"]`).selected = true;
     }

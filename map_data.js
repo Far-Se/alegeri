@@ -1,7 +1,8 @@
 window._w= {};
 
 window._w.alegeri = {
-    "Prezidentiale 2019": "prezidentiale2019",
+    "Prezidentiale Tur 1 2019": "prezidentiale10112019",
+    "Prezidentiale Tur 2 2019": "prezidentiale24112019",
     "Europarlamentare 2019": "europarlamentare2019",
     "Primari 2020": "locale27092020P",
     "Parlamentare CD 2020": "parlamentare06122020CD",
