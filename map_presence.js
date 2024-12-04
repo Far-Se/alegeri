@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
+ 
 window._w.countyPopulation = {};
 window._w.countyStats = {};
 let debug = 0;
@@ -152,7 +152,7 @@ async function loadPresence(alegeri) {
         } else feature.properties.data = { ...emptyData, error: `No county data for ${county}` };
 
         let fillColor = '#ff0000';
-        fillColor = mixColor(feature.properties.data.percentage * 100);
+        // fillColor = mixColor(feature.properties.data.percentage * 100);
         if (isNaN(feature.properties.data.percentage)) {
             feature.properties.data.percentage = 0;
             fillColor = '#dddddd';
@@ -175,6 +175,7 @@ async function loadPresence(alegeri) {
         if (county !== "SR") {
             if (window._w.factor == "exponential") opacity = Math.pow((opacity * 1.1), 2);
             else if (window._w.factor == "suplimentara") opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
+            else if (window._w.factor == "permanenta") opacity = feature.properties.data.lista_permanenta / feature.properties.data.total_votanti;
             else if (feature.properties.data.AG) {
                 if (window._w.factor.includes("varsta")) {
                     const varsta = window._w.factor.replace('varsta', '');
@@ -197,6 +198,7 @@ async function loadPresence(alegeri) {
             }
         }
         if (window._w.factorPercentile) opacity = Math.pow((opacity * 1.1), 2);
+        fillColor = mixColor(opacity * 100);
         return {
             fillColor: fillColor,
             weight: weight,
@@ -352,6 +354,7 @@ function makeTable(selectedCounty = "") {
         <option value="">Prezenta</option>
         <option value="exponential">Exponential</option>
         <option value="suplimentara">Lista Suplimentara</option>
+        <option value="permanenta">Lista Permanenta</option>
         <option value="tineri">Tineri 18-44</option>
         <option value="batrani">Varstnici 45+</option>
         <option value="varsta18_24">Varsta 18-24</option>
