@@ -32,6 +32,14 @@ const alegeri = {
         roaep: "parlamentare01122024",
         file: "parlamentare01122024",
     },
+    "prezidentiale2_2024": {
+        roaep: "prezidentiale08122024",
+        file: "prezidentiale08122024",
+    },
+    "prezidentiale2025": {
+        roaep: "prezidentiale04052025",
+        file: "prezidentiale04052025",
+    },
 };
 let judete = [...Object.keys(require("./data/map/county_population.json")).map(e => e.toLowerCase()), "sr"];
 if (args.length === 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
@@ -90,7 +98,11 @@ async function processPresence(turAlegeri, hours) {
                 !e ? resolve() : (console.log(e) && process.exit(1))));
 
     } else
-        await downloadFile(`https://prezenta.roaep.ro/parlamentare01122024//data/csv/simpv/presence_now.csv`, `./data/alegeri/raw/presence_now.csv`);
+    {
+        await downloadFile(`https://prezenta.roaep.ro/${alegeriName}//data/csv/simpv/presence_now.csv`, `./data/alegeri/raw/presence_now.csv`);
+        console.log(`https://prezenta.roaep.ro/${alegeriName}//data/csv/simpv/presence_now.csv`);
+        hoursFormat = ["now"];
+    }
 
 
     for (let i = 0; i < hours.length; i++) {
@@ -172,10 +184,8 @@ async function processPresence(turAlegeri, hours) {
 (async () => {
     const start = performance.now();
 
+    await processPresence(alegeri[args[0]]);
     // await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
-    await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
-    const end = performance.now();
-    console.log(`Execution time: ${(end - start) / 1000} seconds | ${end - start} ms`);
-    console.log("----Done----");
+    // await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
 })();
 

@@ -2,7 +2,7 @@
 
 window._w.alegeriSelected = Object.keys(window._w.alegeri)[Object.keys(window._w.alegeri).length - 1];
 window._w.prezentaSelected =  Object.keys(window._w.prezenta)[Object.keys(window._w.prezenta).length - 1];
-window._w.isPagePresence = false;
+window._w.isPagePresence ??= false;
 
 let processHash = () => {
     const hash = decodeURIComponent(window.location.hash.substring(1));
@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window._w.partideAlese = [];
         window._w.alegeriSelected = e.target.value;
         loadData();
+        
     })
     document.querySelector('#prezenta').addEventListener('change', function (e) {
         window._w.partideAlese = [];

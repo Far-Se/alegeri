@@ -8,8 +8,8 @@
     "T1 Prezidentiale": "node rezultate_prezidentiale.js",
     "Euro2024": "node rezultate_parlamentare.js EP2024",
     "Locale2024": "node rezultate_locale.js 2024",
-    "prezenta": "node rezultate_prezenta.js parlamentare2024",
-    "prezentaGIT": "node rezultate_prezenta.js parlamentare2024 && git add . && git commit -m \"-\" && git push origin main"
+    "prezenta": "node rezultate_prezenta.csv.js prezidentiale2_2024",
+    "prezentaGIT": "node rezultate_prezenta.csv.js prezidentiale2_2024 && git add . && git commit -m \"-\" && git push origin main"
   },
   "author": "",
   "license": "ISC",

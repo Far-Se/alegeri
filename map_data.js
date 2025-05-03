@@ -21,9 +21,11 @@ window._w.prezenta = {
     "locale2020": "locale27092020",
     "locale2024": "locale09062024v2",
     "europarlamentare2024": "europarlamentare09062024",
-    "prezidentiale Tur 1 2024": "prezidentiale24112024",
     "parlamentare2024": "parlamentare01122024",
+    "prezidentiale Tur 1 2024": "prezidentiale24112024",
+    "Prezidentiale Tur 1 2025": "prezidentiale04052025",
 }
+window._w.isPagePresence ??= true;
 
 window._w.countiesName = {
     "AB": "ALBA",

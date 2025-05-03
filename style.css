@@ -304,8 +304,8 @@ select {
     -webkit-appearance: none;
     /*  other styles for aesthetics */
     width: 100%;
-    font-size: 1.15rem;
-    padding: 0.675em 2em 0.675em 1em;
+    font-size: 0.9rem;
+    padding: 0.575em 2em 0.575em 1em;
     background-color: #fff;
     border-bottom: 1px solid #caced1;
     border-left: none;
@@ -700,6 +700,7 @@ div#popupX {
 
 div#github {
     margin-top: 5px;
+    filter: contrast(0.1)
 }
 
 #table input[type="checkbox"] {
@@ -847,4 +848,11 @@ div#procentGuvern {
     font-size: 11px;
     text-align: center;
     margin-top: 5px;
+}
+.tCounty span.big {
+    word-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
 }

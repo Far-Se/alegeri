@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
- 
+
 window._w.countyPopulation = {};
 window._w.countyStats = {};
 let debug = 0;
@@ -71,6 +71,10 @@ async function loadPresence(alegeri) {
         });
         geoJSONLayer.addTo(map);
     }
+    let SRTotalVotes = 0;
+    if (data["SR"]) {
+        SRTotalVotes = Object.values(data["SR"]).reduce((a, b) => a + b.TV, 0);
+    }
     featureGroup.eachLayer(layer => {
         if (layer.setStyle) {
             layer.setStyle(processCounty);
@@ -79,12 +83,10 @@ async function loadPresence(alegeri) {
             });
         }
     });
-
     document.querySelector('#loading').style.display = "none";
     for (let county in window._w.countyPopulation)
         window._w.countyStats[county].percentage = (window._w.countyStats[county].voturi / window._w.countyStats[county].votanti);
     makeTable();
-
     function processCounty(feature) {
         let county = feature.properties.county.clear();
         let nameUAT = feature.properties.name.clear();
@@ -172,10 +174,13 @@ async function loadPresence(alegeri) {
                 console.log(feature.properties.county, feature.properties.name, countyCode);
             }
         }
-        if (county !== "SR") {
+        if (county === "SR") {
+            opacity = Math.pow(feature.properties.data.total_voturi / SRTotalVotes, 0.45);
+        }
+        if (window._w.factor) {
             if (window._w.factor == "exponential") opacity = Math.pow((opacity * 1.1), 2);
-            else if (window._w.factor == "suplimentara") opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
-            else if (window._w.factor == "permanenta") opacity = feature.properties.data.lista_permanenta / feature.properties.data.total_votanti;
+            else if (window._w.factor == "suplimentara" && county !== "SR") opacity = feature.properties.data.lista_suplimentara / feature.properties.data.lista_permanenta;
+            else if (window._w.factor == "permanenta" && county !== "SR") opacity = feature.properties.data.lista_permanenta / feature.properties.data.total_votanti;
             else if (feature.properties.data.AG) {
                 if (window._w.factor.includes("varsta")) {
                     const varsta = window._w.factor.replace('varsta', '');
@@ -295,14 +300,17 @@ async function loadPresence(alegeri) {
         layer.on('mousemove', function (e) {
             let mouse = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
             let popup = document.querySelector('#popupX');
-            popup.style.left = `${mouse.x}px`;
-            popup.style.top = `${mouse.y}px`;
-            popup.style.display = "block";
             popup.innerHTML = `${feature.properties.county}: ${feature.properties.name} ${parseInt(feature.properties.data.percentage * 100)}%`;
             if (["SR", "CO"].includes(feature.properties.county)) popup.innerHTML = `${window._w.countries[feature.properties.name] ?? feature.properties.name}`;
-            // Open the popup on mouseover
 
-            // Close the popup on mouseout
+            let textLength = popup.getBoundingClientRect().width;
+            if (textLength == 0) textLength = popup.textContent.length * 10 + 10;
+            popup.style.left = `${mouse.x}px`;
+            if (mouse.x + textLength > window.innerWidth) {
+                popup.style.left = `${mouse.x - textLength}px`;
+            }
+            popup.style.top = `${mouse.y - 5}px`;
+            popup.style.display = "block";
             layer.on('mouseout', function () {
                 popup.style.display = "none";
             });
@@ -378,14 +386,30 @@ function makeTable(selectedCounty = "") {
     else {
         results = sortByValues(window._w.countyPopulation[selectedCounty], 'percentage', 'voturi');
         table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p><p class="small">${window._w.countiesName[selectedCounty]
-             ?? selectedCounty}</p></div>`;
+            ?? selectedCounty}</p></div>`;
     }
-    for (let county of results) {
-        table.innerHTML += `<div class="tCounty" ${!selectedCounty.length ? `onclick="makeTable('${county.code}')"` : ""}>
+    console.log(selectedCounty);
+    if (selectedCounty === "SR") {
+
+        for (let county of results) {
+            table.innerHTML += `<div class="tCounty" onclick="makeTable('SR')">
+        <p><span class="big">${window._w.countries[county.name] ?? county.name}<span></p>
+        <p class="small">${county.voturi.toLocaleString()}</p>`;
+        }
+    }
+    else
+        for (let county of results) {
+            if (["SR", "CO"].includes(county.name)) {
+                table.innerHTML += `<div class="tCounty" onclick="makeTable('${county.code}')">
+            <p><span class="big">${county.name == "SR" ? "Strainatate" : "Corespeondenta"}<span></p>
+                <p class="small">${county.voturi.toLocaleString()} Voturi</p>`;
+                continue;
+            }
+            table.innerHTML += `<div class="tCounty" ${!selectedCounty.length ? `onclick="makeTable('${county.code}')"` : ""}>
         <p><span class="big">${county.name}<span></p>
-        ${!["SR","CO"].includes(county.name) ? `<p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}` : `<p class="small">${county.voturi.toLocaleString()} Voturi</p>`}
-        </div>`
-    }
+        <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}
+        </div>`;
+        }
     if (selectedCounty !== "") table.innerHTML += `<div onclick="makeTable()"><p><span class="big">Inapoi</span></p>`;
 }
 //make on hover for any div
@@ -397,6 +421,10 @@ document.addEventListener('DOMContentLoadedxxx', (event) => {
             shadow.style.display = "block";
             shadow.style.position = "absolute";
             const rect = event.target.getBoundingClientRect();
+            const textLength = shadow.textContent.length * 5;
+            if (rect.left < (rect.left + (window.innerWidth - textLength))) {
+                shadow.style.left = `${rect.left - textLength}px`;
+            }
             shadow.style.left = `${rect.left}px`;
             shadow.style.top = `${rect.top}px`;
             shadow.style.width = `${rect.width}px`;

@@ -28,6 +28,10 @@ const alegeri = {
         roaep: "parlamentare01122024",
         file: "parlamentare01122024",
     },
+    "prezidentiale2025": {
+        roaep: "prezidentiale04052025",
+        file: "prezidentiale04052025",
+    },
 };
 let judete = [...Object.keys(require("./data/map/county_population.json")).map(e=>e.toLowerCase()), "sr"];
 if (args.length === 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];

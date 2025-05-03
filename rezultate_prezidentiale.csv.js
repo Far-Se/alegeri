@@ -23,7 +23,7 @@ async function processResults() {
     if (!fs.existsSync("./data/alegeri/raw")) fs.mkdirSync("./data/alegeri/raw");
     let rezultate = {};
 
-    await downloadFile("https://prezenta.roaep.ro/prezidentiale24112024/data/csv/sicpv/pv_part_cntry_prsd.csv", "./data/alegeri/raw/pv_part_cntry_prsd.csv");
+    await downloadFile("https://prezenta.roaep.ro/prezidentiale04052025/data/csv/sicpv/pv_part_cntry_prsd.csv", "./data/alegeri/raw/pv_part_cntry_prsd.csv");
 
     console.log("Processing...");
     let csv = fs.readFileSync("./data/alegeri/raw/pv_part_cntry_prsd.csv");
@@ -51,7 +51,7 @@ async function processResults() {
             rezultate[judet][localitate].votes[candidat].votes += parseInt(row[key]); 
         }
     }
-    await downloadFile("https://prezenta.roaep.ro/prezidentiale24112024/data/csv/sicpv/pv_part_cntry_prsd_c.csv", "./data/alegeri/raw/pv_part_cntry_prsd_c.csv");
+    await downloadFile("https://prezenta.roaep.ro/prezidentiale04052025/data/csv/sicpv/pv_part_cntry_prsd_c.csv", "./data/alegeri/raw/pv_part_cntry_prsd_c.csv");
 
     csv = fs.readFileSync("./data/alegeri/raw/pv_part_cntry_prsd_c.csv");
     data = await new Promise((resolve) => parse(csv, { columns: true }, (_, data) => resolve(data)));
