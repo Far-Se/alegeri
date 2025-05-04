@@ -66,7 +66,7 @@ async function processResults() {
         }
     }
     console.log("Done");
-    fs.writeFileSync("./data/alegeri/rezultate_prezidentiale_24112024.json", JSON.stringify(rezultate));
+    fs.writeFileSync("./data/alegeri/rezultate_prezidentiale_04052025.json", JSON.stringify(rezultate));
 
 }
 processResults();

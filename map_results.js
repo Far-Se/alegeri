@@ -96,7 +96,7 @@ async function loadResults(alegeri) {
         if (layer.setStyle) {
             layer.setStyle(processCounty);
             for (const subLayer of Object.values(layer._layers)) {
-                
+
                 subLayer.unbindPopup();
                 onEachFeatureResults(subLayer.feature, subLayer);
             }
@@ -143,11 +143,11 @@ async function loadResults(alegeri) {
         if (window._w.partideAlese.length !== 0) processSelectedParties();
         if (comparaPrimari2020) compareMayors();
 
-        if (fillColor === "#333333" && county === "SR" ) {
-            fillOpacity = weight =  0;
+        if (fillColor === "#333333" && county === "SR") {
+            fillOpacity = weight = 0;
         }
-        if(fillColor === "#333333" && county === "CO" ) {
-            fillOpacity = weight =  0;
+        if (fillColor === "#333333" && county === "CO") {
+            fillOpacity = weight = 0;
         }
         return {
             fillColor,
@@ -159,100 +159,76 @@ async function loadResults(alegeri) {
         function processCountyInfo() {
             const countyVotes = data[countyCode][name].votes;
 
-            // Populate party and name if empty
-            if (countyVotes[Object.keys(countyVotes)[0]].name === "") {
-                for (const key in countyVotes) {
-                    try {
-                        countyVotes[key].party = key;
-                        countyVotes[key].name = key;
-                    } catch (_error) {
-                        // Handle error if necessary
-                    }
+            // Populate missing party and name fields
+            Object.keys(countyVotes).forEach(key => {
+                if (!countyVotes[key].name) {
+                    countyVotes[key].party = key;
+                    countyVotes[key].name = key;
                 }
-            }
+            });
 
-            // Sort votes by vote count
-            let sortedVotes = [];
-            try {
-                sortedVotes = sortByValues(countyVotes, 'votes');
-            } catch (error) {
-                console.error(`Error processing votes for ${countyCode} - ${name}:`, error);
-            }
+            // Sort votes by count
+            const sortedVotes = sortByValues(countyVotes, 'votes') || [];
 
             // Determine the index based on toggleLocul2
-            let index = 0;
-            if (sortedVotes.length > 1 && document.querySelector('#toggleLocul2').checked) {
-                index = 1;
-            }
+            const index = (sortedVotes.length > 1 && document.querySelector('#toggleLocul2').checked) ? 1 : 0;
 
             // Set fill color
-            fillColor = getPartyColor(sortedVotes[index].party);
+            fillColor = getPartyColor(sortedVotes[index]?.party || "#333333");
 
             // Update results and statsVotes
-            if (!Object.prototype.hasOwnProperty.call(window._w.results, sortedVotes[index].party)) {
-                window._w.results[sortedVotes[index].party] = { name: sortedVotes[index].party, UAT: 0, votes: 0 };
-            }
-            window._w.results[sortedVotes[index].party].UAT++;
+            const winningParty = sortedVotes[index]?.party || "N/A";
+            window._w.results[winningParty] = window._w.results[winningParty] || { name: winningParty, UAT: 0, votes: 0 };
+            window._w.results[winningParty].UAT++;
 
             // Update feature properties data
+            const totalVotes = sortedVotes.reduce((acc, vote) => acc + vote.votes, 0);
             feature.properties.data = {
-                totalVoturi: sortedVotes.reduce((acc, vote) => acc + vote.votes, 0),
+                totalVoturi: totalVotes,
+                votes: sortedVotes.map(vote => ({
+                    ...vote,
+                    percentage: ((vote.votes / totalVotes) * 100).toFixed(2),
+                    procent: vote.votes / totalVotes
+                })),
+                population: window._w.countyPopulation?.[countyCode]?.[name] || totalVotes
             };
 
-            window._w.statsVotes.uat.push({
-                name,
-                county,
-                votes: feature.properties.data.totalVoturi,
-                candidates: sortedVotes.length,
-                population: window._w.countyPopulation?.[countyCode]?.[name] ?? feature.properties.data.totalVoturi
+            // Handle special cases
+            if (data[countyCode][name].special === "MUN") weight = 0.4;
+
+            // Update statsVotes for each party
+            sortedVotes.forEach(vote => {
+                const partyStats = window._w.statsVotes.judete[county][vote.party] || { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
+                partyStats.votes += vote.votes;
+                window._w.statsVotes.judete[county][vote.party] = partyStats;
+
+                const globalStats = window._w.results[vote.party] || { name: vote.party, UAT: 0, votes: 0 };
+                globalStats.votes += vote.votes;
+                window._w.results[vote.party] = globalStats;
             });
-
-            // Update percentages for each vote
-            feature.properties.data.votes = sortedVotes.map(vote => {
-                vote.percentage = (vote.votes / feature.properties.data.totalVoturi * 100).toFixed(2);
-                vote.procent = vote.votes / feature.properties.data.totalVoturi;
-                return vote;
-            });
-
-            // Update special cases and population data
-            if (data[countyCode][name].special === "MUN") {
-                weight = 0.4;
-            }
-            feature.properties.data.population = window._w.countyPopulation?.[countyCode]?.[name] ?? feature.properties.data.totalVoturi;
-
-            // Update statsVotes and results for each party
-            for (const vote of sortedVotes) {
-                if (!Object.prototype.hasOwnProperty.call(window._w.statsVotes.judete[county], vote.party)) {
-                    window._w.statsVotes.judete[county][vote.party] = { name: vote.party, votes: 0, totalVotes: 0, UAT: 0 };
-                }
-                window._w.statsVotes.judete[county][vote.party].votes += vote.votes;
-
-                if (!Object.prototype.hasOwnProperty.call(window._w.results, vote.party)) {
-                    window._w.results[vote.party] = { name: vote.party, UAT: 0, votes: 0 };
-                }
-                window._w.results[vote.party].votes += vote.votes;
-            }
 
             // Handle case when there are no votes
-            if (feature.properties.data.votes.length === 0) {
+            if (!feature.properties.data.votes.length) {
                 feature.properties.data.votes = [{ party: "N/A", votes: 0, name: "N/A" }];
             } else {
-                window._w.statsVotes.judete[county][sortedVotes[index].party].UAT++;
+                window._w.statsVotes.judete[county][winningParty].UAT++;
             }
         }
 
         function compareMayors() {
-            if (data?.[countyCode]?.[name]?.votes && compData?.[countyCode]?.[name]?.votes) {
-                const [firstVote, ...otherVotes] = sortByValues(data[countyCode][name].votes, 'votes');
-                const [firstCompVote, ...otherCompVotes] = sortByValues(compData[countyCode][name].votes, 'votes');
+            const currentVotes = data?.[countyCode]?.[name]?.votes;
+            const previousVotes = compData?.[countyCode]?.[name]?.votes;
 
-                if (firstVote.name.clear() == firstCompVote.name.clear()) {
+            if (currentVotes && previousVotes) {
+                const [currentWinner] = sortByValues(currentVotes, 'votes');
+                const [previousWinner] = sortByValues(previousVotes, 'votes');
+
+                if (currentWinner.name.clear() === previousWinner.name.clear()) {
                     fillOpacity = 0.1;
                 } else {
-                    if (firstVote.party == firstCompVote.party) fillOpacity = 0.5;
-                    else
-                        weight = 0.7;
-                    feature.properties.data.fostPrimar = `${firstCompVote.name} <br><i>${firstCompVote.party}</i>`;
+                    fillOpacity = currentWinner.party === previousWinner.party ? 0.5 : fillOpacity;
+                    weight = currentWinner.party === previousWinner.party ? weight : 0.7;
+                    feature.properties.data.fostPrimar = `${previousWinner.name} <br><i>${previousWinner.party}</i>`;
                 }
             }
         }
@@ -287,41 +263,46 @@ async function loadResults(alegeri) {
 
 function onEachFeatureResults(feature, layer) {
     if (layer.options?.fillOpacity === 0) return;
-    const isSR = feature.properties.county == "SR";
 
-    const data = feature.properties.data;
+    const isSR = feature.properties.county === "SR";
+    const data = feature.properties.data || {};
     const title = isSR
-        ? `Diaspora: ${window._w.countries[feature.properties.name]}`
+        ? `Diaspora: ${window._w.countries[feature.properties.name] || 'N/A'}`
         : `<a href="uat.html#${feature.properties.county.clear()}++${feature.properties.name.clear()}" target="_blank">${feature.properties.county}: ${feature.properties.name}</a>`;
 
-    const totalVoturiFormat = data?.totalVoturi.toLocaleString() ?? 'N/A';
-    const procentPopulatie = (data?.totalVoturi / (data?.population ?? 1) * 100).toLocaleString();
-    let popupContent = [
-        `<h1>${title}</h1>`,
-        `<h3>Castigator: ${data?.votes[0].name ?? 'N/A'}</h3>`,
-        `<h3>Partid: ${data?.votes[0].party ?? 'N/A'}</h3>`,
-        !isSR ? (`<h3>Populatie: ${data?.population?.toLocaleString() ?? 'N/A'}</h3>`) : "",
-        `<h3>Voturi Totale: ${totalVoturiFormat} ${!isSR ? `- ${procentPopulatie}%` : ''}</h3>`,
-        data['fostPrimar'] ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : '',
-        `<div class="votes">`
-    ].join('');
+    const totalVotes = data.totalVoturi?.toLocaleString() || 'N/A';
+    const population = data.population?.toLocaleString() || 'N/A';
+    const votePercentage = ((data.totalVoturi / (data.population || 1)) * 100).toLocaleString();
+    const winner = data.votes?.[0] || { name: 'N/A', party: 'N/A' };
 
-    for (const vote of data.votes) {
+    let popupContent = `
+        <h1>${title}</h1>
+        <h3>Castigator: ${winner.name}</h3>
+        <h3>Partid: ${winner.party}</h3>
+        ${!isSR ? `<h3>Populatie: ${population}</h3>` : ''}
+        <h3>Voturi Totale: ${totalVotes} ${!isSR ? `- ${votePercentage}%` : ''}</h3>
+        ${data.fostPrimar ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : ''}
+        <div class="votes">
+    `;
+
+    (data.votes || []).forEach(vote => {
         const fillColor = getPartyColor(vote.party);
-        const votePercentage = vote.percentage;
-        const perTotalPopPercent = isSR ? '' : `(${(vote.votes / (data?.population ?? 1) * 100).toLocaleString()}%)`;
+        const votePercent = vote.percentage || 0;
+        const popPercent = isSR ? '' : `(${((vote.votes / (data.population || 1)) * 100).toLocaleString()}%)`;
         const voteDisplay = vote.party === vote.name
-            ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercentage}% ${perTotalPopPercent}`
-            : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercentage}% ${perTotalPopPercent}`;
+            ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercent}% ${popPercent}`
+            : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercent}% ${popPercent}`;
 
         popupContent += `
             <p>
-                <span class="bar"><b style="width:${votePercentage}%"></b></span>
+                <span class="bar"><b style="width:${votePercent}%"></b></span>
                 <span class="color" style="background-color:${fillColor}"></span>
                 <span class="nume">${voteDisplay}</span>
             </p>`;
-    }
+    });
+
     popupContent += '</div>';
+
     const popup = L.popup({ maxWidth: 700, maxHeight: 800 }).setContent(popupContent);
     layer.bindPopup(popup, {
         closeButton: true,
@@ -332,13 +313,17 @@ function onEachFeatureResults(feature, layer) {
 
     const popupElement = document.querySelector('#popupX');
 
-    layer.on('mousemove', ({ originalEvent: { pageX, pageY } }) => {
+    const updatePopupPosition = ({ originalEvent: { pageX, pageY } }) => {
         popupElement.style.transform = `translate(${pageX}px, ${pageY}px)`;
         popupElement.style.display = 'block';
         popupElement.textContent = `${feature.properties.county}: ${feature.properties.name}`;
-    });
+    };
 
-    const hidePopup = () => popupElement.style.display = 'none';
+    const hidePopup = () => {
+        popupElement.style.display = 'none';
+    };
+
+    layer.on('mousemove', updatePopupPosition);
     layer.on('mouseout', hidePopup);
     layer.on('click', hidePopup);
 }
@@ -359,38 +344,79 @@ String.prototype.clip = function (n) {
  * @param {string} [county] - The code of the county to display results for.
  */
 function setTable(county = "") {
-    document.querySelector('#elInfo').innerHTML = `<div id="elInfo"><div id="table"></div></div>`;
-    const tableContainer = document.querySelector("#table");
-    const electionDateContainer = document.querySelector("#electionDate");
-    const electionDate = document.querySelector("#rezultate");
+    resetTableUI();
 
-    document.querySelector("#elInfo .custom-select")?.remove();
-    document.querySelector('#cGuvern')?.remove();
-    document.querySelector('#procentGuvern')?.remove();
-    tableContainer.innerHTML = "";
-    electionDateContainer?.remove();
-
-    try {
-        let regex = 0 ;
-        if(window._w.isPagePresence) regex = window._w.prezenta[window._w.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/);
-        else regex = window._w.alegeri[window._w.alegeriSelected].match(/(\d{2})(\d{2})(\d{4})/);
-        const monthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date(Number(regex[3]), Number(regex[2]) - 1));
-        const electionDateString = `${regex[1]} ${monthName} ${regex[3]}`;
-        electionDate.insertAdjacentHTML("afterbegin", `<center id="electionDate"><p class="">${electionDateString}</p></center>`);
-    } catch (e) {
-        console.log(e);
+    const electionDateString = getElectionDateString();
+    if (electionDateString) {
+        document.querySelector("#rezultate").insertAdjacentHTML("afterbegin", `<center id="electionDate"><p>${electionDateString}</p></center>`);
     }
 
-    const results = county === "" ? sortByValues(window._w.results, ...window._w.sortType) : sortByValues(window._w.statsVotes.judete[county], ...window._w.sortType);
+    const results = getSortedResults(county);
     const totalVotes = results.reduce((a, b) => a + b.votes, 0);
     const totalUATs = results.reduce((a, b) => a + b.UAT, 0);
 
     const pentruGuven = [];
-    const rows = results.slice(0, 51).map(party => {
+    const isParlamentary = isParliamentaryElection();
+    results.slice(0, 51).forEach(party => {
+        const percent = (party.votes / totalVotes * 100);
+
+        if (percent > 5 || !isParlamentary) {
+            pentruGuven.push({ name: party.name, percent, color: getPartyColor(party.name) });
+        }
+    });
+    const rows = generateTableRows(results, totalVotes, totalUATs);
+
+    document.querySelector("#table").innerHTML = rows;
+
+    adjustGuvernPercentages(pentruGuven);
+    insertCreateGuvern(pentruGuven);
+
+
+    if (results.length === 0) {
+        document.querySelector("#table").innerHTML = "<p>No results available.</p>";
+    }
+
+    populateCountiesDropdown(county);
+}
+
+function resetTableUI() {
+    document.querySelector('#elInfo').innerHTML = `<div id="elInfo"><div id="table"></div></div>`;
+    document.querySelector("#elInfo .custom-select")?.remove();
+    document.querySelector('#cGuvern')?.remove();
+    document.querySelector('#procentGuvern')?.remove();
+    document.querySelector("#electionDate")?.remove();
+    document.querySelector("#table").innerHTML = "";
+}
+
+function getElectionDateString() {
+    try {
+        const regex = window._w.isPagePresence
+            ? window._w.prezenta[window._w.prezentaSelected].match(/(\d{2})(\d{2})(\d{4})/)
+            : window._w.alegeri[window._w.alegeriSelected].match(/(\d{2})(\d{2})(\d{4})/);
+
+        const monthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date(Number(regex[3]), Number(regex[2]) - 1));
+        return `${regex[1]} ${monthName} ${regex[3]}`;
+    } catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
+function getSortedResults(county) {
+    return county === ""
+        ? sortByValues(window._w.results, ...window._w.sortType)
+        : sortByValues(window._w.statsVotes.judete[county], ...window._w.sortType);
+}
+
+function generateTableRows(results, totalVotes, totalUATs) {
+    return results.slice(0, 51).map(party => {
         const countyPercentage = (party.UAT / totalUATs * 100).toFixed(2) + "%";
         const percent = (party.votes / totalVotes * 100);
-        if (percent > 5) pentruGuven.push({ name: party.name, percent: percent, color: getPartyColor(party.name) });
-        const difference = results.indexOf(party) < results.length - 1 ? `+${(party.votes - results[results.indexOf(party) + 1].votes).toLocaleString()} | ` : "";
+
+        const difference = results.indexOf(party) < results.length - 1
+            ? `+${(party.votes - results[results.indexOf(party) + 1].votes).toLocaleString()} | `
+            : "";
+
         const checked = window._w.partideAlese.includes(party.name) ? "checked" : "";
         const disabled = !window._w.partideAlese.includes(party.name) && window._w.partideAlese.length >= 2 ? "disabled" : "";
 
@@ -407,18 +433,22 @@ function setTable(county = "") {
             </div>
         `;
     }).join('');
+}
 
-    tableContainer.innerHTML = rows;
-    console.log(window._w.alegeriSelected);
-    if (window._w.alegeriSelected.includes('Parlamentare')) {
-        let totalPercent = pentruGuven.map(e=>e.percent).reduce((a,b)=>a+b,0);
-        let perGuv = (100 - totalPercent) / pentruGuven.length;
-        for (let i = 0; i < pentruGuven.length; i++) {
-            pentruGuven[i].percent += perGuv;
-        }
-        insertCreateGuvern(pentruGuven);
-    }
+function isParliamentaryElection() {
+    return window._w.alegeriSelected.includes('Parlamentare');
+}
 
+function adjustGuvernPercentages(pentruGuven) {
+    const totalPercent = pentruGuven.reduce((a, b) => a + b.percent, 0);
+    const perGuv = (100 - totalPercent) / pentruGuven.length;
+
+    pentruGuven.forEach(party => {
+        party.percent += perGuv;
+    });
+}
+
+function populateCountiesDropdown(selectedCounty) {
     const countiesSelectContainer = document.querySelector("#elInfo");
     countiesSelectContainer.insertAdjacentHTML("beforeend", `<div class="custom-select"><select id="countiesSelect" onchange="setTable(this.value)"><option value="">Alege Judet</option></select></div>`);
 
@@ -428,40 +458,44 @@ function setTable(county = "") {
         votes: Object.values(county).reduce((a, b) => a + b.votes, 0),
     })).sort((a, b) => b.votes - a.votes);
 
-    const countiesSelect = counties.map(countySelect => `
-        <option value="${countySelect.name}" ${countySelect.name === county ? "selected" : ""}>
-            ${countySelect.name === "SR" ? "Strainatate" : countySelect.name}: ${countySelect.votes.toLocaleString()} (${countySelect.UAT.toLocaleString()})
+    const countiesSelect = counties.map(county => `
+        <option value="${county.name}" ${county.name === selectedCounty ? "selected" : ""}>
+            ${county.name === "SR" ? "Strainatate" : county.name}: ${county.votes.toLocaleString()} (${county.UAT.toLocaleString()})
         </option>
     `).join('');
+
     document.querySelector("#countiesSelect").innerHTML += countiesSelect;
 }
 
 const insertCreateGuvern = (pentruGuven) => {
+    const makeItInteractive = isParliamentaryElection();
     document.querySelector('#cGuvern')?.remove();
     document.querySelector('#procentGuvern')?.remove();
-    document.querySelector('#sortType').insertAdjacentHTML('beforebegin', `<div id="cGuvern"></div>`);
+    document.querySelector('#sortType').insertAdjacentHTML('beforebegin', `<div id="cGuvern" class="${makeItInteractive || window._w.alegeriSelected.includes("Tur 2") ? "interactive" : ""}"></div>`);
     const container = document.querySelector("#cGuvern");
     let guv = 0;
     let percentGuv = [];
     for (let i = 0; i < pentruGuven.length; i++) {
         const { name, percent, color } = pentruGuven[i];
-        if(guv <50)
-        {
+        if (guv < 50) {
             percentGuv.push(percent);
             guv += percent;
         }
         container.innerHTML += `<p class="color shadow1" data-id="${i}" style="width: ${percent.toFixed(2)}%;background-color:${color}" data-tooltip="${percent.toFixed(2)}% : ${name}"></p>`;
     }
     container.insertAdjacentHTML('afterend',
-        `<div id="procentGuvern">${percentGuv.map(e=>e.toFixed(2)).join('% + ')}% = ${guv.toFixed(2)}%</div>`
+        makeItInteractive ? `<div id="procentGuvern">${percentGuv.map(e => e.toFixed(2)).join('% + ')}% = ${guv.toFixed(2)}%</div>`
+            : `<div id="procentGuvern"></div>`
     );
-    document.querySelectorAll('#cGuvern .color').forEach(el => el.addEventListener('click', (e) => {
-        const idx = +e.target.dataset.id;
-        if (idx !== pentruGuven.length-1) {
-            [pentruGuven[idx], pentruGuven[idx + 1]] = [pentruGuven[idx + 1], pentruGuven[idx]];
-        } else {
-            pentruGuven.unshift(pentruGuven.pop());
-        }
-        insertCreateGuvern(pentruGuven);
-    }));
+    if (makeItInteractive) {
+        document.querySelectorAll('#cGuvern .color').forEach(el => el.addEventListener('click', (e) => {
+            const idx = +e.target.dataset.id;
+            if (idx !== pentruGuven.length - 1) {
+                [pentruGuven[idx], pentruGuven[idx + 1]] = [pentruGuven[idx + 1], pentruGuven[idx]];
+            } else {
+                pentruGuven.unshift(pentruGuven.pop());
+            }
+            insertCreateGuvern(pentruGuven);
+        }));
+    }
 }

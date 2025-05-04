@@ -97,8 +97,7 @@ async function processPresence(turAlegeri, hours) {
             exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/csv/simpv/presence_{${hoursFormat.join(",")}}.csv`, (e) =>
                 !e ? resolve() : (console.log(e) && process.exit(1))));
 
-    } else
-    {
+    } else {
         await downloadFile(`https://prezenta.roaep.ro/${alegeriName}//data/csv/simpv/presence_now.csv`, `./data/alegeri/raw/presence_now.csv`);
         console.log(`https://prezenta.roaep.ro/${alegeriName}//data/csv/simpv/presence_now.csv`);
         hoursFormat = ["now"];
@@ -132,28 +131,22 @@ async function processPresence(turAlegeri, hours) {
                     prezenta[judet][localitate][hour] ??= {};
                     const hourData = prezenta[judet][localitate][hour];
 
-                    Object.assign(hourData, {
-                        TP: (hourData.TP || 0) + parseInt(row["Înscriși pe liste permanente"]),
-                        TV: (hourData.TV || 0) + parseInt(row.LT),
-                        LP: (hourData.LP || 0) + parseInt(row.LP),
-                        LS: (hourData.LS || 0) + parseInt(row.LS),
-                        UM: (hourData.UM || 0) + parseInt(row.UM),
+                    ["Înscriși pe liste permanente", "LT", "LP", "LS", "UM"].forEach((key, index) => {
+                        const mapping = ["TP", "TV", "LP", "LS", "UM"];
+                        const value = parseInt(row[key]) || 0;
+                        hourData[mapping[index]] = (hourData[mapping[index]] || 0) + value;
                     });
+                    
                     if (row.LSC > 0)
                         hourData.LS += parseInt(row.LSC);
 
-                    const ages = [
-                        parseInt(row["Barbati 18-24"]),
-                        parseInt(row["Barbati 25-34"]),
-                        parseInt(row["Barbati 35-44"]),
-                        parseInt(row["Barbati 45-64"]),
-                        parseInt(row["Barbati 65+"]),
-                        parseInt(row["Femei 18-24"]),
-                        parseInt(row["Femei 25-34"]),
-                        parseInt(row["Femei 35-44"]),
-                        parseInt(row["Femei 45-64"]),
-                        parseInt(row["Femei 65+"]),
-                    ]
+                    const ageGroups = ["18-24", "25-34", "35-44", "45-64", "65+"];
+                    let ages = [[], []];
+                    ageGroups.map(ageGroup =>
+                        ["Barbati", "Femei"].map((gender, i) => ages[i].push(parseInt(row[`${gender} ${ageGroup}`]) || 0))
+                    );
+                    ages = ages.flatMap(e => e);
+
                     if (i === hours.length - 1) {
                         const ageCounts = ages.map(Number);
                         if (hourData.AG) hourData.AG = hourData.AG.map((count, index) => count + ageCounts[index]);
@@ -184,8 +177,8 @@ async function processPresence(turAlegeri, hours) {
 (async () => {
     const start = performance.now();
 
-    await processPresence(alegeri[args[0]]);
-    // await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
+    // await processPresence(alegeri[args[0]]);
+    await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
     // await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
 })();
 

@@ -831,7 +831,7 @@ div#cGuvern {
     outline: 1px solid #adadad;
 }
 
-div#cGuvern:before {
+div#cGuvern.interactive:before {
     content: "|";
     pointer-events: none;
     color: transparent;
