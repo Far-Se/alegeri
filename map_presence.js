@@ -196,6 +196,14 @@ async function loadPresence(alegeri) {
         }
 
         fillColor = mixColor(opacity * 100);
+
+        if (county === "SR") {
+            if (alegeri.includes("locale")) {
+                opacity = 0;
+                weight = 0.0;
+            }
+        }
+
         return {
             fillColor,
             weight,
@@ -353,9 +361,10 @@ function generateHourlyGraph(lData) {
         }
         return max;
     }, 0);
-
-    for (let i = 0; i < 21 - hourlyData.length; i++) {
-        hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: hourlyData.length + 8 });
+    if(hourlyData.length < 14) {
+        for (let i = 0; i <= 14 - hourlyData.length; i++) {
+            hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: hourlyData.length + 8 });
+        }
     }
 
     return `

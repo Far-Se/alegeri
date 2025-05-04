@@ -114,13 +114,9 @@ async function loadResults(alegeri) {
 
         if (county === "SR") {
             countyCode = county;
-            if (alegeri.includes("locale")) {
-                fillOpacity = 0;
-                weight = 0.0;
-            }
-            if (name === "ROU") {
-                fillOpacity = 0;
-                weight = 0.0;
+            if (alegeri.includes("locale") || name === "ROU") {
+            fillOpacity = 0;
+            weight = 0.0;
             }
         }
 
