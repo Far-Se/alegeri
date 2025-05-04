@@ -264,46 +264,15 @@ async function loadResults(alegeri) {
 function onEachFeatureResults(feature, layer) {
     if (layer.options?.fillOpacity === 0) return;
 
-    const isSR = feature.properties.county === "SR";
+    const isDiaspora = feature.properties.county === "SR";
     const data = feature.properties.data || {};
-    const title = isSR
+    const title = isDiaspora
         ? `Diaspora: ${window._w.countries[feature.properties.name] || 'N/A'}`
         : `<a href="uat.html#${feature.properties.county.clear()}++${feature.properties.name.clear()}" target="_blank">${feature.properties.county}: ${feature.properties.name}</a>`;
 
-    const totalVotes = data.totalVoturi?.toLocaleString() || 'N/A';
-    const population = data.population?.toLocaleString() || 'N/A';
-    const votePercentage = ((data.totalVoturi / (data.population || 1)) * 100).toLocaleString();
-    const winner = data.votes?.[0] || { name: 'N/A', party: 'N/A' };
-
-    let popupContent = `
-        <h1>${title}</h1>
-        <h3>Castigator: ${winner.name}</h3>
-        <h3>Partid: ${winner.party}</h3>
-        ${!isSR ? `<h3>Populatie: ${population}</h3>` : ''}
-        <h3>Voturi Totale: ${totalVotes} ${!isSR ? `- ${votePercentage}%` : ''}</h3>
-        ${data.fostPrimar ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : ''}
-        <div class="votes">
-    `;
-
-    (data.votes || []).forEach(vote => {
-        const fillColor = getPartyColor(vote.party);
-        const votePercent = vote.percentage || 0;
-        const popPercent = isSR ? '' : `(${((vote.votes / (data.population || 1)) * 100).toLocaleString()}%)`;
-        const voteDisplay = vote.party === vote.name
-            ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercent}% ${popPercent}`
-            : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercent}% ${popPercent}`;
-
-        popupContent += `
-            <p>
-                <span class="bar"><b style="width:${votePercent}%"></b></span>
-                <span class="color" style="background-color:${fillColor}"></span>
-                <span class="nume">${voteDisplay}</span>
-            </p>`;
-    });
-
-    popupContent += '</div>';
-
+    const popupContent = generatePopupContent(title, data, isDiaspora);
     const popup = L.popup({ maxWidth: 700, maxHeight: 800 }).setContent(popupContent);
+
     layer.bindPopup(popup, {
         closeButton: true,
         closeOnEscapeKey: true,
@@ -311,6 +280,50 @@ function onEachFeatureResults(feature, layer) {
         autoPan: true,
     });
 
+    setupPopupInteractions(layer, feature);
+}
+
+function generatePopupContent(title, data, isDiaspora) {
+    const totalVotes = data.totalVoturi?.toLocaleString() || 'N/A';
+    const population = data.population?.toLocaleString() || 'N/A';
+    const votePercentage = ((data.totalVoturi / (data.population || 1)) * 100).toLocaleString();
+    const winner = data.votes?.[0] || { name: 'N/A', party: 'N/A' };
+
+    let content = `
+        <h1>${title}</h1>
+        <h3>Castigator: ${winner.name}</h3>
+        <h3>Partid: ${winner.party}</h3>
+        ${!isDiaspora ? `<h3>Populatie: ${population}</h3>` : ''}
+        <h3>Voturi Totale: ${totalVotes} ${!isDiaspora ? `- ${votePercentage}%` : ''}</h3>
+        ${data.fostPrimar ? `<h3>Fost primar: ${data.fostPrimar}</h3>` : ''}
+        <div class="votes">
+    `;
+
+    (data.votes || []).forEach(vote => {
+        content += generateVoteRow(vote, data, isDiaspora);
+    });
+
+    content += '</div>';
+    return content;
+}
+
+function generateVoteRow(vote, data, isDiaspora) {
+    const fillColor = getPartyColor(vote.party);
+    const votePercent = vote.percentage || 0;
+    const popPercent = isDiaspora ? '' : `(${((vote.votes / (data.population || 1)) * 100).toLocaleString()}%)`;
+    const voteDisplay = vote.party === vote.name
+        ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercent}% ${popPercent}`
+        : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercent}% ${popPercent}`;
+
+    return `
+        <p>
+            <span class="bar"><b style="width:${votePercent}%"></b></span>
+            <span class="color" style="background-color:${fillColor}"></span>
+            <span class="nume">${voteDisplay}</span>
+        </p>`;
+}
+
+function setupPopupInteractions(layer, feature) {
     const popupElement = document.querySelector('#popupX');
 
     const updatePopupPosition = ({ originalEvent: { pageX, pageY } }) => {

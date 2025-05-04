@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 
+let tested = false;
 window._w.countyPopulation = {};
 window._w.countyStats = {};
 let debug = 0;
@@ -149,8 +150,17 @@ async function loadPresence(alegeri) {
             voturi: fData.TV,
             percentage: fData.TV / fData.TP
         };
-
+        window._w.hourly = window._w.hourly || {};
         if (!["SR", "CO"].includes(county)) {
+            for (let hour = 8; hour <= 21; hour++) {
+                if (fData[hour]) {
+                    window._w.hourly[hour] = window._w.hourly[hour] || {};
+                    Object.keys(fData[hour]).forEach(key => {
+                        window._w.hourly[hour][key] = (window._w.hourly[hour][key] || 0) + fData[hour][key];
+                    });
+                }
+            }
+
             window._w.countyStats[countyCode].votanti += fData.TP;
         }
         window._w.countyStats[countyCode].voturi += fData.TV;
@@ -249,43 +259,7 @@ async function loadPresence(alegeri) {
         layer.on('mousemove', (e) => handleMouseMove(e, lProp, lData, layer));
     }
 
-    function generateHourlyGraph(lData) {
-        if (!lData["8"]) return '';
 
-        const hourlyData = [];
-        const maxTV = Object.keys(lData).reduce((max, hour) => {
-            if (hour >= 8 && hour < 22) {
-                const prevHour = lData[hour - 1] || [0, 0, 0, 0];
-                const currentHour = lData[hour];
-                hourlyData.push({
-                    TV: currentHour[1] - prevHour[1],
-                    LP: currentHour[2] - prevHour[2],
-                    LS: currentHour[3] - prevHour[3],
-                    hour
-                });
-                return Math.max(max, currentHour[1] - prevHour[1]);
-            }
-            return max;
-        }, 0);
-        
-        for (let i = 0; i < 21 - hourlyData.length; i++) {
-            hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: hourlyData.length + 8 });
-        }
-
-        return `
-            <ul class="graphBar perHour">
-                ${hourlyData.map(data => `
-                    <li>
-                        <div class="bars">
-                            <div class="bar totalVotes" data-tooltip="Total: ${data.TV.toLocaleString()}" style="height: ${(data.TV / maxTV) * 100}px"></div>
-                            ${data.LP ? `<div class="bar listaPermanenta" data-tooltip="L. Permanenta: ${data.LP.toLocaleString()}" style="height: ${(data.LP / maxTV) * 100}px"></div>` : ""}
-                            ${data.LS && data.LS !== data.TV ? `<div class="bar listaSuplimentara" data-tooltip="L. Suplimentara: ${data.LS.toLocaleString()}" style="height: ${(data.LS / maxTV) * 100}px"></div>` : ""}
-                        </div>
-                        <div class="time">${data.hour.toString().padStart(2, '0')}</div>
-                    </li>
-                `).join('')}
-            </ul>`;
-    }
 
     function generateAgeGraph(lData) {
         if (!lData["AG"]) return '';
@@ -361,7 +335,43 @@ async function loadPresence(alegeri) {
         });
     }
 }
+function generateHourlyGraph(lData) {
+    if (!lData["8"]) return '';
 
+    const hourlyData = [];
+    const maxTV = Object.keys(lData).reduce((max, hour) => {
+        if (hour >= 8 && hour < 22) {
+            const prevHour = lData[hour - 1] || [0, 0, 0, 0];
+            const currentHour = lData[hour];
+            hourlyData.push({
+                TV: currentHour[1] - prevHour[1],
+                LP: currentHour[2] - prevHour[2],
+                LS: currentHour[3] - prevHour[3],
+                hour
+            });
+            return Math.max(max, currentHour[1] - prevHour[1]);
+        }
+        return max;
+    }, 0);
+
+    for (let i = 0; i < 21 - hourlyData.length; i++) {
+        hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: hourlyData.length + 8 });
+    }
+
+    return `
+        <ul class="graphBar perHour">
+            ${hourlyData.map(data => `
+                <li>
+                    <div class="bars">
+                        <div class="bar totalVotes" data-tooltip="Total: ${data.TV.toLocaleString()}" style="height: ${(data.TV / maxTV) * 100}%"></div>
+                        ${data.LP ? `<div class="bar listaPermanenta" data-tooltip="L. Permanenta: ${data.LP.toLocaleString()}" style="height: ${(data.LP / maxTV) * 100}%"></div>` : ""}
+                        ${data.LS && data.LS !== data.TV ? `<div class="bar listaSuplimentara" data-tooltip="L. Suplimentara: ${data.LS.toLocaleString()}" style="height: ${(data.LS / maxTV) * 100}%"></div>` : ""}
+                    </div>
+                    <div class="time">${data.hour.toString().padStart(2, '0')}</div>
+                </li>
+            `).join('')}
+        </ul>`;
+}
 function sortByValues(obj, key, subkey = '') {
     let candidatesArray = Object.values(obj);
     candidatesArray.sort((a, b) => subkey !== '' && a[key] === b[key] ? b[subkey] - a[subkey] : b[key] - a[key]);
@@ -393,6 +403,7 @@ function makeTable(selectedCounty = "") {
             Prezenta ${(totalPercentage * 100).toFixed(2)}%<br>
             <span class="small">${totalVoturi.toLocaleString()} voturi din ${totalVotanti.toLocaleString()}</span>
         </p>
+        ${generateHourlyGraph(window._w.hourly)}
         <div class="custom-select">
             <select id="factorSelect" onchange="changeFactor()">
                 ${getFactorOptions()}
@@ -403,8 +414,8 @@ function makeTable(selectedCounty = "") {
     if (window._w.factor) document.querySelector('#factorSelect').value = window._w.factor;
 
     const table = document.querySelector('#table');
-    const results = selectedCounty ? 
-        sortByValues(window._w.countyPopulation[selectedCounty], 'percentage', 'voturi') : 
+    const results = selectedCounty ?
+        sortByValues(window._w.countyPopulation[selectedCounty], 'percentage', 'voturi') :
         sortByValues(window._w.countyStats, 'percentage', 'voturi');
 
     if (selectedCounty) {
@@ -472,9 +483,9 @@ function renderTableContent(table, results, selectedCounty) {
                         <p class="small">${county.voturi.toLocaleString()} Voturi</p>
                     </div>`;
             } else {
-            table.innerHTML += `
+                table.innerHTML += `
                 <div class="tCounty" ${!selectedCounty ? `onclick="makeTable('${county.code}')"` : ""}>
-                    <p><span class="big">${county.name}</span></p>
+                    <p ${county.name.length>15 ? `data-tooltip="${county.name}"`:""}><span class="big" >${county.name}</span></p>
                     <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> 
                     ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}</p>
                 </div>`;

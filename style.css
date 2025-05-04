@@ -772,7 +772,7 @@ ul.graphBar {
 
 .graphBar .bars {
     display: grid;
-    
+
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     margin: 0px 3px;
     align-items: end;
@@ -813,16 +813,19 @@ ul.graphBar {
 .customToggles a.active:before {
     content: "[x]";
 }
+
 .leaflet-popup {
     min-width: 350px;
     max-width: 500px;
 }
+
 div#cGuvern {
-    display: flex; 
+    display: flex;
     height: 20px;
     justify-content: center;
-    position:relative;
+    position: relative;
 }
+
 #cGuvern p {
     margin: 0px;
     height: 20px;
@@ -841,18 +844,24 @@ div#cGuvern.interactive:before {
     padding-bottom: 10px;
     z-index: 9999;
     position: absolute;
-    left:50%;
+    left: 50%;
     /* transform: translateX(-50%); */
 }
+
 div#procentGuvern {
     font-size: 11px;
     text-align: center;
     margin-top: 5px;
 }
+
 .tCounty span.big {
     word-wrap: break-word;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 140px;
+}
+
+#elInfo .graphBar .time {
+    font-size: 11px;
 }
