@@ -41,6 +41,7 @@ async function loadPresence(alegeri) {
     document.querySelector('#sliderTransparenta').style.display = "none";
     window._w.countyStats = {};
     window._w.countyPopulation = {};
+    window._w.hourly = [];
     // alegeri = alegeri.replace(/(\d)[a-z]+/gi, '$1');
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "none";
