@@ -98,7 +98,10 @@ window._w.partide = [
     { match: /\b(CMM|ALIANTA PENTRU )\b/i, fill: "#154066" },
     { match: /\b(ALDE|ALIANTA LIBERALILOR)\b/i, fill: "#534d82" },
     { match: /\b(ALIAN.A SOCIAL LIBERALA)\b/i, fill: "#333331" },
-    { match: /\b(ALIAN.A PENTRU UNIREA ROMANILOR)\b/i, fill: "#C5A655" }
+    { match: /\b(ALIAN.A PENTRU UNIREA ROMANILOR)\b/i, fill: "#C5A655" },
+    { match: /\b(GEORGE-CRIN)\b/i, fill: "#ff5100" },
+    { match: /\b(DANIEL DAN)\b/i, fill: "#00b2ff" },
+    { match: /\b(PONTA)\b/i, fill: "#e16bff" },
 ];
 window._w.results = {};
 let customColors = [
