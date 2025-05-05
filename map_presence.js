@@ -487,9 +487,10 @@ function renderTableContent(table, results, selectedCounty) {
                 </div>`;
         } else {
             if (selectedCounty === "SR") {
+                const countyName = window._w.countries[county.name] ?? county.name;
                 table.innerHTML += `
                     <div class="tCounty">
-                        <p><span class="big">${window._w.countries[county.name] ?? county.name}</span></p>
+                        <p ${countyName.length>15 ? `data-tooltip="${countyName}"`:""}><span class="big" >${countyName}</span></p>
                         <p class="small">${county.voturi.toLocaleString()} Voturi</p>
                     </div>`;
             } else {

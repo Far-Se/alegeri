@@ -14,7 +14,8 @@ window._w.alegeri = {
     "Presedinte C.J. 2024": "locale09062024PCJ",
     "Europarlamentare 2024": "europarlamentare09062024EUP",
     "Prezidentiale Tur 1 2024": "prezidentiale_24112024",
-    "Parlamentare 2024": "parlamentare01122024"
+    "Parlamentare 2024": "parlamentare01122024",
+    "Prezidentiale Tur 1 2025": "prezidentiale04052025"
 }
 window._w.prezenta = {
     "parlamentare 2020": "parlamentare06122020",
