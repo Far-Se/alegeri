@@ -178,7 +178,7 @@ async function processPresence(turAlegeri, hours) {
     const start = performance.now();
 
     // await processPresence(alegeri[args[0]]);
-    await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
-    // await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
+    // await processPresence(alegeri[args[0]], Array.from({ length: (new Date()).getHours() - 7 }, (v, k) => k + 8));
+    await processPresence(alegeri[args[0]], Array.from({ length: 14 }, (v, k) => k + 8));
 })();
 
