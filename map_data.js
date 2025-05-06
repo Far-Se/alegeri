@@ -26,7 +26,7 @@ window._w.prezenta = {
     "prezidentiale Tur 1 2024": "prezidentiale24112024",
     "Prezidentiale Tur 1 2025": "prezidentiale04052025",
 }
-window._w.isPagePresence ??= true;
+window._w.isPagePresence ??= false;
 
 window._w.countiesName = {
     "AB": "ALBA",
@@ -86,7 +86,8 @@ window._w.partide = [
     { match: /\b(PSD PNL)\b/i, fill: "#ff5100" },
     { match: /\b(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS|CIUCA)\b/i, fill: "#ffc300" },
     { match: /\b(PSD|PARTIDUL SOCIAL DEMOCRAT|DANCILA|CIOLACU)\b/i, fill: "#ff001e" },
-    { match: /\b(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)\b/i, fill: "#A16800" },
+    { match: /\b(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)\b/i, fill: "#F69A1C" },
+    // { match: /\b(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)\b/i, fill: "#A16800" },
     { match: /\b(CALIN GEORGESCU)\b/i, fill: "#AC4959" },
     { match: /\b(UDMR|MAGHIAR|KELEMEN)/i, fill: "#1ED760" },
     { match: /(ALIAN.A MAGHIAR.A)/i, fill: "#2e821b" },
