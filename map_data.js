@@ -84,7 +84,7 @@ window._w.countiesCodes = Object.fromEntries(Object.entries(window._w.countiesNa
 window._w.partide = [
     { match: /(USR|UNIUNEA SALVA.I ROM.NIA|Lasconi)/i, fill: "#00b2ff" },
     { match: /\b(PSD PNL)\b/i, fill: "#ff5100" },
-    { match: /\b(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS|CIUCA)\b/i, fill: "#ffc300" },
+    { match: /\b(PNL|PARTIDUL NATIONAL LIBERAL|KLAUS|CIUCA)\b/i, fill: "#ffe500" },
     { match: /\b(PSD|PARTIDUL SOCIAL DEMOCRAT|DANCILA|CIOLACU)\b/i, fill: "#ff001e" },
     { match: /\b(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)\b/i, fill: "#F69A1C" },
     // { match: /\b(AUR|ALIANTA PENTRU UNIREA ROMANILOR|SIMION)\b/i, fill: "#A16800" },
