@@ -42,10 +42,12 @@ const getCommunes = async () => {
     window._w.countyOutline = countyOutline;
     window._w.commune = commune;
 }
+let firstRound = {};
 async function loadResults(alegeri) {
     window._w.results = {};
     window._w.statsVotes.judete = {};
     window._w.statsVotes.uat = [];
+    firstRound = {};
     document.querySelector('#loading').style.display = "flex";
     document.querySelector('#rezultate').style.display = "flex";
     const emptyData = {
@@ -86,7 +88,7 @@ async function loadResults(alegeri) {
 
     let compData = [];
     if (comparaPrimari2020) compData = await memFetch("locale27092020P");
-
+    if (alegeri === "prezidentiale24112019") firstRound = await memFetch("prezidentiale10112019");
     map.closePopup();
 
     let done = false;
@@ -115,8 +117,8 @@ async function loadResults(alegeri) {
         if (county === "SR") {
             countyCode = county;
             if (alegeri.includes("locale") || name === "ROU") {
-            fillOpacity = 0;
-            weight = 0.0;
+                fillOpacity = 0;
+                weight = 0.0;
             }
         }
 
@@ -138,6 +140,7 @@ async function loadResults(alegeri) {
 
         if (window._w.partideAlese.length !== 0) processSelectedParties();
         if (comparaPrimari2020) compareMayors();
+        if (firstRound && Object.keys(firstRound).length > 0) addFirstRoundResults();
 
         if (fillColor === "#333333" && county === "SR") {
             fillOpacity = weight = 0;
@@ -228,22 +231,40 @@ async function loadResults(alegeri) {
                 }
             }
         }
-
+        function addFirstRoundResults() {
+            if (Object.keys(firstRound).length > 0) {
+                const previousVotes = firstRound?.[countyCode]?.[name]?.votes;
+                if (previousVotes) {
+                    feature.properties.data.previousVotes = [];
+                    for(const party of Object.keys(previousVotes)) {
+                        if(data[countyCode][name].votes[party]) {
+                            const voteIndex = feature.properties.data.votes.findIndex(vote => vote.party === party);
+                            if (voteIndex !== -1) {
+                                feature.properties.data.votes[voteIndex].lastRound = previousVotes[party].votes;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         function processSelectedParties() {
             const selectedParties = window._w.partideAlese;
             const votes = feature.properties.data.votes;
             const isLocul2Checked = document.querySelector('#toggleLocul2').checked;
-            const isPrezentaProcentChecked = document.querySelector('#prezentaProcent').checked;
+            const isPrezentaSelected = document.querySelector('#prezentaProcent').checked;
             let voteIndex = (votes.length > 1 && isLocul2Checked) ? 1 : 0;
 
             if (selectedParties.length === 1) {
                 const selectedParty = selectedParties[0];
                 fillOpacity = selectedParties.includes(votes[voteIndex].party) ? 1.0 : 0.0;
-                if (isPrezentaProcentChecked) {
+                if (!isPrezentaSelected) {
                     const partyVote = votes.find(vote => vote.party === selectedParty);
-                    fillOpacity = partyVote ? partyVote.procent * 2 : 0;
+                    // fillOpacity = partyVote ? partyVote.procent : 0;
+                    fillOpacity = partyVote ? Math.pow(partyVote.procent, 1.5) * 2 : 0;
                 }
                 fillColor = getPartyColor(selectedParty);
+
+
             } else if (selectedParties.length === 2 && votes.some(vote => selectedParties.includes(vote.party))) {
                 fillOpacity = 1.0;
                 fillColor = getPartyColor(votes.find(vote => selectedParties.includes(vote.party)).party);
@@ -310,12 +331,14 @@ function generateVoteRow(vote, data, isDiaspora) {
     const voteDisplay = vote.party === vote.name
         ? `${vote.party}<br>${vote.votes?.toLocaleString()} Voturi - ${votePercent}% ${popPercent}`
         : `${vote.party}<br>${vote.name}: ${vote.votes?.toLocaleString()} - ${votePercent}% ${popPercent}`;
-
+    const lastRound = vote.lastRound 
+        ? `<br>Tur 1: ${vote.lastRound.toLocaleString()} Voturi, ${vote.lastRound < vote.votes ? "+"+(vote.lastRound / vote.votes * 100).toFixed(2):"-"+((vote.lastRound / vote.votes * 100)-100).toFixed(2)}%` 
+        : '';
     return `
         <p>
             <span class="bar"><b style="width:${votePercent}%"></b></span>
             <span class="color" style="background-color:${fillColor}"></span>
-            <span class="nume">${voteDisplay}</span>
+            <span class="nume">${voteDisplay}${lastRound}</span>
         </p>`;
 }
 

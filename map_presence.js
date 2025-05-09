@@ -5,38 +5,6 @@ window._w.countyPopulation = {};
 window._w.countyStats = {};
 let debug = 0;
 // const featureGroup = L.featureGroup();
-function mixColor(percentage) {
-    percentage = Math.max(0, Math.min(100, percentage));
-
-    const color0 = { r: 255, g: 255, b: 255 };   // #ffcc00
-    const color50 = { r: 255, g: 0, b: 0 }; // #66ccff
-    const color100 = { r: 128, g: 0, b: 0 };   // #0000ff
-
-    let start, end, factor;
-
-    if (percentage < 50) {
-        start = color0;
-        end = color50;
-        factor = percentage / 50;
-    } else {
-        start = color50;
-        end = color100;
-        factor = (percentage - 50) / 50;
-    }
-
-    const r = start.r + factor * (end.r - start.r);
-    const g = start.g + factor * (end.g - start.g);
-    const b = start.b + factor * (end.b - start.b);
-
-    const red = Math.round(r);
-    const green = Math.round(g);
-    const blue = Math.round(b);
-
-    const toHex = component => component.toString(16).padStart(2, '0');
-    const hex = `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
-
-    return hex;
-}
 async function loadPresence(alegeri) {
     document.querySelector('#sliderTransparenta').style.display = "none";
     window._w.countyStats = {};
@@ -167,59 +135,27 @@ async function loadPresence(alegeri) {
         window._w.countyStats[countyCode].voturi += fData.TV;
     }
 
-    function calculateStyle(feature, county, countyCode) {
+    function calculateStyle(feature, county) {
         const data = feature.properties.data;
         let fillColor = '#ff0000';
-        let opacity = data.percentage;
+        let fillOpacity = data.percentage || 0;
         let weight = 0.3;
 
-        if (isNaN(opacity)) {
-            opacity = 0;
-            fillColor = '#dddddd';
+
+        if (county === "SR") fillOpacity = Math.pow((data.total_voturi / SRTotalVotes) || 0, 0.45);
+        if (window._w.factor) fillOpacity = applyFactor(fillOpacity, data, county);
+        if (window._w.factorPercentile) fillOpacity = Math.pow(fillOpacity * 1.1, 2);
+        
+        if (county === "SR" && alegeri.includes("locale")) fillOpacity = weight = 0;
+
+        fillColor = mixColor(fillOpacity * 100);
+        
+        if (isNaN(fillOpacity) || data.total_votanti === 0) {
+            data.percentage = ["SR", "CO"].includes(county) ? 0 : 1;
+            fillColor = data.percentage === 1 ? '#878787' : '#dddddd';
         }
-
-        if (data.total_votanti === 0) {
-            handleNoVotanti(data, county, countyCode);
-            opacity = data.percentage;
-            fillColor = data.percentage === 1 ? '#878787' : fillColor;
-        }
-
-        if (county === "SR") {
-            opacity = Math.pow(data.total_voturi / SRTotalVotes, 0.45);
-        }
-
-        if (window._w.factor) {
-            opacity = applyFactor(opacity, data, county);
-        }
-
-        if (window._w.factorPercentile) {
-            opacity = Math.pow((opacity * 1.1), 2);
-        }
-
-        fillColor = mixColor(opacity * 100);
-
-        if (county === "SR") {
-            if (alegeri.includes("locale")) {
-                opacity = 0;
-                weight = 0.0;
-            }
-        }
-
-        return {
-            fillColor,
-            weight,
-            color: "#000000",
-            fillOpacity: opacity
-        };
-    }
-
-    function handleNoVotanti(data, county, countyCode) {
-        if (["SR", "CO"].includes(county)) {
-            data.percentage = 0;
-        } else {
-            data.percentage = 1;
-            console.log(county, countyCode, data.error);
-        }
+        
+        return { fillColor, weight, fillOpacity, color: "#000000" };
     }
 
     function applyFactor(opacity, data, county) {
@@ -362,7 +298,7 @@ function generateHourlyGraph(lData) {
         }
         return max;
     }, 0);
-    if(hourlyData.length < 14) {
+    if (hourlyData.length < 14) {
         for (let i = 0; i <= 14 - hourlyData.length; i++) {
             hourlyData.push({ TV: 0, LP: 0, LS: 0, hour: hourlyData.length + 8 });
         }
@@ -490,13 +426,13 @@ function renderTableContent(table, results, selectedCounty) {
                 const countyName = window._w.countries[county.name] ?? county.name;
                 table.innerHTML += `
                     <div class="tCounty">
-                        <p ${countyName.length>15 ? `data-tooltip="${countyName}"`:""}><span class="big" >${countyName}</span></p>
+                        <p ${countyName.length > 15 ? `data-tooltip="${countyName}"` : ""}><span class="big" >${countyName}</span></p>
                         <p class="small">${county.voturi.toLocaleString()} Voturi</p>
                     </div>`;
             } else {
                 table.innerHTML += `
                 <div class="tCounty" ${!selectedCounty ? `onclick="makeTable('${county.code}')"` : ""}>
-                    <p ${county.name.length>15 ? `data-tooltip="${county.name}"`:""}><span class="big" >${county.name}</span></p>
+                    <p ${county.name.length > 15 ? `data-tooltip="${county.name}"` : ""}><span class="big" >${county.name}</span></p>
                     <p class="small">${(county.percentage * 100).toFixed(2)}% Prezenta<br> 
                     ${county.voturi.toLocaleString()} / ${county.votanti.toLocaleString()}</p>
                 </div>`;

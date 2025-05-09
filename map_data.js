@@ -247,3 +247,226 @@ String.prototype.clear = function () {
         .replace(/ - /ig, '-')
         ;
 }
+
+function mixColor(percentage) {
+    percentage = Math.max(0, Math.min(100, percentage));
+
+    const color0 = { r: 255, g: 255, b: 255 };   // #ffcc00
+    const color50 = { r: 255, g: 0, b: 0 }; // #66ccff
+    const color100 = { r: 128, g: 0, b: 0 };   // #0000ff
+
+    let start, end, factor;
+
+    if (percentage < 50) {
+        start = color0;
+        end = color50;
+        factor = percentage / 50;
+    } else {
+        start = color50;
+        end = color100;
+        factor = (percentage - 50) / 50;
+    }
+
+    const r = start.r + factor * (end.r - start.r);
+    const g = start.g + factor * (end.g - start.g);
+    const b = start.b + factor * (end.b - start.b);
+
+    const red = Math.round(r);
+    const green = Math.round(g);
+    const blue = Math.round(b);
+
+    const toHex = component => component.toString(16).padStart(2, '0');
+    const hex = `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+
+    return hex;
+}
+
+
+function generateColorSpectrum(baseColorInput, numSteps, variation = {}) {
+    const variationDefaults = {
+        hue: 0,
+        saturation: 0,
+        lightness: 10 // Default to varying lightness if nothing else specified
+    };
+    const activeVariation = { ...variationDefaults, ...variation };
+
+    // Helper to parse various color formats to an HSL object {h, s, l}
+    function parseColorToHSL(colorStr) {
+        let r, g, b, a;
+        let h, s, l;
+
+        if (typeof colorStr !== 'string') {
+            throw new Error("Input color must be a string.");
+        }
+
+        // Basic Hex: #RGB, #RRGGBB
+        if (colorStr.startsWith('#')) {
+            let hex = colorStr.slice(1);
+            if (hex.length === 3) {
+                hex = hex.split('').map(char => char + char).join('');
+            }
+            if (hex.length !== 6) throw new Error("Invalid hex color format.");
+            r = parseInt(hex.slice(0, 2), 16);
+            g = parseInt(hex.slice(2, 4), 16);
+            b = parseInt(hex.slice(4, 6), 16);
+        }
+        // RGB: rgb(r,g,b) or rgba(r,g,b,a)
+        else if (colorStr.toLowerCase().startsWith('rgb')) {
+            const match = colorStr.match(/rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\)/i);
+            if (!match) throw new Error("Invalid RGB(A) color format.");
+            [ , r, g, b, a] = match.map(Number); // a can be NaN if not present
+        }
+        // HSL: hsl(h,s%,l%) or hsla(h,s%,l%,a)
+        else if (colorStr.toLowerCase().startsWith('hsl')) {
+            const match = colorStr.match(/hsla?\((\d+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%(?:\s*,\s*([\d.]+))?\)/i);
+            if (!match) throw new Error("Invalid HSL(A) color format.");
+            let [ , h_in, s_in, l_in ] = match.map(Number);
+            return { h: h_in, s: s_in, l: l_in }; // HSL already, return directly
+        } else {
+            // Very basic named color to hex (extend as needed or use a library)
+            const namedColors = {
+                red: "#FF0000", green: "#00FF00", blue: "#0000FF",
+                yellow: "#FFFF00", cyan: "#00FFFF", magenta: "#FF00FF",
+                black: "#000000", white: "#FFFFFF", gray: "#808080"
+            };
+            if (namedColors[colorStr.toLowerCase()]) {
+                return parseColorToHSL(namedColors[colorStr.toLowerCase()]);
+            }
+            throw new Error("Unsupported color format. Use hex, rgb(a), or hsl(a).");
+        }
+
+        // Convert RGB to HSL
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0; // achromatic
+        } else {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    // Helper: HSL to Hex
+    function hslToHex(h, s, l) {
+        s /= 100;
+        l /= 100;
+        const k = n => (n + h / 30) % 12;
+        const a = s * Math.min(l, 1 - l);
+        const f = n =>
+            l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+
+        const toHex = x => {
+            const hex = Math.round(x * 255).toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        };
+        return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+    }
+
+
+    const baseHSL = parseColorToHSL(baseColorInput);
+    const spectrum = [];
+
+    for (let i = -numSteps; i <= numSteps; i++) {
+        let currentH = baseHSL.h + i * activeVariation.hue;
+        let currentS = baseHSL.s + i * activeVariation.saturation;
+        let currentL = baseHSL.l + i * activeVariation.lightness;
+
+        // Normalize Hue (0-360, wraps around)
+        currentH = (currentH % 360 + 360) % 360;
+
+        // Clamp Saturation and Lightness (0-100)
+        currentS = Math.max(0, Math.min(100, currentS));
+        currentL = Math.max(0, Math.min(100, currentL));
+
+        spectrum.push(hslToHex(currentH, currentS, currentL));
+    }
+
+    return spectrum;
+}
+
+function generateColorSpectrum2(centerColor, distance) {
+    function hexToHSL(hex) {
+      let r = 0, g = 0, b = 0;
+      if (hex.length === 4) {
+        r = parseInt(hex[1] + hex[1], 16);
+        g = parseInt(hex[2] + hex[2], 16);
+        b = parseInt(hex[3] + hex[3], 16);
+      } else if (hex.length === 7) {
+        r = parseInt(hex[1] + hex[2], 16);
+        g = parseInt(hex[3] + hex[4], 16);
+        b = parseInt(hex[5] + hex[6], 16);
+      }
+  
+      r /= 255;
+      g /= 255;
+      b /= 255;
+  
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+  
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+      }
+  
+      return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
+    }
+  
+    function hslToHex(h, s, l) {
+      s /= 100;
+      l /= 100;
+  
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = l - c / 2;
+      let r = 0, g = 0, b = 0;
+  
+      if (0 <= h && h < 60) [r, g, b] = [c, x, 0];
+      else if (60 <= h && h < 120) [r, g, b] = [x, c, 0];
+      else if (120 <= h && h < 180) [r, g, b] = [0, c, x];
+      else if (180 <= h && h < 240) [r, g, b] = [0, x, c];
+      else if (240 <= h && h < 300) [r, g, b] = [x, 0, c];
+      else [r, g, b] = [c, 0, x];
+  
+      r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+      g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+      b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+  
+      return `#${r}${g}${b}`;
+    }
+  
+    const [h, s, l] = hexToHSL(centerColor);
+    const spectrum = [];
+  
+    for (let i = distance; i > 0; i--) {
+      const newL = Math.max(0, l - (i * (l / (distance + 1))));
+      spectrum.push(hslToHex(h, s, newL));
+    }
+  
+    spectrum.push(centerColor);
+  
+    for (let i = 1; i <= distance; i++) {
+      const newL = Math.min(100, l + (i * ((100 - l) / (distance + 1))));
+      spectrum.push(hslToHex(h, s, newL));
+    }
+  
+    return spectrum;
+  }
+  

@@ -120,32 +120,28 @@ async function processPresence(turAlegeri, hours) {
                         if (row.UAT === "ROMANIA") {
                             judet = localitate = "CORESPONDENTA";
                             prezenta[judet] ??= {};
-                        } else {
-                            if (!countryCodes[localitate]) return;
+                        } else if (countryCodes[localitate]) {
                             localitate = countryCodes[localitate];
-                        }
+                        } else return;
                     }
 
                     prezenta[judet] ??= {};
                     prezenta[judet][localitate] ??= {};
                     prezenta[judet][localitate][hour] ??= {};
                     const hourData = prezenta[judet][localitate][hour];
+                    row["TP"] = row["Înscriși pe liste permanente"] || 0;
+                    row["TV"] = row["LT"] || 0;
 
-                    ["Înscriși pe liste permanente", "LT", "LP", "LS", "UM"].forEach((key, index) => {
-                        const mapping = ["TP", "TV", "LP", "LS", "UM"];
-                        const value = parseInt(row[key]) || 0;
-                        hourData[mapping[index]] = (hourData[mapping[index]] || 0) + value;
-                    });
-                    
-                    if (row.LSC > 0)
-                        hourData.LS += parseInt(row.LSC);
+
+                    ["TP", "TV", "LP", "LS", "UM"].forEach((key) => hourData[key] = (hourData[key] || 0) + (parseInt(row[key]) || 0));
+
+                    if (row.LSC > 0) hourData.LS += parseInt(row.LSC);
 
                     const ageGroups = ["18-24", "25-34", "35-44", "45-64", "65+"];
                     let ages = [[], []];
-                    ageGroups.map(ageGroup =>
-                        ["Barbati", "Femei"].map((gender, i) => ages[i].push(parseInt(row[`${gender} ${ageGroup}`]) || 0))
-                    );
-                    ages = ages.flatMap(e => e);
+
+                    ageGroups.forEach(ageGroup => ["Barbati", "Femei"].forEach((gender, i) => ages[i].push(parseInt(row[`${gender} ${ageGroup}`]) || 0)));
+                    ages = ages.flat();
 
                     if (i === hours.length - 1) {
                         const ageCounts = ages.map(Number);
