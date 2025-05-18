@@ -174,6 +174,10 @@ async function loadResults(alegeri) {
 
             // Set fill color
             fillColor = getPartyColor(sortedVotes[index]?.party || "#333333");
+            window._w.UATWinners = window._w.UATWinners || {};
+            window._w.UATWinners[sortedVotes[index]?.party] ??= { UATs: 0, votes: 0 };
+            window._w.UATWinners[sortedVotes[index]?.party].votes += sortedVotes[index]?.votes || 0;
+            window._w.UATWinners[sortedVotes[index]?.party].UATs++;
 
             // Update results and statsVotes
             const winningParty = sortedVotes[index]?.party || "N/A";

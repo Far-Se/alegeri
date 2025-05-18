@@ -40,6 +40,10 @@ const alegeri = {
         roaep: "prezidentiale04052025",
         file: "prezidentiale04052025",
     },
+    "prezidentiale22025": {
+        roaep: "prezidentiale18052025",
+        file: "prezidentiale18052025",
+    },
 };
 let judete = [...Object.keys(require("./data/map/county_population.json")).map(e => e.toLowerCase()), "sr"];
 if (args.length === 0) args[0] = Object.keys(alegeri)[Object.keys(alegeri).length - 1];
@@ -93,6 +97,7 @@ async function processPresence(turAlegeri, hours) {
         for (let i = 0; i < hours.length; i++)
             hoursFormat[i] = `${alegeriDate[3]}-${alegeriDate[2]}-${alegeriDate[1]}_${hours[i].toString().padStart(2, "0")}-00`;
 
+        //hoursFormat[hoursFormat.length - 1] = "now";
         await new Promise((resolve) =>
             exec(`curl --output-dir ./data/alegeri/raw -O "https://prezenta.roaep.ro/${alegeriName}/data/csv/simpv/presence_{${hoursFormat.join(",")}}.csv`, (e) =>
                 !e ? resolve() : (console.log(e) && process.exit(1))));

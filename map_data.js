@@ -13,9 +13,10 @@ window._w.alegeri = {
     "Consiliu Judetean 2024": "locale09062024CJ",
     "Presedinte C.J. 2024": "locale09062024PCJ",
     "Europarlamentare 2024": "europarlamentare09062024EUP",
-    "Prezidentiale Tur 1 2024": "prezidentiale_24112024",
     "Parlamentare 2024": "parlamentare01122024",
-    "Prezidentiale Tur 1 2025": "prezidentiale04052025"
+    "Prezidentiale Tur 1 2024": "prezidentiale_24112024",
+    "Prezidentiale Tur 1 2025": "prezidentiale04052025",
+    // "Prezidentiale Tur 2 2025": "prezidentiale18052025"
 }
 window._w.prezenta = {
     "parlamentare 2020": "parlamentare06122020",
@@ -25,6 +26,7 @@ window._w.prezenta = {
     "parlamentare2024": "parlamentare01122024",
     "prezidentiale Tur 1 2024": "prezidentiale24112024",
     "Prezidentiale Tur 1 2025": "prezidentiale04052025",
+    "Prezidentiale Tur 2 2025": "prezidentiale18052025",
 }
 window._w.isPagePresence ??= false;
 
@@ -232,6 +234,7 @@ window._w.countriesCode = Object.fromEntries(Object.entries(window._w.countries)
 const mapTiles = [
     { name: 'cartoDB Light', url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
     { name: 'cartoDB Dark', url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' },
+    { name: 'cartoDB Voyager', url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png' },
     { name: 'OSM Terrain', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
     { name: 'ESRI', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' },
     { name: 'OpenTopoMap', url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png' }

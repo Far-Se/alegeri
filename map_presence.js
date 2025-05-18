@@ -161,7 +161,7 @@ async function loadPresence(alegeri) {
     function applyFactor(opacity, data, county) {
         switch (window._w.factor) {
             case "exponential":
-                return Math.pow((opacity * 1.1), 2);
+                return Math.pow(((data.lista_permanenta / data.total_votanti) * 1.4), 2);
             case "suplimentara":
                 return county !== "SR" ? data.lista_suplimentara / data.lista_permanenta : opacity;
             case "permanenta":
@@ -399,9 +399,9 @@ function getElectionDate() {
 function getFactorOptions() {
     const options = [
         { value: "", text: "Prezenta" },
-        { value: "exponential", text: "Exponential" },
         { value: "suplimentara", text: "Lista Suplimentara" },
         { value: "permanenta", text: "Lista Permanenta" },
+        { value: "exponential", text: "Lista Permanenta Exponential" },
         { value: "tineri", text: "Tineri 18-44" },
         { value: "batrani", text: "Varstnici 45+" },
         { value: "varsta18_24", text: "Varsta 18-24" },
