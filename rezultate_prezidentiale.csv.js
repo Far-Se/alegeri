@@ -3,7 +3,7 @@ let countryCodes = require("./data/map/countries.json");
 const { parse } = require("csv-parse");
 const { default: axios } = require("axios");
 const misc = require("./rezultate_misc.js");
-const alegeri = "prezidentiale04052025";
+const alegeri = "prezidentiale18052025";
 async function downloadFile(url, file) {
 
     const writer = fs.createWriteStream(file);

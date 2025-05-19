@@ -16,7 +16,7 @@ window._w.alegeri = {
     "Parlamentare 2024": "parlamentare01122024",
     "Prezidentiale Tur 1 2024": "prezidentiale_24112024",
     "Prezidentiale Tur 1 2025": "prezidentiale04052025",
-    // "Prezidentiale Tur 2 2025": "prezidentiale18052025"
+    "Prezidentiale Tur 2 2025": "prezidentiale18052025",
 }
 window._w.prezenta = {
     "parlamentare 2020": "parlamentare06122020",
